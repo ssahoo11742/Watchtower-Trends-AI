@@ -157,16 +157,21 @@ def export_multitimeframe_results(topic_companies, topic_model, filename='topic_
     
     print("☁️ Uploading to Supabase Storage (bucket: daily-report)...")
 
-    with open(filename, "rb") as f:
-        upload_response = supabase.storage.from_("daily-reports").upload(filename, f, {
-            "contentType": "text/csv",
-            "upsert": True
-        })
+    storage_path = f"reports/{filename}"
 
-    if "error" in upload_response and upload_response["error"]:
-        print("❌ Upload failed:", upload_response["error"]["message"])
-    else:
-        print("✅ Successfully uploaded to Supabase Storage!")
+    try:
+        with open(filename, "rb") as f:
+            upload_response = supabase.storage.from_("daily-reports").upload(
+                storage_path,
+                f,
+                {
+                    "contentType": "text/csv",
+                    "upsert": "true"
+                }
+            )
+        print("✅ Successfully uploaded to Supabase Storage!", upload_response)
+    except Exception as e:
+        print("❌ Upload failed:", e)
 # ============================================================================
 # MAIN BERTOPIC ANALYSIS WITH MULTI-TIMEFRAME SCORING
 # ============================================================================
