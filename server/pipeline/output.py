@@ -5,6 +5,13 @@ from ticker_match import match_companies_with_multitimeframe_scores
 from text_processing import extract_entities, extract_keywords, clean_text
 from config import TOP_N_COMPANIES
 from topic_cleanse import filter_bertopic_keywords
+import csv
+from supabase import create_client, Client
+
+# --- Configure Supabase ---
+SUPABASE_URL = "https://uxrdywchpcwljsteomtn.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4cmR5d2NocGN3bGpzdGVvbXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjA1MzMsImV4cCI6MjA3NzY5NjUzM30.Ayt6lmN-ZRM7bH1GhNw7Cx1RcDw1uaGY0-oLqsY2jhs"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # ============================================================================
 # DISPLAY RESULTS BY TRADING STYLE
 # ============================================================================
@@ -147,7 +154,19 @@ def export_multitimeframe_results(topic_companies, topic_model, filename='topic_
                 ])
     
     print(f"✅ Exported to {filename}")
+    
+    print("☁️ Uploading to Supabase Storage (bucket: daily-report)...")
 
+    with open(filename, "rb") as f:
+        upload_response = supabase.storage.from_("daily-reports").upload(filename, f, {
+            "contentType": "text/csv",
+            "upsert": True
+        })
+
+    if "error" in upload_response and upload_response["error"]:
+        print("❌ Upload failed:", upload_response["error"]["message"])
+    else:
+        print("✅ Successfully uploaded to Supabase Storage!")
 # ============================================================================
 # MAIN BERTOPIC ANALYSIS WITH MULTI-TIMEFRAME SCORING
 # ============================================================================

@@ -76,7 +76,7 @@ MIN_ARTICLE_LENGTH = 300
 MAX_ARTICLE_LENGTH = 100000
 MAX_TEXT_LENGTH = 50000
 MIN_ARTICLES_FOR_ANALYSIS = 10
-MAX_ARTICLES = 500
+MAX_ARTICLES = 100
 
 # Topic Modeling Settings
 MIN_TOPIC_SIZE = 8
@@ -95,6 +95,6 @@ TOPIC_GROUPS = [
         # "ai OR artificial intelligence OR robotics",
         # "energy OR renewable OR climate",
         # "cybersecurity OR drone",
-        "Quantum OR Post-Quantum OR Quantum Cryptography OR semiconductor OR batteries",
+        # "Quantum OR Post-Quantum OR Quantum Cryptography OR semiconductor",
         "Post Quantum OR quantum protection OR quantum cryptography OR PCQ OR quantum semiconductor"
 ]
