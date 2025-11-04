@@ -11,7 +11,7 @@ class BERTopicKeywordFilter:
     def __init__(self, model_path='GoogleNews-vectors-negative300.bin'):
         """Initialize with word2vec model"""
         print("🔄 Loading Word2Vec model for keyword filtering...")
-        self.model = KeyedVectors.load_word2vec_format(model_path, binary=True, mmap='r')
+        self.model = KeyedVectors.load_word2vec_format(model_path, binary=True)
         print("✅ Model loaded successfully!\n")
         
         self.generic_words = set([
