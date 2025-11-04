@@ -7,9 +7,9 @@ from pipeline.scoring import (
     calculate_longterm_investor_score
 )
 from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
 app = FastAPI()
-
+import os
 
 app.add_middleware(
     CORSMiddleware,
@@ -136,3 +136,8 @@ def get_ticker(symbol: str):
         position_score=position_score,
         longterm_score=longterm_score
     )
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # <-- Render injects this
+    uvicorn.run("api.main:app", host="0.0.0.0", port=port)
