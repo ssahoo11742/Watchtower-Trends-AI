@@ -1,5 +1,5 @@
 """
-ticker_match.py  --  OPTIMIZED Hybrid semantic matcher (Fast + Accurate)
+ticker_match_opt.py  --  OPTIMIZED Hybrid semantic matcher (Fast + Accurate)
 Key optimizations:
 1. Multi-stage filtering (cheap filters first, NLI only for survivors)
 2. Aggressive NLI caching with hashing
@@ -36,7 +36,7 @@ EMB_MODEL_NAME      = "all-MiniLM-L6-v2"
 # Option 1: Lighter model (40MB, faster, slight accuracy drop)
 NLI_MODEL_NAME      = "cross-encoder/ms-marco-MiniLM-L-6-v2"  # 3x faster than deberta
 # Option 2: Keep accuracy but use smaller context
-# NLI_MODEL_NAME    = "cross-encoder/nli-deberta-v3-small"
+NLI_MODEL_NAME    = "cross-encoder/nli-deberta-v3-small"
 NLI_MAX_LENGTH      = 128  # Reduced from 256 (2x faster)
 
 # Multi-stage filtering thresholds

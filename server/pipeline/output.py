@@ -8,11 +8,15 @@ from topic_cleanse import filter_bertopic_keywords
 import csv
 from supabase import create_client, Client
 import gc
+from datetime import datetime
 import torch
+from ticker_match import set_depth_mode
+
 # --- Configure Supabase ---
 SUPABASE_URL = "https://uxrdywchpcwljsteomtn.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4cmR5d2NocGN3bGpzdGVvbXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjA1MzMsImV4cCI6MjA3NzY5NjUzM30.Ayt6lmN-ZRM7bH1GhNw7Cx1RcDw1uaGY0-oLqsY2jhs"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 # ============================================================================
 # DISPLAY RESULTS BY TRADING STYLE
 # ============================================================================
@@ -74,8 +78,12 @@ def display_results_by_trading_style(topic_companies, topic_model, trading_style
 # EXPORT TO CSV WITH ALL TIMEFRAMES
 # ============================================================================
 
-def export_multitimeframe_results(topic_companies, topic_model, filename='topic_companies_multitimeframe.csv'):
+def export_multitimeframe_results(topic_companies, topic_model, depth, filename='topic_companies_multitimeframe.csv'):
     """Export results with all timeframe scores, sorted by relevance"""
+
+    timestamp = datetime.now().strftime("%m-%d-%Y_%H")
+    filename = f"{filename}_depth-{depth}_{timestamp}.csv"
+
     print(f"\n📊 Exporting results to {filename}...")
     
     with open(filename, 'w', newline='', encoding='utf-8') as f:
@@ -177,9 +185,8 @@ def export_multitimeframe_results(topic_companies, topic_model, filename='topic_
 # MAIN BERTOPIC ANALYSIS WITH MULTI-TIMEFRAME SCORING
 # ============================================================================
 
-def run_bertopic_with_multitimeframe_scoring(articles, companies_list):
+def run_bertopic_with_multitimeframe_scoring(articles, companies_list, depth):
     """Run BERTopic with multi-timeframe stock scoring"""
-    
     # ADD THIS: Trim long articles upfront
     for article in articles:
         if article.get('fulltext') and len(article['fulltext']) > 50000:
@@ -263,7 +270,7 @@ def run_bertopic_with_multitimeframe_scoring(articles, companies_list):
         display_results_by_trading_style(topic_companies, topic_model, style)
     
     # Export to CSV
-    export_multitimeframe_results(topic_companies, topic_model)
+    export_multitimeframe_results(topic_companies, topic_model, depth=depth)
     
     # Show top performers
     print(f"\n{'='*120}")

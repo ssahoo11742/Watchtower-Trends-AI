@@ -1,11 +1,10 @@
 """
-ticker_match.py  --  OPTIMIZED Hybrid semantic matcher (Fast + Accurate)
-Key optimizations:
-1. Multi-stage filtering (cheap filters first, NLI only for survivors)
-2. Aggressive NLI caching with hashing
-3. Global batch processing for NLI (all topics at once)
-4. Lighter NLI model option
-5. Early elimination of obviously irrelevant candidates
+ticker_match.py  --  Unified Hybrid semantic matcher with configurable depth
+Depth modes:
+1: FAST (ms-marco, optimized pipeline, early exits)
+2: BALANCED (ms-marco, standard pipeline)
+3: ACCURATE (deberta, optimized pipeline)
+4: MAXIMUM (deberta, standard pipeline, full validation)
 """
 
 import os
@@ -26,51 +25,152 @@ from scoring import (fetch_comprehensive_stock_data, calculate_day_trader_score,
                      calculate_swing_trader_score, calculate_position_trader_score,
                      calculate_longterm_investor_score)
 
-# ------------------ CONFIG ------------------
-EMB_CACHE_FILE      = "company_embs_384.pkl"
-NLI_CACHE_FILE      = "nli_cache.pkl"  # Persistent cache
-SIMILARITY_GATE     = 0.03
-EMB_MODEL_NAME      = "all-MiniLM-L6-v2"
+# ==================== CONFIGURATION ====================
+# Default depth mode (will be set before model loading)
+DEPTH_MODE = 1
 
-# FASTER NLI model options (choose one):
-# Option 1: Lighter model (40MB, faster, slight accuracy drop)
-NLI_MODEL_NAME      = "cross-encoder/ms-marco-MiniLM-L-6-v2"  # 3x faster than deberta
-# Option 2: Keep accuracy but use smaller context
-# NLI_MODEL_NAME    = "cross-encoder/nli-deberta-v3-small"
-NLI_MAX_LENGTH      = 128  # Reduced from 256 (2x faster)
+# Depth mode configurations
+DEPTH_CONFIGS = {
+    1: {  # FAST
+        'name': '⚡ FAST',
+        'nli_model': 'cross-encoder/ms-marco-MiniLM-L-6-v2',
+        'nli_max_length': 128,
+        'min_keyword_overlap': 0.05,
+        'min_embedding_sim': 0.05,
+        'use_early_exit': True,
+        'batch_size_gpu': 128,
+        'batch_size_cpu': 32,
+        'nli_hypotheses': 4,
+        'description': 'Fastest mode - good for large datasets'
+    },
+    2: {  # BALANCED
+        'name': '⚖️ BALANCED',
+        'nli_model': 'cross-encoder/ms-marco-MiniLM-L-6-v2',
+        'nli_max_length': 128,
+        'min_keyword_overlap': 0.03,
+        'min_embedding_sim': 0.03,
+        'use_early_exit': False,
+        'batch_size_gpu': 64,
+        'batch_size_cpu': 32,
+        'nli_hypotheses': 6,
+        'description': 'Balanced speed/accuracy'
+    },
+    3: {  # ACCURATE
+        'name': '🎯 ACCURATE',
+        'nli_model': 'cross-encoder/nli-deberta-v3-small',
+        'nli_max_length': 128,
+        'min_keyword_overlap': 0.05,
+        'min_embedding_sim': 0.05,
+        'use_early_exit': True,
+        'batch_size_gpu': 128,
+        'batch_size_cpu': 32,
+        'nli_hypotheses': 4,
+        'description': 'High accuracy with optimizations'
+    },
+    4: {  # MAXIMUM
+        'name': '💎 MAXIMUM',
+        'nli_model': 'cross-encoder/nli-deberta-v3-small',
+        'nli_max_length': 256,
+        'min_keyword_overlap': 0.03,
+        'min_embedding_sim': 0.03,
+        'use_early_exit': False,
+        'batch_size_gpu': 64,
+        'batch_size_cpu': 32,
+        'nli_hypotheses': 6,
+        'description': 'Maximum accuracy - slower but best results'
+    }
+}
 
-# Multi-stage filtering thresholds
-MIN_KEYWORD_OVERLAP = 0.05  # Must have some keyword overlap before NLI
-MIN_EMBEDDING_SIM   = 0.05  # Slightly higher than SIMILARITY_GATE
-# ------------------------------------------
+# Global variables that will be set by set_depth_mode()
+CONFIG = None
+EMB_CACHE_FILE = "company_embs_384.pkl"
+NLI_CACHE_FILE = None
+SIMILARITY_GATE = 0.03
+EMB_MODEL_NAME = "all-MiniLM-L6-v2"
+NLI_MODEL_NAME = None
+NLI_MAX_LENGTH = None
+MIN_KEYWORD_OVERLAP = None
+MIN_EMBEDDING_SIM = None
+USE_EARLY_EXIT = None
+NLI_HYPOTHESES = None
+CPU_THREAD_LIMIT = 4
 
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
+# Models (will be loaded lazily)
+semantic_model = None
+nli_model = None
+device = None
+nli_cache = {}
 
-# ---------- models ----------
-semantic_model = SentenceTransformer(EMB_MODEL_NAME, device=device)
-nli_model = CrossEncoder(NLI_MODEL_NAME, max_length=NLI_MAX_LENGTH, device=device)
+def set_depth_mode(depth):
+    """Set the depth mode and initialize models"""
+    global DEPTH_MODE, CONFIG, NLI_MODEL_NAME, NLI_MAX_LENGTH
+    global MIN_KEYWORD_OVERLAP, MIN_EMBEDDING_SIM, USE_EARLY_EXIT, NLI_HYPOTHESES
+    global NLI_CACHE_FILE, semantic_model, nli_model, device, nli_cache
+    
+    if depth not in DEPTH_CONFIGS:
+        raise ValueError(f"Invalid depth: {depth}. Must be 1-4.")
+    
+    DEPTH_MODE = depth
+    CONFIG = DEPTH_CONFIGS[DEPTH_MODE]
+    
+    # Update all dependent variables
+    NLI_MODEL_NAME = CONFIG['nli_model']
+    NLI_MAX_LENGTH = CONFIG['nli_max_length']
+    MIN_KEYWORD_OVERLAP = CONFIG['min_keyword_overlap']
+    MIN_EMBEDDING_SIM = CONFIG['min_embedding_sim']
+    USE_EARLY_EXIT = CONFIG['use_early_exit']
+    NLI_HYPOTHESES = CONFIG['nli_hypotheses']
+    NLI_CACHE_FILE = f"nli_cache_depth{DEPTH_MODE}.pkl"
+    
+    # Device setup
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    if device == "cpu":
+        torch.set_num_threads(CPU_THREAD_LIMIT)
+        print(f"🖥️  Running on CPU with {CPU_THREAD_LIMIT} threads")
+    
+    # Load models
+    print(f"\n{'='*80}")
+    print(f"🔧 DEPTH MODE: {CONFIG['name']} - {CONFIG['description']}")
+    print(f"{'='*80}")
+    print("📥 Loading models...")
+    
+    semantic_model = SentenceTransformer(EMB_MODEL_NAME, device=device)
+    print(f"  ✓ Semantic model loaded ({EMB_MODEL_NAME})")
+    
+    nli_model = CrossEncoder(NLI_MODEL_NAME, max_length=NLI_MAX_LENGTH, device=device)
+    print(f"  ✓ NLI model loaded ({NLI_MODEL_NAME})")
+    print(f"  ✓ Max context length: {NLI_MAX_LENGTH}")
+    print(f"  ✓ Using device: {device}")
+    print(f"  ✓ Early exit: {'Enabled' if USE_EARLY_EXIT else 'Disabled'}")
+    print(f"{'='*80}\n")
+    
+    # Load NLI cache
+    if os.path.exists(NLI_CACHE_FILE):
+        with open(NLI_CACHE_FILE, "rb") as f:
+            nli_cache = pickle.load(f)
+        print(f"📦 Loaded {len(nli_cache)} cached NLI results")
+    else:
+        nli_cache = {}
 
-# Load persistent NLI cache
-if os.path.exists(NLI_CACHE_FILE):
-    with open(NLI_CACHE_FILE, "rb") as f:
-        nli_cache = pickle.load(f)
-else:
-    nli_cache = {}
-
+def _ensure_initialized():
+    """Ensure models are loaded before use"""
+    if semantic_model is None or nli_model is None:
+        raise RuntimeError(
+            "Models not initialized! Call set_depth_mode(depth) before using ticker_match functions."
+        )
 
 def save_nli_cache():
     """Save NLI cache to disk"""
     with open(NLI_CACHE_FILE, "wb") as f:
         pickle.dump(nli_cache, f)
 
-
 def hash_text(text):
     """Create hash for cache keys"""
     return hashlib.md5(text.encode()).hexdigest()
 
-
 # ---------- helpers ----------
 def load_or_build_company_embeddings(companies_list):
+    _ensure_initialized()
     if os.path.exists(EMB_CACHE_FILE):
         return pickle.load(open(EMB_CACHE_FILE, "rb"))
     embs = semantic_model.encode([c["combined_text"][:400] for c in companies_list],
@@ -78,8 +178,8 @@ def load_or_build_company_embeddings(companies_list):
     pickle.dump(embs, open(EMB_CACHE_FILE, "wb"))
     return embs
 
-
 def weighted_topic_vector(articles):
+    _ensure_initialized()
     texts = [clean_text(a["fulltext"]) for a in articles if a.get("fulltext")]
     if not texts:
         return np.zeros(384, dtype=np.float32)
@@ -94,7 +194,6 @@ def weighted_topic_vector(articles):
     
     embs = np.vstack(all_embs)
     return (embs.mean(axis=0) / np.linalg.norm(embs.mean(axis=0))).astype(np.float32)
-
 
 def extract_topic_domain_signals(topic_keywords, articles):
     """Extract domain signals from topic WITHOUT hardcoding industries."""
@@ -134,7 +233,6 @@ def extract_topic_domain_signals(topic_keywords, articles):
         'topic_keywords': topic_keywords[:8]
     }
 
-
 def quick_keyword_score(company_text_lower, technical_terms):
     """FAST keyword scoring for early filtering"""
     if not technical_terms:
@@ -146,7 +244,6 @@ def quick_keyword_score(company_text_lower, technical_terms):
             keyword_matches += 1.0
     
     return keyword_matches / len(technical_terms)
-
 
 def validate_contextual_mention(mention_text, company_name, company_ticker):
     """STRICT validation: Is this mention actually the company, not a common word?"""
@@ -213,18 +310,23 @@ def validate_contextual_mention(mention_text, company_name, company_ticker):
     
     return False
 
-
-def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_size=64):
+def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_size=None):
     """
-    OPTIMIZED NLI with aggressive caching and larger batches.
+    OPTIMIZED NLI with aggressive caching and adaptive batching.
     Only called on pre-filtered candidates.
     """
+    _ensure_initialized()
+    
     if not topic_keywords or not company_descriptions:
         return [0.0] * len(company_descriptions)
     
-    # Create hypotheses (fewer = faster)
+    # Adaptive batch size based on device and mode
+    if batch_size is None:
+        batch_size = CONFIG['batch_size_gpu'] if device != "cpu" else CONFIG['batch_size_cpu']
+    
+    # Create hypotheses (number based on depth mode)
     hypotheses = []
-    for kw in topic_keywords[:4]:  # Reduced from 6
+    for kw in topic_keywords[:NLI_HYPOTHESES]:
         hypotheses.append(f"This company works with {kw}.")
         hypotheses.append(f"This company specializes in {kw}.")
     
@@ -236,7 +338,9 @@ def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_si
     uncached_indices = []
     
     for i, desc in enumerate(company_descriptions):
-        desc_hash = hash_text(desc[:200])
+        # Use longer context for maximum mode
+        context_length = 200 if DEPTH_MODE <= 2 else 300
+        desc_hash = hash_text(desc[:context_length])
         cache_key = (desc_hash, hyp_tuple)
         
         if cache_key in nli_cache:
@@ -245,7 +349,7 @@ def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_si
             all_scores.append(None)  # Placeholder
             uncached_indices.append(i)
             for hyp in hypotheses:
-                uncached_pairs.append([desc[:200], hyp])
+                uncached_pairs.append([desc[:context_length], hyp])
     
     # Batch predict all uncached pairs at once
     if uncached_pairs:
@@ -262,7 +366,8 @@ def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_si
             
             # Cache result
             desc = company_descriptions[orig_idx]
-            desc_hash = hash_text(desc[:200])
+            context_length = 200 if DEPTH_MODE <= 2 else 300
+            desc_hash = hash_text(desc[:context_length])
             cache_key = (desc_hash, hyp_tuple)
             nli_cache[cache_key] = max_prob
             
@@ -270,12 +375,11 @@ def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_si
     
     return all_scores
 
-
 def calculate_multi_signal_relevance(company, company_text, domain_signals, articles, 
                                     nli_score=None, keyword_score_precomputed=None,
                                     debug_tickers=None):
     """
-    OPTIMIZED multi-signal relevance - some scores pre-computed.
+    Multi-signal relevance with optional early exit based on depth mode.
     """
     company_text_lower = company_text.lower()
     technical_terms = domain_signals['technical_terms']
@@ -296,6 +400,10 @@ def calculate_multi_signal_relevance(company, company_text, domain_signals, arti
                 keyword_matches += 1.0
                 matched_keywords.append(term)
         keyword_score = min(1.0, keyword_matches / max(len(technical_terms), 1))
+    
+    # EARLY EXIT (only in optimized modes)
+    if USE_EARLY_EXIT and semantic_score < 0.20 and keyword_score < 0.10:
+        return create_relevance_result(False, semantic_score, keyword_score, 0, 0, 0)
     
     # Signal 3: Entity matching
     company_name_words = set(company['name'].lower().split())
@@ -346,9 +454,11 @@ def calculate_multi_signal_relevance(company, company_text, domain_signals, arti
         entity_score * 0.10
     )
     
-    # Decision criteria
+    # Decision criteria (slightly stricter in maximum mode)
+    threshold_adjustment = 0.02 if DEPTH_MODE == 4 else 0.0
+    
     is_relevant = (
-        total_score >= 0.15 or
+        total_score >= (0.15 + threshold_adjustment) or
         (semantic_score >= 0.30 and keyword_score >= 0.15) or
         mention_score >= 0.20 or
         (semantic_score >= 0.40)
@@ -366,7 +476,6 @@ def calculate_multi_signal_relevance(company, company_text, domain_signals, arti
     return create_relevance_result(is_relevant, semantic_score, keyword_score, 
                                    entity_score, mention_score, validated_mentions)
 
-
 def create_relevance_result(is_relevant, nli_score, keyword_score, 
                            entity_score, mention_score, mention_count):
     """Helper to avoid repetition"""
@@ -383,14 +492,14 @@ def create_relevance_result(is_relevant, nli_score, keyword_score,
         'mention_count': mention_count
     }
 
-
 # ---------- main matcher ----------
 def match_companies_with_multitimeframe_scores(
         articles, topic_model, companies_list, top_n=50, 
         similarity_threshold=0.03, debug_tickers=None):
     """
-    OPTIMIZED Hybrid approach: Multi-stage filtering + batched NLI
+    Unified hybrid approach with configurable depth.
     """
+    _ensure_initialized()
 
     # 1. prep articles
     for art in articles:
@@ -410,9 +519,9 @@ def match_companies_with_multitimeframe_scores(
     # 2. company embeddings (cached)
     company_embs = load_or_build_company_embeddings(companies_list)
 
-    # 3. FIRST PASS: Collect ALL candidates across topics for global batching
+    # 3. FIRST PASS: Collect ALL candidates across topics
     print("\n📊 Stage 1: Initial filtering...")
-    all_candidates = []  # [(topic_id, company_idx, sim_score, keyword_score)]
+    all_candidates = []
     topic_domain_signals = {}
     
     for tid, arts in topic_articles.items():
@@ -428,20 +537,20 @@ def match_companies_with_multitimeframe_scores(
             if sim < MIN_EMBEDDING_SIM:
                 continue
             
-            # FAST keyword filter (cheap, eliminates most)
+            # FAST keyword filter
             company_text_lower = comp["combined_text"][:400].lower()
             kw_score = quick_keyword_score(company_text_lower, domain_signals['technical_terms'])
             
-            # Only proceed if has some keyword overlap OR high embedding similarity
+            # Threshold based on mode
             if kw_score >= MIN_KEYWORD_OVERLAP or sim >= 0.15:
                 all_candidates.append((tid, idx, float(sim), kw_score))
     
     print(f"  ✓ {len(all_candidates)} candidates passed initial filters")
     
-    # 4. SECOND PASS: Batch NLI for all candidates at once
-    print("\n📊 Stage 2: NLI verification (batched)...")
+    # 4. SECOND PASS: Batch NLI
+    print(f"\n📊 Stage 2: NLI verification ({CONFIG['name']})...")
     
-    # Group candidates by topic for NLI
+    # Group candidates by topic
     topic_candidate_map = {}
     for tid, idx, sim, kw_score in all_candidates:
         if tid not in topic_candidate_map:
@@ -450,7 +559,6 @@ def match_companies_with_multitimeframe_scores(
     
     # Process each topic's candidates
     topic_companies = {}
-    nli_calls_saved = 0
     
     for tid, candidates in topic_candidate_map.items():
         arts = topic_articles[tid]
@@ -467,11 +575,10 @@ def match_companies_with_multitimeframe_scores(
             candidate_descriptions.append(comp["combined_text"][:400])
             candidate_data.append((idx, sim, kw_score))
         
-        # Batch NLI (FAST!)
+        # Batch NLI
         nli_scores = nli_relevance_batch_optimized(
             candidate_descriptions, 
-            domain_signals['topic_keywords'],
-            batch_size=64  # Larger batches = faster
+            domain_signals['topic_keywords']
         )
         
         # Process with NLI scores
@@ -490,7 +597,7 @@ def match_companies_with_multitimeframe_scores(
             if not relevance_signals['is_relevant']:
                 continue
             
-            # Calculate final score with AGGRESSIVE BOOSTING
+            # Calculate final score
             base_sim = sim
             nli_boost = relevance_signals['nli_score'] * 0.30
             keyword_boost = relevance_signals['keyword_score'] * 0.20
@@ -539,15 +646,17 @@ def match_companies_with_multitimeframe_scores(
         
         print(f"✓ {len(topic_companies[tid])} companies")
     
-    # Save NLI cache periodically
+    # Save NLI cache
     save_nli_cache()
     print(f"\n💾 NLI cache size: {len(nli_cache)} entries")
 
-    # 5. stock-score threading
+    # 5. Stock data fetching
     print("\n📊 Stage 3: Fetching stock data...")
     all_tickers = {c["ticker"] for lst in topic_companies.values() for c in lst}
     stock_cache = {}
-    with ThreadPoolExecutor(max_workers=10) as ex:
+    max_workers = min(10, CPU_THREAD_LIMIT * 2) if device == "cpu" else 10
+    
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
         fut = {ex.submit(fetch_comprehensive_stock_data, tk): tk for tk in all_tickers}
         for f in as_completed(fut):
             tk = fut[f]
