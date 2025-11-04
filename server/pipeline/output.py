@@ -7,7 +7,8 @@ from config import TOP_N_COMPANIES
 from topic_cleanse import filter_bertopic_keywords
 import csv
 from supabase import create_client, Client
-
+import gc
+import torch
 # --- Configure Supabase ---
 SUPABASE_URL = "https://uxrdywchpcwljsteomtn.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4cmR5d2NocGN3bGpzdGVvbXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjA1MzMsImV4cCI6MjA3NzY5NjUzM30.Ayt6lmN-ZRM7bH1GhNw7Cx1RcDw1uaGY0-oLqsY2jhs"
@@ -179,6 +180,11 @@ def export_multitimeframe_results(topic_companies, topic_model, filename='topic_
 def run_bertopic_with_multitimeframe_scoring(articles, companies_list):
     """Run BERTopic with multi-timeframe stock scoring"""
     
+    # ADD THIS: Trim long articles upfront
+    for article in articles:
+        if article.get('fulltext') and len(article['fulltext']) > 50000:
+            article['fulltext'] = article['fulltext'][:50000]
+    
     print(f"\n🔄 Pre-processing {len(articles)} articles...")
     for article in articles:
         article['keywords'] = extract_keywords(article["fulltext"])
@@ -189,6 +195,13 @@ def run_bertopic_with_multitimeframe_scoring(articles, companies_list):
         article['processed'] = True
     
     docs = [a['cleaned'] for a in articles]
+    
+    # ADD THIS: Clean up memory before BERTopic
+    print("🧹 Cleaning up memory before topic modeling...")
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    
     print(f"\n🤖 Running BERTopic on {len(docs)} documents...")
     
     if len(docs) < 30:
@@ -204,10 +217,11 @@ def run_bertopic_with_multitimeframe_scoring(articles, companies_list):
         embedding_model=embedding_model,
         language="english",
         min_topic_size=min_topic_size,
-        n_gram_range=(1,4),
-        top_n_words=10,
+        n_gram_range=(1,3),  # CHANGED from (1,4) to (1,3)
+        top_n_words=8,  # CHANGED from 10 to 8
         nr_topics=nr_topics,
-        calculate_probabilities=False
+        calculate_probabilities=False,
+        low_memory=True  # ADD THIS LINE
     )
 
     topics, _ = topic_model.fit_transform(docs)

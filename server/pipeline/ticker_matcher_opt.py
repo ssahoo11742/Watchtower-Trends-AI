@@ -42,13 +42,25 @@ NLI_MAX_LENGTH      = 128  # Reduced from 256 (2x faster)
 # Multi-stage filtering thresholds
 MIN_KEYWORD_OVERLAP = 0.05  # Must have some keyword overlap before NLI
 MIN_EMBEDDING_SIM   = 0.05  # Slightly higher than SIMILARITY_GATE
+
+# CPU optimization for ARM/low-resource environments
+CPU_THREAD_LIMIT    = 4  # Match your VM cores
 # ------------------------------------------
 
+# Device setup with CPU optimization
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
+if device == "cpu":
+    torch.set_num_threads(CPU_THREAD_LIMIT)
+    print(f"🖥️  Running on CPU with {CPU_THREAD_LIMIT} threads")
 
 # ---------- models ----------
+print("📥 Loading models...")
 semantic_model = SentenceTransformer(EMB_MODEL_NAME, device=device)
+print(f"  ✓ Semantic model loaded ({EMB_MODEL_NAME})")
+
 nli_model = CrossEncoder(NLI_MODEL_NAME, max_length=NLI_MAX_LENGTH, device=device)
+print(f"  ✓ NLI model loaded ({NLI_MODEL_NAME})")
+print(f"  ✓ Using device: {device}")
 
 # Load persistent NLI cache
 if os.path.exists(NLI_CACHE_FILE):
@@ -214,13 +226,17 @@ def validate_contextual_mention(mention_text, company_name, company_ticker):
     return False
 
 
-def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_size=64):
+def nli_relevance_batch_optimized(company_descriptions, topic_keywords, batch_size=None):
     """
-    OPTIMIZED NLI with aggressive caching and larger batches.
+    OPTIMIZED NLI with aggressive caching and adaptive batching.
     Only called on pre-filtered candidates.
     """
     if not topic_keywords or not company_descriptions:
         return [0.0] * len(company_descriptions)
+    
+    # Adaptive batch size: larger for GPU, smaller for CPU
+    if batch_size is None:
+        batch_size = 128 if device != "cpu" else 32
     
     # Create hypotheses (fewer = faster)
     hypotheses = []
@@ -276,6 +292,7 @@ def calculate_multi_signal_relevance(company, company_text, domain_signals, arti
                                     debug_tickers=None):
     """
     OPTIMIZED multi-signal relevance - some scores pre-computed.
+    Includes early exit for obviously irrelevant companies.
     """
     company_text_lower = company_text.lower()
     technical_terms = domain_signals['technical_terms']
@@ -296,6 +313,10 @@ def calculate_multi_signal_relevance(company, company_text, domain_signals, arti
                 keyword_matches += 1.0
                 matched_keywords.append(term)
         keyword_score = min(1.0, keyword_matches / max(len(technical_terms), 1))
+    
+    # EARLY EXIT: If both NLI and keywords are weak, don't waste time
+    if semantic_score < 0.20 and keyword_score < 0.10:
+        return create_relevance_result(False, semantic_score, keyword_score, 0, 0, 0)
     
     # Signal 3: Entity matching
     company_name_words = set(company['name'].lower().split())
@@ -467,11 +488,11 @@ def match_companies_with_multitimeframe_scores(
             candidate_descriptions.append(comp["combined_text"][:400])
             candidate_data.append((idx, sim, kw_score))
         
-        # Batch NLI (FAST!)
+        # Batch NLI (adaptive batch size based on device)
         nli_scores = nli_relevance_batch_optimized(
             candidate_descriptions, 
-            domain_signals['topic_keywords'],
-            batch_size=64  # Larger batches = faster
+            domain_signals['topic_keywords']
+            # batch_size auto-detected (128 for GPU, 32 for CPU)
         )
         
         # Process with NLI scores
@@ -543,11 +564,12 @@ def match_companies_with_multitimeframe_scores(
     save_nli_cache()
     print(f"\n💾 NLI cache size: {len(nli_cache)} entries")
 
-    # 5. stock-score threading
+    # 5. stock-score threading (reduced workers for low-resource env)
     print("\n📊 Stage 3: Fetching stock data...")
     all_tickers = {c["ticker"] for lst in topic_companies.values() for c in lst}
     stock_cache = {}
-    with ThreadPoolExecutor(max_workers=10) as ex:
+    max_workers = min(10, CPU_THREAD_LIMIT * 2)  # Don't overwhelm the system
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
         fut = {ex.submit(fetch_comprehensive_stock_data, tk): tk for tk in all_tickers}
         for f in as_completed(fut):
             tk = fut[f]

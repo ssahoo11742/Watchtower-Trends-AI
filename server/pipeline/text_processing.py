@@ -272,6 +272,8 @@ def fetch_article_body(url):
                 text_parts.append(p_text)
         
         text = " ".join(text_parts)
+        if len(text) > 50000:
+            text = text[:50000]
         if len(text) > 100000:
             return None
             
