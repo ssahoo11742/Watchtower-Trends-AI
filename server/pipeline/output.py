@@ -78,12 +78,16 @@ def display_results_by_trading_style(topic_companies, topic_model, trading_style
 # EXPORT TO CSV WITH ALL TIMEFRAMES
 # ============================================================================
 
-def export_multitimeframe_results(topic_companies, topic_model, depth, filename='topic_companies_multitimeframe.csv'):
+def export_multitimeframe_results(topic_companies, topic_model, depth, filename='topic_companies_multitimeframe.csv', user_id=None):
     """Export results with all timeframe scores, sorted by relevance"""
 
     timestamp = datetime.now().strftime("%m-%d-%Y_%H")
     filename = f"{filename}_depth-{depth}_{timestamp}.csv"
-
+    if user_id:
+        filename = f"{user_id}_topic_companies_multitimeframe_depth-{depth}_{timestamp}.csv"
+    else:
+        filename = f"topic_companies_multitimeframe_depth-{depth}_{timestamp}.csv"
+    
     print(f"\n📊 Exporting results to {filename}...")
     
     with open(filename, 'w', newline='', encoding='utf-8') as f:
@@ -167,6 +171,7 @@ def export_multitimeframe_results(topic_companies, topic_model, depth, filename=
     print("☁️ Uploading to Supabase Storage (bucket: daily-report)...")
 
     storage_path = f"reports/{filename}"
+    
 
     try:
         with open(filename, "rb") as f:
@@ -185,7 +190,7 @@ def export_multitimeframe_results(topic_companies, topic_model, depth, filename=
 # MAIN BERTOPIC ANALYSIS WITH MULTI-TIMEFRAME SCORING
 # ============================================================================
 
-def run_bertopic_with_multitimeframe_scoring(articles, companies_list, depth):
+def run_bertopic_with_multitimeframe_scoring(articles, companies_list, depth, user_id=None):
     """Run BERTopic with multi-timeframe stock scoring"""
     # ADD THIS: Trim long articles upfront
     for article in articles:
@@ -270,7 +275,7 @@ def run_bertopic_with_multitimeframe_scoring(articles, companies_list, depth):
         display_results_by_trading_style(topic_companies, topic_model, style)
     
     # Export to CSV
-    export_multitimeframe_results(topic_companies, topic_model, depth=depth)
+    export_multitimeframe_results(topic_companies, topic_model, depth=depth, user_id=user_id)
     
     # Show top performers
     print(f"\n{'='*120}")

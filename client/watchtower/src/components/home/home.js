@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom';
-import { Upload, ChevronDown, ChevronRight, TrendingUp, TrendingDown, Home, FileText, Settings, Search, BarChart3, Activity, Zap, Globe, Shield, Download, Calendar } from 'lucide-react';
+import { Upload, ChevronDown, ChevronRight, TrendingUp, TrendingDown, Home, FileText, Settings, Search, BarChart3, Activity, Zap, Globe, Shield, Download, Calendar, User, LogOut, LogIn } from 'lucide-react';
 import Papa from 'papaparse';
 import { useData } from '../../contexts/DataContext';
 import { createClient } from '@supabase/supabase-js';
@@ -19,17 +19,30 @@ export const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [loadingReport, setLoadingReport] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetchReports();
+    checkUser();
   }, []);
+
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setUser(session?.user ?? null);
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  };
 
   const fetchReports = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // List all files in the daily-reports/report folder
       const { data: files, error: listError } = await supabase.storage
         .from('daily-reports')
         .list('reports', {
@@ -40,22 +53,16 @@ export const HomePage = () => {
 
       if (listError) throw listError;
 
-      // Parse filenames to extract date, depth, and timestamp
       const parsedReports = files
         .filter(file => file.name.endsWith('.csv'))
         .map(file => {
-          // Expected format: {filename}_depth-{depth}_{MM-DD-YYYY_HH}.csv
           const match = file.name.match(/(.+)_depth-(\d+)_(\d{2}-\d{2}-\d{4}_\d{2})\.csv$/);
           
           if (match) {
             const [, baseName, depth, timestamp] = match;
-            
-            // Parse timestamp: MM-DD-YYYY_HH
             const [datePart, hourPart] = timestamp.split('_');
             const [month, day, year] = datePart.split('-');
             const hour = hourPart;
-            
-            // Create date object (note: month is 0-indexed in JS Date)
             const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), 0, 0);
             
             return {
@@ -77,7 +84,7 @@ export const HomePage = () => {
           return null;
         })
         .filter(Boolean)
-        .sort((a, b) => b.date - a.date); // Sort by date descending
+        .sort((a, b) => b.date - a.date);
 
       setReports(parsedReports);
     } catch (err) {
@@ -89,14 +96,13 @@ export const HomePage = () => {
   };
 
   const downloadReport = async (fileName) => {
+    console.log(fileName)
     try {
-      // Get public URL instead of downloading directly
       const { data: urlData } = supabase.storage
         .from('daily-reports')
         .getPublicUrl(`reports/${fileName}`);
 
       if (urlData?.publicUrl) {
-        // Use fetch to download the file
         const response = await fetch(urlData.publicUrl);
         if (!response.ok) throw new Error('Failed to fetch file');
         
@@ -119,10 +125,10 @@ export const HomePage = () => {
   };
 
   const loadReportData = async (fileName) => {
+    console.log(fileName)
     try {
       setLoadingReport(true);
       
-      // Get public URL instead of downloading directly
       const { data: urlData } = supabase.storage
         .from('daily-reports')
         .getPublicUrl(`reports/${fileName}`);
@@ -131,27 +137,24 @@ export const HomePage = () => {
         throw new Error('Failed to get public URL');
       }
 
-      // Fetch the file content
       const response = await fetch(urlData.publicUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
       }
       
       const text = await response.text();
+      console.log('Fetched report text:', text); // Log first 200 chars
       
-      // Parse CSV
       Papa.parse(text, {
         header: true,
         dynamicTyping: true,
         skipEmptyLines: true,
         complete: (results) => {
-          // Create a fake event object to pass to handleFileUpload
           const blob = new Blob([text], { type: 'text/csv' });
           const file = new File([blob], fileName, { type: 'text/csv' });
           const event = { target: { files: [file] } };
           handleFileUpload(event);
           
-          // Navigate to daily report page after data is loaded
           setTimeout(() => {
             setLoadingReport(false);
             navigate('/daily-report');
@@ -173,10 +176,30 @@ export const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Auth Button - Top Right */}
+        <div className="flex justify-end mb-4">
+          {user ? (
+            <Link
+              to="/profile"
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg hover:shadow-cyan-500/50"
+            >
+              <User className="w-5 h-5" />
+              Profile
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg hover:shadow-cyan-500/50"
+            >
+              <LogIn className="w-5 h-5" />
+              Sign In
+            </Link>
+          )}
+        </div>
+
        {/* Hero Section */}
         <div className="text-center mb-16 pt-12">
           <div className="flex flex-col items-center gap-6 mb-6">
-            {/* Logo */}
             <img 
               src={`${process.env.PUBLIC_URL}/logo_nobg_notext.png`}
               alt="Watchtower Trends AI Logo" 
@@ -185,12 +208,10 @@ export const HomePage = () => {
                 filter: 'brightness(1.1) contrast(1.25) saturate(1.4) hue-rotate(-5deg)'
               }}
               onError={(e) => {
-                // Fallback to inline SVG if image fails to load
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'block';
               }}
             />
-            {/* Fallback SVG Logo */}
             <svg 
               className="h-48 w-auto hidden" 
               viewBox="0 0 200 240" 
@@ -198,17 +219,12 @@ export const HomePage = () => {
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="xMidYMid meet"
             >
-              {/* Signal waves */}
               <path d="M60 40 Q80 30 100 40" stroke="#22D3EE" strokeWidth="8" strokeLinecap="round" fill="none"/>
               <path d="M70 50 Q85 43 100 50" stroke="#22D3EE" strokeWidth="8" strokeLinecap="round" fill="none"/>
               <path d="M140 40 Q120 30 100 40" stroke="#22D3EE" strokeWidth="8" strokeLinecap="round" fill="none"/>
               <path d="M130 50 Q115 43 100 50" stroke="#22D3EE" strokeWidth="8" strokeLinecap="round" fill="none"/>
-              
-              {/* Eye */}
               <ellipse cx="100" cy="85" rx="35" ry="25" fill="none" stroke="#22D3EE" strokeWidth="6"/>
               <circle cx="100" cy="85" r="12" fill="#22D3EE"/>
-              
-              {/* Tower structure */}
               <rect x="90" y="100" width="20" height="15" fill="#22D3EE"/>
               <path d="M75 115 L100 140 L125 115 L115 115 L100 125 L85 115 Z" fill="#22D3EE"/>
               <path d="M80 140 L100 160 L120 140 L112 140 L100 150 L88 140 Z" fill="#22D3EE"/>
@@ -262,7 +278,6 @@ export const HomePage = () => {
             </div>
           </Link>
 
-          
           <Link to="/ticker/__srch__?from=home" className="group bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700 hover:border-blue-500 transition-all hover:shadow-2xl hover:shadow-blue-500/20">
             <div className="bg-gradient-to-br from-blue-500 to-indigo-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Search className="w-8 h-8 text-white" />
@@ -407,38 +422,38 @@ export const HomePage = () => {
           )}
         </div>
 
-{/* Upload Section */}
-{data.length === 0 && (
-  <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-12 text-center border border-slate-700">
-    <Upload className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
-    <h2 className="text-2xl font-bold text-slate-200 mb-2">Upload Analysis Data</h2>
-    <p className="text-slate-400 mb-6">Upload a CSV file to start exploring the daily report</p>
-    <div className="flex items-center justify-center gap-4">
-      <label className="cursor-pointer bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50">
-        <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
-        Upload CSV File
-      </label>
-      <button
-        onClick={async () => {
-          try {
-            const response = await fetch(`${process.env.PUBLIC_URL}/topic_companies_multitimeframe.csv`);
-            const csvText = await response.text();
-            const blob = new Blob([csvText], { type: 'text/csv' });
-            const file = new File([blob], 'topics.csv', { type: 'text/csv' });
-            const event = { target: { files: [file] } };
-            handleFileUpload(event);
-          } catch (error) {
-            console.error('Error loading premade data:', error);
-            alert('Failed to load premade data. Make sure topics.csv exists in the public folder.');
-          }
-        }}
-        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-purple-500/50"
-      >
-        Use Premade Data (TESTING ONLY)
-      </button>
-    </div>
-  </div>
-)}
+        {/* Upload Section */}
+        {data.length === 0 && (
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-12 text-center border border-slate-700">
+            <Upload className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
+            <h2 className="text-2xl font-bold text-slate-200 mb-2">Upload Analysis Data</h2>
+            <p className="text-slate-400 mb-6">Upload a CSV file to start exploring the daily report</p>
+            <div className="flex items-center justify-center gap-4">
+              <label className="cursor-pointer bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-medium px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-cyan-500/50">
+                <input type="file" accept=".csv" onChange={handleFileUpload} className="hidden" />
+                Upload CSV File
+              </label>
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(`${process.env.PUBLIC_URL}/topic_companies_multitimeframe.csv`);
+                    const csvText = await response.text();
+                    const blob = new Blob([csvText], { type: 'text/csv' });
+                    const file = new File([blob], 'topics.csv', { type: 'text/csv' });
+                    const event = { target: { files: [file] } };
+                    handleFileUpload(event);
+                  } catch (error) {
+                    console.error('Error loading premade data:', error);
+                    alert('Failed to load premade data. Make sure topics.csv exists in the public folder.');
+                  }
+                }}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-medium px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-purple-500/50"
+              >
+                Use Premade Data (TESTING ONLY)
+              </button>
+            </div>
+          </div>
+        )}
 
         {data.length > 0 && (
           <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 rounded-2xl p-8 text-center border border-cyan-700/50">
