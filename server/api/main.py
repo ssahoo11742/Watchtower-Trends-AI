@@ -6,7 +6,7 @@ from pipeline.scoring import (
     calculate_position_trader_score,
     calculate_longterm_investor_score
 )
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -14,7 +14,12 @@ import paramiko
 import os
 import logging
 import json
+from datetime import datetime
+from supabase import create_client, Client
+import uvicorn
 import math
+from dotenv import load_dotenv
+load_dotenv()
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -30,6 +35,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize Supabase
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")  # Use service key for backend
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def format_stock_response(data, topic_id=None, topic_keywords=None, company_name=None, 
                          relevance_score=None, mentions=0, mentioned_as=None,
@@ -121,9 +131,9 @@ def format_stock_response(data, topic_id=None, topic_keywords=None, company_name
     return response
 
 
-
 class JobData(BaseModel):
     job_id: str
+    user_id: str
     job_name: str
     from_date: str
     to_date: str
@@ -136,126 +146,49 @@ class JobData(BaseModel):
     min_articles: int
     max_articles: int
 
-def create_custom_config_content(job_data: JobData) -> str:
-    """Generate custom config.py content based on job data"""
+def update_job_status(job_id: str, status: str, error_message: str = None, result_file_path: str = None):
+    """Update job status in Supabase"""
+    try:
+        update_data = {
+            "status": status,
+            "updated_at": datetime.utcnow().isoformat()
+        }
+        
+        if status == "completed":
+            update_data["completed_at"] = datetime.utcnow().isoformat()
+            if result_file_path:
+                update_data["result_file_path"] = result_file_path
+        
+        if error_message:
+            update_data["error_message"] = error_message
+        
+        supabase.table("custom_jobs").update(update_data).eq("id", job_id).execute()
+        logger.info(f"Updated job {job_id} status to {status}")
+    except Exception as e:
+        logger.error(f"Failed to update job status: {e}")
+
+def process_job_background(job_data: JobData):
+    """Process the job in the background"""
+    job_id = job_data.job_id
+    user_id = job_data.user_id
     
-    # Format queries list for Python
-    queries_formatted = ',\n    '.join([f'"{q}"' for q in job_data.queries])
-    
-    config_content = f'''import nltk
-from nltk.corpus import stopwords
-import spacy
-from datetime import datetime
-
-"""
-Custom Configuration - Generated for job: {job_data.job_name}
-Job ID: {job_data.job_id}
-"""
-nltk.download('stopwords', quiet=True)
-STOPWORDS = set(stopwords.words('english'))
-
-# API Configuration
-NEWSAPI_KEY = '0c6458185614471e85f31fd67f473e69'
-FROM_DATE = '{job_data.from_date}'
-TO_DATE   = '{job_data.to_date}'
-
-# HTTP Headers
-HEADERS = {{
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    )
-}}
-
-# Text Processing Settings
-BOILERPLATE_TERMS = {{
-    'email', 'digest', 'homepage', 'feed', 'newsletter', 'subscribe', 'subscription',
-    'menu', 'navigation', 'sidebar', 'footer', 'header', 'cookie', 'privacy',
-    'policy', 'terms', 'service', 'copyright', 'reserved', 'rights', 'contact',
-    'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'social', 'share',
-    'comment', 'comments', 'reply', 'login', 'signup', 'register', 'search',
-    'advertisement', 'sponsored', 'promo', 'promotion'
-}}
-
-STOPWORDS.update(BOILERPLATE_TERMS)
-
-nlp = spacy.load("en_core_web_sm")
-nlp.max_length = 100000
-
-GENERIC_NOUNS = {{
-    "business", "company", "market", "economy", "government", 
-    "state", "people", "industry"
-}}
-
-COMMON_WORD_BLACKLIST = set([
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    'am', 'an', 'as', 'at', 'be', 'by', 'do', 'go', 'he', 'hi', 'if',
-    'in', 'is', 'it', 'me', 'my', 'no', 'of', 'on', 'or', 'so', 'to',
-    'up', 'us', 'we',
-    'all', 'and', 'are', 'but', 'can', 'car', 'cat', 'day', 'did', 'dog',
-    'eat', 'far', 'few', 'for', 'fun', 'get', 'got', 'had', 'has', 'her',
-    'him', 'his', 'how', 'its', 'let', 'man', 'may', 'new', 'not', 'now',
-    'old', 'one', 'our', 'out', 'own', 'put', 'ran', 'red', 'run', 'said',
-    'saw', 'say', 'see', 'set', 'she', 'sit', 'six', 'ten', 'the', 'too',
-    'top', 'two', 'use', 'was', 'way', 'who', 'why', 'win', 'yes', 'yet',
-    'you',
-    'app', 'box', 'car', 'data', 'file', 'key', 'link', 'live', 'main',
-    'net', 'open', 'post', 'real', 'site', 'tech', 'text', 'true', 'type',
-    'uber', 'user', 'web', 'work', 'zoom'
-])
-
-# Analysis Settings (Custom from Job)
-SAMPLE_SIZE = 10229
-MIN_ARTICLE_LENGTH = 300
-MAX_ARTICLE_LENGTH = 100000
-MAX_TEXT_LENGTH = 50000
-MIN_ARTICLES_FOR_ANALYSIS = {job_data.min_articles}
-MAX_ARTICLES = {job_data.max_articles}
-
-# Topic Modeling Settings (Custom from Job)
-MIN_TOPIC_SIZE = {job_data.min_topic_size}
-TOP_N_COMPANIES = {job_data.top_n_companies}
-SIMILARITY_THRESHOLD = 0.08
-
-# Multithreading
-MAX_WORKERS_ARTICLES = 15
-MAX_WORKERS_STOCKS = 10
-
-# Search Queries (Custom from Job)
-TOPIC_GROUPS = [
-    {queries_formatted}
-]
-'''
-    return config_content
-
-@app.post("/custom_job")
-async def custom_job(job_data: JobData):
-    logger.info(f"Received job request: {job_data.job_id} - {job_data.job_name}")
+    logger.info(f"Starting background processing for job {job_id}")
     
     # Get the directory where this script is located
     script_dir = os.path.dirname(os.path.abspath(__file__))
     ssh_key_path = os.path.join(script_dir, "ssh-key-watchtower.key")
     
-    logger.info(f"Looking for SSH key at: {ssh_key_path}")
-    
     # SSH Configuration
-    host = os.getenv("SSH_HOST", "129.213.118.220")
+    host = os.getenv("SSH_HOST", "YOUR_IP_HERE")
     username = os.getenv("SSH_USERNAME", "ubuntu")
     
-    logger.info(f"SSH Host configured as: {host}")
-    
-    ssh_success = False
-    ssh_message = ""
-    pipeline_output = ""
-    pipeline_error = ""
-    
     try:
+        # Update status to running
+        update_job_status(job_id, "running")
+        
         # Check if SSH key exists
         if not os.path.exists(ssh_key_path):
-            logger.error(f"SSH key file not found: {ssh_key_path}")
-            raise HTTPException(status_code=500, detail=f"SSH key file not found: {ssh_key_path}")
+            raise Exception(f"SSH key file not found: {ssh_key_path}")
         
         # Create SSH client
         ssh = paramiko.SSHClient()
@@ -265,17 +198,13 @@ async def custom_job(job_data: JobData):
         private_key = paramiko.RSAKey.from_private_key_file(ssh_key_path)
         
         # Connect to remote server
-        logger.info(f"Attempting SSH connection to {username}@{host}")
+        logger.info(f"Connecting to {username}@{host}")
         ssh.connect(
             hostname=host,
             username=username,
             pkey=private_key,
             timeout=10
         )
-        
-        ssh_success = True
-        ssh_message = f"SSH connection successful to {username}@{host}"
-        logger.info(ssh_message)
         
         # Create custom config as JSON
         custom_config_json = {
@@ -287,7 +216,7 @@ async def custom_job(job_data: JobData):
         }
         
         config_json_str = json.dumps(custom_config_json)
-        custom_config_path = f"~/Watchtower-Trends-AI/server/pipeline/custom_config_{job_data.job_id}.json"
+        custom_config_path = f"~/Watchtower-Trends-AI/server/pipeline/custom_config_{job_id}.json"
         
         # Write custom config JSON to remote server
         logger.info("Writing custom config JSON...")
@@ -298,58 +227,106 @@ async def custom_job(job_data: JobData):
         
         # Run the pipeline with custom config
         logger.info("Running pipeline.py with custom config...")
-        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d 1 --custom-config {custom_config_path} --user-id {user_id}"
+        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d 1 --custom-config {custom_config_path}"
         stdin, stdout, stderr = ssh.exec_command(pipeline_cmd, get_pty=True)
         
-        pipeline_output = stdout.read().decode('utf-8')
-        pipeline_error = stderr.read().decode('utf-8')
-        exit_status = stdout.channel.recv_exit_status()
+        # Read output in real-time (optional - for logging)
+        while not stdout.channel.exit_status_ready():
+            if stdout.channel.recv_ready():
+                output = stdout.channel.recv(1024).decode('utf-8')
+                logger.info(f"Pipeline output: {output}")
         
+        exit_status = stdout.channel.recv_exit_status()
         logger.info(f"Pipeline exit status: {exit_status}")
+        
+        if exit_status != 0:
+            error_output = stderr.read().decode('utf-8')
+            raise Exception(f"Pipeline failed with exit status {exit_status}: {error_output}")
         
         # Clean up custom config file
         logger.info("Cleaning up custom config...")
         stdin, stdout, stderr = ssh.exec_command(f"rm {custom_config_path}")
         stdout.channel.recv_exit_status()
         
-        # Close connection
+        # Find the generated CSV file
+        # Expected format: {user_id}_topic_companies_multitimeframe_depth-1_MM-DD-YYYY_HH.csv
+        now = datetime.now()
+        date_str = now.strftime("%m-%d-%Y_%H")
+        expected_filename = f"{user_id}_topic_companies_multitimeframe_depth-1_{date_str}.csv"
+        
+        # List files in the output directory
+        logger.info("Looking for generated CSV file...")
+        stdin, stdout, stderr = ssh.exec_command(
+            f"ls -t ~/Watchtower-Trends-AI/server/pipeline/*{user_id}*topic_companies_multitimeframe*.csv | head -1"
+        )
+        latest_file = stdout.read().decode('utf-8').strip()
+        
+        if not latest_file:
+            raise Exception("Generated CSV file not found")
+        
+        logger.info(f"Found generated file: {latest_file}")
+        
+        # Download the file
+        sftp = ssh.open_sftp()
+        local_temp_path = f"/tmp/{os.path.basename(latest_file)}"
+        sftp.get(latest_file, local_temp_path)
+        sftp.close()
+        
+        logger.info(f"Downloaded file to {local_temp_path}")
+        
+        # Upload to Supabase storage
+        storage_path = f"reports/{os.path.basename(latest_file)}"
+        
+        with open(local_temp_path, 'rb') as f:
+            supabase.storage.from_('daily-reports').upload(
+                storage_path,
+                f,
+                file_options={"content-type": "text/csv"}
+            )
+        
+        logger.info(f"Uploaded to Supabase: {storage_path}")
+        
+        # Clean up local temp file
+        os.remove(local_temp_path)
+        
+        # Close SSH connection
         ssh.close()
         
-        response = {
-            "status": "completed",
-            "job_id": job_data.job_id,
-            "job_name": job_data.job_name,
-            "ssh_status": "success",
-            "ssh_message": ssh_message,
-            "pipeline_exit_status": exit_status,
-            "pipeline_output": pipeline_output[-5000:] if len(pipeline_output) > 5000 else pipeline_output,  # Last 5000 chars
-            "pipeline_error": pipeline_error[-2000:] if len(pipeline_error) > 2000 else pipeline_error,
-            "received_data": job_data.dict()
-        }
+        # Update job status to completed
+        update_job_status(job_id, "completed", result_file_path=storage_path)
         
-        logger.info(f"Job {job_data.job_id} completed successfully")
-        return response
+        logger.info(f"Job {job_id} completed successfully")
         
-    except paramiko.AuthenticationException as e:
-        ssh_message = f"SSH Authentication failed: {str(e)}"
-        logger.error(ssh_message)
-        raise HTTPException(status_code=500, detail=ssh_message)
-    except paramiko.SSHException as e:
-        ssh_message = f"SSH connection error: {str(e)}"
-        logger.error(ssh_message)
-        raise HTTPException(status_code=500, detail=ssh_message)
     except Exception as e:
-        logger.error(f"Unexpected error processing job: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error processing job: {str(e)}")
+        logger.error(f"Error processing job {job_id}: {e}", exc_info=True)
+        update_job_status(job_id, "failed", error_message=str(e))
+
+@app.post("/custom_job")
+async def custom_job(job_data: JobData, background_tasks: BackgroundTasks):
+    logger.info(f"Received job request: {job_data.job_id} - {job_data.job_name}")
+    
+    # Add the job processing to background tasks
+    background_tasks.add_task(process_job_background, job_data)
+    
+    # Return immediately
+    return {
+        "status": "accepted",
+        "job_id": job_data.job_id,
+        "message": "Job has been queued for processing"
+    }
 
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
+@app.get("/job/{job_id}")
+async def get_job_status(job_id: str):
+    """Get the status of a specific job"""
+    try:
+        result = supabase.table("custom_jobs").select("*").eq("id", job_id).single().execute()
+        return result.data
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Job not found: {str(e)}")
 @app.get("/api/ticker/{symbol}")
 def get_ticker(symbol: str):
     """Get complete stock analysis"""
