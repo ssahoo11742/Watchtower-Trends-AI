@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Calendar, LogOut, ArrowLeft, Edit2, Save, X, Settings, Clock, CheckCircle, XCircle, Loader, Search, Filter } from 'lucide-react';
+import { User, Mail, Calendar, LogOut, ArrowLeft, Edit2, Save, X, Settings, Clock, CheckCircle, XCircle, Loader, Search, Filter, Eye, Download, FileText } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
+import Papa from 'papaparse';
+import { useData } from '../../contexts/DataContext';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || '';
@@ -10,6 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const ProfilePage = () => {
   const navigate = useNavigate();
+  const { handleFileUpload } = useData();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,6 +24,7 @@ export const ProfilePage = () => {
   const [customJobs, setCustomJobs] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [loadingReport, setLoadingReport] = useState(null);
 
   useEffect(() => {
     checkUser();
@@ -118,6 +122,92 @@ export const ProfilePage = () => {
     setError('');
   };
 
+  const loadJobReport = async (job) => {
+    if (!job.result_file_path) {
+      alert('No result file available yet');
+      return;
+    }
+
+    try {
+      setLoadingReport(job.id);
+      
+      const { data: urlData } = supabase.storage
+        .from('daily-reports')
+        .getPublicUrl(job.result_file_path);
+
+      if (!urlData?.publicUrl) {
+        throw new Error('Failed to get public URL');
+      }
+
+      const response = await fetch(urlData.publicUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status}`);
+      }
+      
+      const text = await response.text();
+      
+      Papa.parse(text, {
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const blob = new Blob([text], { type: 'text/csv' });
+          const file = new File([blob], job.result_file_path.split('/').pop(), { type: 'text/csv' });
+          const event = { target: { files: [file] } };
+          handleFileUpload(event);
+          
+          setTimeout(() => {
+            setLoadingReport(null);
+            navigate('/daily-report');
+          }, 500);
+        },
+        error: (error) => {
+          console.error('Error parsing CSV:', error);
+          alert('Failed to parse CSV: ' + error.message);
+          setLoadingReport(null);
+        }
+      });
+    } catch (err) {
+      console.error('Error loading report:', err);
+      alert('Failed to load report: ' + err.message);
+      setLoadingReport(null);
+    }
+  };
+
+  const downloadJobReport = async (job) => {
+    if (!job.result_file_path) {
+      alert('No result file available yet');
+      return;
+    }
+
+    try {
+      const fileName = job.result_file_path.split('/').pop();
+      const { data: urlData } = supabase.storage
+        .from('daily-reports')
+        .getPublicUrl(job.result_file_path);
+
+      if (urlData?.publicUrl) {
+        const response = await fetch(urlData.publicUrl);
+        if (!response.ok) throw new Error('Failed to fetch file');
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        throw new Error('Failed to get public URL');
+      }
+    } catch (err) {
+      console.error('Error downloading report:', err);
+      alert('Failed to download report: ' + err.message);
+    }
+  };
+
   const getStatusIcon = (status) => {
     switch (status) {
       case 'completed':
@@ -142,14 +232,6 @@ export const ProfilePage = () => {
       default:
         return 'bg-yellow-500/20 text-yellow-400 border-yellow-500';
     }
-  };
-
-  const getJobStats = () => {
-    const completed = customJobs.filter(j => j.status === 'completed').length;
-    const running = customJobs.filter(j => j.status === 'running').length;
-    const failed = customJobs.filter(j => j.status === 'failed').length;
-    
-    return { completed, running, failed, total: customJobs.length };
   };
 
   if (loading) {
@@ -182,6 +264,14 @@ export const ProfilePage = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const getJobStats = () => {
+    const completed = customJobs.filter(j => j.status === 'completed').length;
+    const running = customJobs.filter(j => j.status === 'running').length;
+    const failed = customJobs.filter(j => j.status === 'failed').length;
+    
+    return { completed, running, failed, total: customJobs.length };
   };
 
   const stats = getJobStats();
@@ -440,6 +530,36 @@ export const ProfilePage = () => {
                         {job.status === 'completed' && job.completed_at && (
                           <div className="mt-2 text-xs text-slate-500">
                             Completed {formatDateTime(job.completed_at)}
+                          </div>
+                        )}
+
+                        {job.status === 'completed' && job.result_file_path && (
+                          <div className="mt-3 pt-3 border-t border-slate-600">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => loadJobReport(job)}
+                                disabled={loadingReport === job.id}
+                                className="flex-1 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {loadingReport === job.id ? (
+                                  <>
+                                    <Loader className="w-4 h-4 animate-spin" />
+                                    Loading...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="w-4 h-4" />
+                                    View Report
+                                  </>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => downloadJobReport(job)}
+                                className="bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                              >
+                                <Download className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
