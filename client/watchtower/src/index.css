@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* === GLOBAL SCROLLBAR THEME WITH SPACING === */
+::-webkit-scrollbar {
+  width: 12px;                         /* slightly thicker for glow */
+  margin-right: 6px;                   /* creates space between scrollbar & container edge */
+}
+
+/* Scrollbar Track */
+::-webkit-scrollbar-track {
+  background: #0f172a;
+  border-left: 1px solid #243049;
+  border-radius: 10px;
+  margin: 6px 0;                       /* top and bottom margin inside track */
+}
+
+/* Scrollbar Thumb */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3CF2FF44, #3CF2FF88);
+  border-radius: 10px;
+  border: 1px solid #3CF2FFaa;
+  box-shadow: 0 0 8px #3CF2FF55;
+  margin: 2px;                         /* adds space between thumb and track edges */
+}
+
+/* Hover State */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #3CF2FF88, #3CF2FFcc);
+  box-shadow: 0 0 12px #3CF2FFaa;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3CF2FF88 #0f172a;
+}
