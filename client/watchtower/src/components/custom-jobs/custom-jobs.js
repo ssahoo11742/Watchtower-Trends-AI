@@ -66,6 +66,7 @@ export const CustomJobsPage = () => {
   const [topNCompanies, setTopNCompanies] = useState(50);
   const [minArticles, setMinArticles] = useState(10);
   const [maxArticles, setMaxArticles] = useState(500);
+  const [depth, setDepth] = useState(2);
 
   useEffect(() => {
     checkUser();
@@ -185,7 +186,8 @@ export const CustomJobsPage = () => {
         min_topic_size: minTopicSize,
         top_n_companies: topNCompanies,
         min_articles: minArticles,
-        max_articles: maxArticles
+        max_articles: maxArticles,
+        depth: depth,
       };
 
       // Save to Supabase with pending status
@@ -420,6 +422,22 @@ export const CustomJobsPage = () => {
                   />
                 </div>
               </div>
+              <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                    Depth: {depth}
+                    <Tooltip text="The minimum number of articles required to form a topic cluster.">
+                      <HelpCircle className="w-3 h-3 text-slate-500" />
+                    </Tooltip>
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="4"
+                    value={depth}
+                    onChange={(e) => setDepth(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
 
               {/* Query Type Toggle */}
               <div className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">

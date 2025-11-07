@@ -145,6 +145,7 @@ class JobData(BaseModel):
     top_n_companies: int
     min_articles: int
     max_articles: int
+    depth: int
 
 def update_job_status(job_id: str, status: str, error_message: str = None, result_file_path: str = None):
     """Update job status in Supabase"""
@@ -171,6 +172,7 @@ def process_job_background(job_data: JobData):
     """Process the job in the background"""
     job_id = job_data.job_id
     user_id = job_data.user_id
+    depth = job_data.depth
     
     logger.info(f"Starting background processing for job {job_id}")
     
@@ -227,7 +229,7 @@ def process_job_background(job_data: JobData):
         
         # Run the pipeline with custom config
         logger.info("Running pipeline.py with custom config...")
-        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d 1 --custom-config {custom_config_path} --user-id {user_id}"
+        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d {depth} --custom-config {custom_config_path} --user-id {user_id}"
         stdin, stdout, stderr = ssh.exec_command(pipeline_cmd, get_pty=True)
         
         # Read output in real-time (optional - for logging)
