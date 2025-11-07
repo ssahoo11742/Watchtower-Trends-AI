@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { redirect, useNavigate } from 'react-router-dom';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'YOUR_SUPABASE_URL';
@@ -7,6 +8,7 @@ const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'YOUR_SUPABAS
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AuthPage() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -126,12 +128,22 @@ export default function AuthPage() {
               <p className="text-sm text-gray-600 mb-1">User ID:</p>
               <p className="text-xs text-gray-800 font-mono break-all">{user.id}</p>
             </div>
+
+            <button
+              onClick={() => navigate('/')}
+              className="w-full mt-5 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
+            >
+              Back to Home
+            </button>
+
             <button
               onClick={handleSignOut}
-              className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
+              className="w-full mt-5 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200"
             >
               Sign Out
             </button>
+
+
           </div>
         </div>
       </div>
