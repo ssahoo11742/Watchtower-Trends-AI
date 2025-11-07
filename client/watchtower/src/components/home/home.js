@@ -54,7 +54,7 @@ export const HomePage = () => {
       if (listError) throw listError;
 
       const parsedReports = files
-        .filter(file => file.name.endsWith('.csv'))
+        .filter(file => file.name.endsWith('.csv') && file.name.toLowerCase().startsWith('topic'))
         .map(file => {
           const match = file.name.match(/(.+)_depth-(\d+)_(\d{2}-\d{2}-\d{4}_\d{2})\.csv$/);
           

@@ -227,13 +227,13 @@ def process_job_background(job_data: JobData):
         
         # Run the pipeline with custom config
         logger.info("Running pipeline.py with custom config...")
-        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d 1 --custom-config {custom_config_path}"
+        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d 1 --custom-config {custom_config_path} --user-id {user_id}"
         stdin, stdout, stderr = ssh.exec_command(pipeline_cmd, get_pty=True)
         
         # Read output in real-time (optional - for logging)
         while not stdout.channel.exit_status_ready():
             if stdout.channel.recv_ready():
-                output = stdout.channel.recv(1024).decode('utf-8')
+                output = stdout.channel.recv(1024).decode('utf-8', errors='replace')
                 logger.info(f"Pipeline output: {output}")
         
         exit_status = stdout.channel.recv_exit_status()
@@ -278,11 +278,12 @@ def process_job_background(job_data: JobData):
         storage_path = f"reports/{os.path.basename(latest_file)}"
         
         with open(local_temp_path, 'rb') as f:
-            supabase.storage.from_('daily-reports').upload(
+            supabase.storage.from_('daily-reports').update(
                 storage_path,
                 f,
                 file_options={"content-type": "text/csv"}
             )
+
         
         logger.info(f"Uploaded to Supabase: {storage_path}")
         
