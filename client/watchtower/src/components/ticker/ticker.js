@@ -80,7 +80,7 @@ export const TickerDetailPage = () => {
     const fetchTickerData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`https://watchtower-trends-ai.onrender.com/api/ticker/${ticker}`);
+        const response = await fetch(`http://localhost:8000/api/ticker/${ticker}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

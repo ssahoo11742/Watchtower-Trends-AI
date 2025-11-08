@@ -147,6 +147,7 @@ def fetch_comprehensive_stock_data(ticker):
         }
         
     except Exception as e:
+        print(e)
         return None
 
 def calculate_rsi(prices, period=14):
