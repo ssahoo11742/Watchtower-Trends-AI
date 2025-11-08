@@ -176,7 +176,7 @@ def process_job_background(job_data: JobData):
     ssh_key_path = os.path.join(script_dir, "ssh-key-watchtower.key")
     
     # SSH Configuration
-    host = os.getenv("SSH_HOST", "YOUR_IP_HERE")
+    host = os.getenv("SSH_HOST", "129.213.118.220")
     username = os.getenv("SSH_USERNAME", "ubuntu")
     
     try:
