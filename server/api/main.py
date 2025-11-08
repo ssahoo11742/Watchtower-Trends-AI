@@ -147,18 +147,13 @@ class JobData(BaseModel):
     max_articles: int
     depth: int
 
-def update_job_status(job_id: str, status: str, error_message: str = None, result_file_path: str = None):
-    """Update job status in Supabase"""
+def update_job_status(job_id: str, status: str, error_message: str = None):
+    """Update job status in Supabase - only for initial status"""
     try:
         update_data = {
             "status": status,
             "updated_at": datetime.utcnow().isoformat()
         }
-        
-        if status == "completed":
-            update_data["completed_at"] = datetime.utcnow().isoformat()
-            if result_file_path:
-                update_data["result_file_path"] = result_file_path
         
         if error_message:
             update_data["error_message"] = error_message
@@ -169,7 +164,7 @@ def update_job_status(job_id: str, status: str, error_message: str = None, resul
         logger.error(f"Failed to update job status: {e}")
 
 def process_job_background(job_data: JobData):
-    """Process the job in the background"""
+    """Process the job in the background - SSH and trigger remote script"""
     job_id = job_data.job_id
     user_id = job_data.user_id
     depth = job_data.depth
@@ -227,81 +222,30 @@ def process_job_background(job_data: JobData):
         stdin.channel.shutdown_write()
         stdout.channel.recv_exit_status()
         
-        # Run the pipeline with custom config
-        logger.info("Running pipeline.py with custom config...")
-        pipeline_cmd = f"cd ~/Watchtower-Trends-AI/server/pipeline && python3 pipeline.py -d {depth} --custom-config {custom_config_path} --user-id {user_id}"
-        stdin, stdout, stderr = ssh.exec_command(pipeline_cmd, get_pty=True)
-        
-        # Read output in real-time (optional - for logging)
-        while not stdout.channel.exit_status_ready():
-            if stdout.channel.recv_ready():
-                output = stdout.channel.recv(1024).decode('utf-8', errors='replace')
-                logger.info(f"Pipeline output: {output}")
-        
-        exit_status = stdout.channel.recv_exit_status()
-        logger.info(f"Pipeline exit status: {exit_status}")
-        
-        if exit_status != 0:
-            error_output = stderr.read().decode('utf-8')
-            raise Exception(f"Pipeline failed with exit status {exit_status}: {error_output}")
-        
-        # Clean up custom config file
-        logger.info("Cleaning up custom config...")
-        stdin, stdout, stderr = ssh.exec_command(f"rm {custom_config_path}")
-        stdout.channel.recv_exit_status()
-        
-        # Find the generated CSV file
-        # Expected format: {user_id}_topic_companies_multitimeframe_depth-1_MM-DD-YYYY_HH.csv
-        now = datetime.now()
-        date_str = now.strftime("%m-%d-%Y_%H")
-        expected_filename = f"{user_id}_topic_companies_multitimeframe_depth-1_{date_str}.csv"
-        
-        # List files in the output directory
-        logger.info("Looking for generated CSV file...")
-        stdin, stdout, stderr = ssh.exec_command(
-            f"ls -t ~/Watchtower-Trends-AI/server/pipeline/*{user_id}*topic_companies_multitimeframe*.csv | head -1"
+        # Run the pipeline with custom config in background using nohup
+        # This allows the SSH connection to close while the pipeline continues running
+        logger.info("Starting pipeline.py in background on remote server...")
+        pipeline_cmd = (
+            f"nohup bash -c 'cd ~/Watchtower-Trends-AI/server/pipeline && "
+            f"python3 pipeline.py -d {depth} --custom-config {custom_config_path} --user-id {user_id} --job-id {job_id}' "
+            f"> ~/pipeline_{job_id}.log 2>&1 &"
         )
-        latest_file = stdout.read().decode('utf-8').strip()
         
-        if not latest_file:
-            raise Exception("Generated CSV file not found")
+        ssh.exec_command(pipeline_cmd)
         
-        logger.info(f"Found generated file: {latest_file}")
+        # Give it a moment to start
+        import time
+        time.sleep(2)
         
-        # Download the file
-        sftp = ssh.open_sftp()
-        local_temp_path = f"/tmp/{os.path.basename(latest_file)}"
-        sftp.get(latest_file, local_temp_path)
-        sftp.close()
+        logger.info(f"Pipeline started in background for job {job_id}")
         
-        logger.info(f"Downloaded file to {local_temp_path}")
-        
-        # Upload to Supabase storage
-        storage_path = f"reports/{os.path.basename(latest_file)}"
-        
-        with open(local_temp_path, 'rb') as f:
-            supabase.storage.from_('daily-reports').update(
-                storage_path,
-                f,
-                file_options={"content-type": "text/csv"}
-            )
-
-        
-        logger.info(f"Uploaded to Supabase: {storage_path}")
-        
-        # Clean up local temp file
-        os.remove(local_temp_path)
-        
-        # Close SSH connection
+        # Close SSH connection - the remote process will continue
         ssh.close()
         
-        # Update job status to completed
-        update_job_status(job_id, "completed", result_file_path=storage_path)
-        
-        logger.info(f"Job {job_id} completed successfully")
+        logger.info(f"SSH connection closed. Job {job_id} is running on remote server.")
         
     except Exception as e:
-        logger.error(f"Error processing job {job_id}: {e}", exc_info=True)
+        logger.error(f"Error initiating job {job_id}: {e}", exc_info=True)
         update_job_status(job_id, "failed", error_message=str(e))
 
 @app.post("/custom_job")
@@ -330,6 +274,7 @@ async def get_job_status(job_id: str):
         return result.data
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"Job not found: {str(e)}")
+
 @app.get("/api/ticker/{symbol}")
 def get_ticker(symbol: str):
     """Get complete stock analysis"""
@@ -356,5 +301,5 @@ def get_ticker(symbol: str):
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))  # <-- Render injects this
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run("api.main:app", host="0.0.0.0", port=port, reload=True)

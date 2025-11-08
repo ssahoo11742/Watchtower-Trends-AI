@@ -12,8 +12,9 @@ parser.add_argument("--queries", type=str, help="Comma-separated queries")
 parser.add_argument("--min-topic-size", type=int, help="Minimum topic size")
 parser.add_argument("--max-articles", type=int, help="Maximum articles per query")
 parser.add_argument("--user-id", type=str, help="User ID for file naming")
+parser.add_argument('--job-id', type=str, help='Job ID for status tracking')  # ADD THIS LINE
 args = parser.parse_args()
-
+job_id = args.job_id 
 start_time = time.time()
 
 # NOW set depth mode before other imports
@@ -82,7 +83,7 @@ if __name__ == "__main__":
 
     if len(all_news_items) >= 10:
         model, topics, topic_companies = run_bertopic_with_multitimeframe_scoring(
-            all_news_items, companies_list, depth=args.depth, user_id=args.user_id,
+            all_news_items, companies_list, depth=args.depth, user_id=args.user_id, job_id=job_id
         )
     else:
         print("❌ Not enough articles to analyze. Need at least 10 articles.")
