@@ -131,6 +131,7 @@ graph TB
     style P fill:#e67e22,color:#fff
     style Q fill:#e67e22,color:#fff
 ```
+#### Architecture Graph with discard points [here](https://github.com/ssahoo11742/Watchtower-Trends-AI/blob/main/graph_long.md)
 
 ---
 
