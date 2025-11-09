@@ -1,4 +1,5 @@
 # 🔭 Watchtower-Trends-AI
+<img width="1302" height="456" alt="image" src="https://github.com/user-attachments/assets/326dbdb9-8182-436b-a9e9-e9626e4cbf01" />
 
 <div align="center">
 
@@ -12,6 +13,8 @@
 *Transform news noise into actionable stock intelligence*
 
 </div>
+
+Live Link: [Watchtower-AI](https://watchtower-trends.netlify.app/)
 
 ---
 
