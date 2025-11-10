@@ -16,11 +16,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- Configure Supabase ---
-SUPABASE_URL = "https://uxrdywchpcwljsteomtn.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4cmR5d2NocGN3bGpzdGVvbXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjA1MzMsImV4cCI6MjA3NzY5NjUzM30.Ayt6lmN-ZRM7bH1GhNw7Cx1RcDw1uaGY0-oLqsY2jhs"
-
-
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 # Only create client if we have a service key
 if SUPABASE_KEY:
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -225,6 +222,9 @@ def export_multitimeframe_results(topic_companies, topic_model, depth, filename=
                         }
                     )
                 print(f"✅ Successfully uploaded to Supabase Storage at {storage_path}")
+                
+                os.remove(filename)
+                print(f"🗑️ Deleted local file: {filename}")
                 
                 # Update job status to completed with the file path
                 if job_id:

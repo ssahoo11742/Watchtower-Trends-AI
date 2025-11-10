@@ -1,7 +1,7 @@
 import time
 import argparse
 import json
-
+import os
 # Parse arguments FIRST (before any imports that use ticker_match)
 parser = argparse.ArgumentParser(description="Run the pipeline with custom parameters.")
 parser.add_argument("-d", "--depth", type=int, default=1, help="Depth of topic modeling.")
@@ -95,3 +95,10 @@ if __name__ == "__main__":
     print(f"\n{'='*80}")
     print(f"⏱️ Script completed in {elapsed_time:.2f} seconds ({elapsed_time/60:.2f} minutes)")
     print(f"{'='*80}")
+    
+    if args.custom_config and os.path.exists(args.custom_config):
+        try:
+            os.remove(args.custom_config)
+            print(f"🗑️ Deleted custom config: {args.custom_config}")
+        except Exception as e:
+            print(f"⚠️ Could not delete config file: {e}")

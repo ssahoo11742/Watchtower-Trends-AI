@@ -1,4 +1,6 @@
-import yfinance as yf
+from yahooquery import Ticker
+import pandas as pd
+from datetime import datetime, timedelta
 
 
 # ============================================================================
@@ -8,79 +10,114 @@ import yfinance as yf
 def fetch_comprehensive_stock_data(ticker):
     """Fetch all data needed for multi-timeframe analysis"""
     try:
-        stock = yf.Ticker(ticker)
+        stock = Ticker(ticker)
         
         # Get different timeframe histories
-        hist_1mo = stock.history(period='1mo')
-        hist_3mo = stock.history(period='3mo')
-        hist_1y = stock.history(period='1y')
-        hist_5y = stock.history(period='5y')
+        hist_1mo = stock.history(period='1mo', interval='1d')
+        hist_3mo = stock.history(period='3mo', interval='1d')
+        hist_1y = stock.history(period='1y', interval='1d')
+        hist_5y = stock.history(period='5y', interval='1d')
         
-        if hist_1mo.empty:
+        # yahooquery returns dict with ticker as key or error message, need to extract
+        if isinstance(hist_1mo, dict):
+            if ticker in hist_1mo:
+                hist_1mo = hist_1mo[ticker]
+            else:
+                # If error or invalid response
+                return None
+                
+        if isinstance(hist_3mo, dict):
+            if ticker in hist_3mo:
+                hist_3mo = hist_3mo[ticker]
+            else:
+                hist_3mo = pd.DataFrame()
+                
+        if isinstance(hist_1y, dict):
+            if ticker in hist_1y:
+                hist_1y = hist_1y[ticker]
+            else:
+                hist_1y = pd.DataFrame()
+                
+        if isinstance(hist_5y, dict):
+            if ticker in hist_5y:
+                hist_5y = hist_5y[ticker]
+            else:
+                hist_5y = pd.DataFrame()
+            
+        # Check if we have valid data
+        if not isinstance(hist_1mo, pd.DataFrame) or hist_1mo.empty:
             return None
         
-        info = stock.info
+        # Get stock info - handle errors gracefully
+        info_raw = stock.summary_detail
+        key_stats_raw = stock.key_stats
+        financial_data_raw = stock.financial_data
+        
+        # Extract data, handling both dict and error cases
+        info = info_raw.get(ticker, {}) if isinstance(info_raw, dict) else {}
+        key_stats = key_stats_raw.get(ticker, {}) if isinstance(key_stats_raw, dict) else {}
+        financial_data = financial_data_raw.get(ticker, {}) if isinstance(financial_data_raw, dict) else {}
         
         # Current metrics
-        current_price = hist_1mo['Close'].iloc[-1]
+        current_price = hist_1mo['close'].iloc[-1]
         
         # Short-term metrics (1 day to 1 month)
-        price_1d_ago = hist_1mo['Close'].iloc[-2] if len(hist_1mo) >= 2 else current_price
-        price_1w_ago = hist_1mo['Close'].iloc[-5] if len(hist_1mo) >= 5 else current_price
-        price_1m_ago = hist_1mo['Close'].iloc[0]
+        price_1d_ago = hist_1mo['close'].iloc[-2] if len(hist_1mo) >= 2 else current_price
+        price_1w_ago = hist_1mo['close'].iloc[-5] if len(hist_1mo) >= 5 else current_price
+        price_1m_ago = hist_1mo['close'].iloc[0]
         
         change_1d = ((current_price - price_1d_ago) / price_1d_ago) * 100
         change_1w = ((current_price - price_1w_ago) / price_1w_ago) * 100
         change_1m = ((current_price - price_1m_ago) / price_1m_ago) * 100
         
         # Medium-term metrics (3 months)
-        price_3m_ago = hist_3mo['Close'].iloc[0] if not hist_3mo.empty else current_price
+        price_3m_ago = hist_3mo['close'].iloc[0] if not hist_3mo.empty else current_price
         change_3m = ((current_price - price_3m_ago) / price_3m_ago) * 100
         
         # Long-term metrics (1 year, 5 years)
-        price_1y_ago = hist_1y['Close'].iloc[0] if not hist_1y.empty else current_price
+        price_1y_ago = hist_1y['close'].iloc[0] if not hist_1y.empty else current_price
         change_1y = ((current_price - price_1y_ago) / price_1y_ago) * 100
         
-        price_5y_ago = hist_5y['Close'].iloc[0] if len(hist_5y) > 0 else current_price
+        price_5y_ago = hist_5y['close'].iloc[0] if len(hist_5y) > 0 else current_price
         change_5y = ((current_price - price_5y_ago) / price_5y_ago) * 100 if len(hist_5y) > 0 else 0
         
         # Volume analysis
-        avg_volume_5d = hist_1mo['Volume'].tail(5).mean()
-        avg_volume_30d = hist_1mo['Volume'].mean()
-        current_volume = hist_1mo['Volume'].iloc[-1]
+        avg_volume_5d = hist_1mo['volume'].tail(5).mean()
+        avg_volume_30d = hist_1mo['volume'].mean()
+        current_volume = hist_1mo['volume'].iloc[-1]
         volume_spike_ratio = current_volume / avg_volume_5d if avg_volume_5d > 0 else 1.0
         
         # Volatility (different timeframes)
-        volatility_1w = hist_1mo['Close'].tail(5).pct_change().std() * 100 if len(hist_1mo) >= 5 else 0
-        volatility_1m = hist_1mo['Close'].pct_change().std() * 100
-        volatility_3m = hist_3mo['Close'].pct_change().std() * 100 if not hist_3mo.empty else volatility_1m
-        volatility_1y = hist_1y['Close'].pct_change().std() * 100 if not hist_1y.empty else volatility_3m
+        volatility_1w = hist_1mo['close'].tail(5).pct_change().std() * 100 if len(hist_1mo) >= 5 else 0
+        volatility_1m = hist_1mo['close'].pct_change().std() * 100
+        volatility_3m = hist_3mo['close'].pct_change().std() * 100 if not hist_3mo.empty else volatility_1m
+        volatility_1y = hist_1y['close'].pct_change().std() * 100 if not hist_1y.empty else volatility_3m
         
         # Moving averages
-        ma_10 = hist_1mo['Close'].tail(10).mean() if len(hist_1mo) >= 10 else current_price
-        ma_20 = hist_1mo['Close'].tail(20).mean() if len(hist_1mo) >= 20 else current_price
-        ma_50 = hist_3mo['Close'].tail(50).mean() if len(hist_3mo) >= 50 else current_price
-        ma_200 = hist_1y['Close'].tail(200).mean() if len(hist_1y) >= 200 else current_price
+        ma_10 = hist_1mo['close'].tail(10).mean() if len(hist_1mo) >= 10 else current_price
+        ma_20 = hist_1mo['close'].tail(20).mean() if len(hist_1mo) >= 20 else current_price
+        ma_50 = hist_3mo['close'].tail(50).mean() if len(hist_3mo) >= 50 else current_price
+        ma_200 = hist_1y['close'].tail(200).mean() if len(hist_1y) >= 200 else current_price
         
         # RSI (different periods)
-        rsi_14 = calculate_rsi(hist_1mo['Close'], 14)
-        rsi_7 = calculate_rsi(hist_1mo['Close'], 7) if len(hist_1mo) >= 7 else rsi_14
+        rsi_14 = calculate_rsi(hist_1mo['close'], 14)
+        rsi_7 = calculate_rsi(hist_1mo['close'], 7) if len(hist_1mo) >= 7 else rsi_14
         
         # 52-week range
-        high_52w = hist_1y['High'].max() if not hist_1y.empty else current_price
-        low_52w = hist_1y['Low'].min() if not hist_1y.empty else current_price
+        high_52w = hist_1y['high'].max() if not hist_1y.empty else current_price
+        low_52w = hist_1y['low'].min() if not hist_1y.empty else current_price
         price_position_52w = ((current_price - low_52w) / (high_52w - low_52w)) * 100 if high_52w != low_52w else 50
         
-        # Fundamental metrics
+        # Fundamental metrics - yahooquery uses different field names
         pe_ratio = info.get('trailingPE', None)
         forward_pe = info.get('forwardPE', None)
-        peg_ratio = info.get('pegRatio', None)
-        price_to_book = info.get('priceToBook', None)
-        profit_margin = info.get('profitMargins', None)
-        roe = info.get('returnOnEquity', None)
-        debt_to_equity = info.get('debtToEquity', None)
-        revenue_growth = info.get('revenueGrowth', None)
-        earnings_growth = info.get('earningsGrowth', None)
+        peg_ratio = key_stats.get('pegRatio', None)
+        price_to_book = key_stats.get('priceToBook', None)
+        profit_margin = financial_data.get('profitMargins', None)
+        roe = financial_data.get('returnOnEquity', None)
+        debt_to_equity = financial_data.get('debtToEquity', None)
+        revenue_growth = financial_data.get('revenueGrowth', None)
+        earnings_growth = financial_data.get('earningsGrowth', None)
         market_cap = info.get('marketCap', 0)
         
         # Dividend info
@@ -150,13 +187,19 @@ def fetch_comprehensive_stock_data(ticker):
         print(e)
         return None
 
+
 def calculate_rsi(prices, period=14):
-    """Calculate RSI"""
-    delta = prices.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+    """Calculate RSI indicator"""
+    if len(prices) < period + 1:
+        return 50.0
+    
+    deltas = prices.diff()
+    gain = deltas.where(deltas > 0, 0).rolling(window=period).mean()
+    loss = -deltas.where(deltas < 0, 0).rolling(window=period).mean()
+    
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
+    
     return rsi.iloc[-1] if not rsi.empty else 50.0
 
 def normalize_score(value, min_val, max_val, invert=False):

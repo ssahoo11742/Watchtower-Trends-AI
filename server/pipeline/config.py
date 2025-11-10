@@ -88,16 +88,16 @@ MAX_WORKERS_STOCKS = 10
 
 # Search Queries
 TOPIC_GROUPS = [
-    "Pharmacy OR healthcare OR biotech OR biopharmaceutical",
-        "financial OR banking OR insurance OR fintech",
-        "real estate OR property OR housing",
-        "retail OR e-commerce OR consumer goods",
-        "defense OR military OR weapons",
-        "space OR aerospace OR satellite",
-        "technology OR innovation OR 5g OR telecom",
-        "ai OR artificial intelligence OR robotics",
-        "energy OR renewable OR climate",
-        "cybersecurity OR drone",
+    # "Pharmacy OR healthcare OR biotech OR biopharmaceutical",
+    #     "financial OR banking OR insurance OR fintech",
+    #     "real estate OR property OR housing",
+    #     "retail OR e-commerce OR consumer goods",
+    #     "defense OR military OR weapons",
+    #     "space OR aerospace OR satellite",
+    #     "technology OR innovation OR 5g OR telecom",
+    #     "ai OR artificial intelligence OR robotics",
+    #     "energy OR renewable OR climate",
+    #     "cybersecurity OR drone",
         "Quantum OR Post-Quantum OR Quantum Cryptography OR semiconductor",
         "Post Quantum OR quantum protection OR quantum cryptography OR PCQ OR quantum semiconductor"
 ]
