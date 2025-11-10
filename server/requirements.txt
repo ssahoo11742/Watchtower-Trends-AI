@@ -16,3 +16,4 @@ supabase==2.23.3
 torch==2.7.1
 uvicorn==0.38.0
 yfinance==0.2.66
+yahooquery
