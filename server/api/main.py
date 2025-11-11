@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from pipeline.scoring import (
+from api.scoring import (
     fetch_comprehensive_stock_data,
     calculate_day_trader_score,
     calculate_swing_trader_score,
