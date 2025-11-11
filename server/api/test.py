@@ -1,6 +1,6 @@
 from scoring import *
 
-data = fetch_comprehensive_stock_data("RR")
+data = fetch_comprehensive_stock_data("TSM")
 sk = {
     "data": data,
     "day_trader": calculate_day_trader_score(data),

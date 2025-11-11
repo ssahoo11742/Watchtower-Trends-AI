@@ -1,15 +1,23 @@
-from alpaca_trade_api.rest import REST
+from alpaca.data.historical import StockHistoricalDataClient
+from alpaca.data.requests import StockBarsRequest
+from alpaca.data.timeframe import TimeFrame
+from alpaca.trading.client import TradingClient
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import requests
 from functools import lru_cache
 import yfinance as yf
+
 # Initialize Alpaca API
-api = REST(
-    key_id='PKA3IISWCD7DRNCGCTLXDWNQ3N',
-    secret_key='9Z33gJtEoGG8CUfpLcuH5CjK2QwSLPBCsjxqefL2WjpG'
-)
+API_KEY = 'PKA3IISWCD7DRNCGCTLXDWNQ3N'
+SECRET_KEY = '9Z33gJtEoGG8CUfpLcuH5CjK2QwSLPBCsjxqefL2WjpG'
+
+# Create data client for historical data
+data_client = StockHistoricalDataClient(API_KEY, SECRET_KEY)
+
+# Create trading client for asset info
+trading_client = TradingClient(API_KEY, SECRET_KEY)
 
 # Financial Modeling Prep API key (get free key at https://financialmodelingprep.com/developer/docs/)
 FMP_API_KEY = "yBi4eA9XJO74nk4T1MVi2hlnmJI5DOo0"  # Replace with your key
@@ -142,6 +150,7 @@ def fetch_fundamentals(ticker):
             'dividend_yield': 0,
             'beta': None
         }
+
 # =====================================
 # COMPREHENSIVE STOCK DATA FETCHING
 # ============================================================================
@@ -156,24 +165,67 @@ def fetch_comprehensive_stock_data(ticker):
         start_1y = end_date - timedelta(days=365)
         start_5y = end_date - timedelta(days=1825)
         
-        # Get different timeframe histories (using IEX feed for free tier)
-        bars_1mo = api.get_bars(ticker, "1Day", start=start_1mo.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), feed='iex').df
-        bars_3mo = api.get_bars(ticker, "1Day", start=start_3mo.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), feed='iex').df
-        bars_1y = api.get_bars(ticker, "1Day", start=start_1y.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), feed='iex').df
-        bars_5y = api.get_bars(ticker, "1Day", start=start_5y.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), feed='iex').df
+        # Create request parameters for different timeframes
+        request_1mo = StockBarsRequest(
+            symbol_or_symbols=ticker,
+            timeframe=TimeFrame.Day,
+            start=start_1mo,
+            end=end_date,
+            feed='iex'
+        )
+        
+        request_3mo = StockBarsRequest(
+            symbol_or_symbols=ticker,
+            timeframe=TimeFrame.Day,
+            start=start_3mo,
+            end=end_date,
+            feed='iex'
+        )
+        
+        request_1y = StockBarsRequest(
+            symbol_or_symbols=ticker,
+            timeframe=TimeFrame.Day,
+            start=start_1y,
+            end=end_date,
+            feed='iex'
+        )
+        
+        request_5y = StockBarsRequest(
+            symbol_or_symbols=ticker,
+            timeframe=TimeFrame.Day,
+            start=start_5y,
+            end=end_date,
+            feed='iex'
+        )
+        
+        # Get different timeframe histories
+        bars_1mo = data_client.get_stock_bars(request_1mo).df
+        bars_3mo = data_client.get_stock_bars(request_3mo).df
+        bars_1y = data_client.get_stock_bars(request_1y).df
+        bars_5y = data_client.get_stock_bars(request_5y).df
+        
+        # Reset index to get symbol out of multi-index if present
+        if isinstance(bars_1mo.index, pd.MultiIndex):
+            bars_1mo = bars_1mo.reset_index(level=0, drop=True)
+        if isinstance(bars_3mo.index, pd.MultiIndex):
+            bars_3mo = bars_3mo.reset_index(level=0, drop=True)
+        if isinstance(bars_1y.index, pd.MultiIndex):
+            bars_1y = bars_1y.reset_index(level=0, drop=True)
+        if isinstance(bars_5y.index, pd.MultiIndex):
+            bars_5y = bars_5y.reset_index(level=0, drop=True)
         
         if bars_1mo.empty:
             return None
         
-        # Rename columns to match yfinance format
+        # Rename columns to match expected format
         hist_1mo = bars_1mo.rename(columns={'close': 'Close', 'high': 'High', 'low': 'Low', 'volume': 'Volume'})
         hist_3mo = bars_3mo.rename(columns={'close': 'Close', 'high': 'High', 'low': 'Low', 'volume': 'Volume'})
         hist_1y = bars_1y.rename(columns={'close': 'Close', 'high': 'High', 'low': 'Low', 'volume': 'Volume'})
         hist_5y = bars_5y.rename(columns={'close': 'Close', 'high': 'High', 'low': 'Low', 'volume': 'Volume'})
         
-        # Get asset info (limited data available from Alpaca)
+        # Get asset info
         try:
-            asset = api.get_asset(ticker)
+            asset = trading_client.get_asset(ticker)
         except:
             asset = None
         
@@ -230,12 +282,11 @@ def fetch_comprehensive_stock_data(ticker):
         low_52w = hist_1y['Low'].min() if not hist_1y.empty else current_price
         price_position_52w = ((current_price - low_52w) / (high_52w - low_52w)) * 100 if high_52w != low_52w else 50
         
-        # Fundamental metrics (Alpaca doesn't provide these, set to None)
-        # Fetch fundamental metrics from FMP
+        # Fetch fundamental metrics from Yahoo Finance
         fundamentals = fetch_fundamentals(ticker)
         print(fundamentals)
         pe_ratio = fundamentals.get('pe_ratio')
-        forward_pe = None  # Not provided by FMP in current implementation
+        forward_pe = None  # Not provided by Yahoo Finance in current implementation
         peg_ratio = fundamentals.get('peg_ratio')
         price_to_book = fundamentals.get('price_to_book')
         profit_margin = fundamentals.get('profit_margin')
@@ -245,8 +296,6 @@ def fetch_comprehensive_stock_data(ticker):
         earnings_growth = fundamentals.get('earnings_growth')
         market_cap = fundamentals.get('market_cap', 0)
         dividend_yield = fundamentals.get('dividend_yield', 0)
-        # Beta already calculated above from price data
-        # Beta calculated above
         
         return {
             # Price data
@@ -305,6 +354,8 @@ def fetch_comprehensive_stock_data(ticker):
         
     except Exception as e:
         print(e)
+        import traceback
+        traceback.print_exc()
         return None
 
 def calculate_rsi(prices, period=14):
@@ -323,14 +374,27 @@ def calculate_beta(ticker, hist_stock):
             return None
         
         # Get SPY data for same period
-        start_date = hist_stock.index[0].strftime('%Y-%m-%d')
-        end_date = hist_stock.index[-1].strftime('%Y-%m-%d')
-        spy_bars = api.get_bars('SPY', '1Day', start=start_date, end=end_date, feed='iex').df
+        start_date = hist_stock.index[0]
+        end_date = hist_stock.index[-1]
+        
+        spy_request = StockBarsRequest(
+            symbol_or_symbols='SPY',
+            timeframe=TimeFrame.Day,
+            start=start_date,
+            end=end_date,
+            feed='iex'
+        )
+        
+        spy_bars = data_client.get_stock_bars(spy_request).df
+        
+        # Reset index if multi-index
+        if isinstance(spy_bars.index, pd.MultiIndex):
+            spy_bars = spy_bars.reset_index(level=0, drop=True)
         
         if spy_bars.empty:
             return None
         
-        # Align dates
+        # Rename columns
         spy_bars = spy_bars.rename(columns={'close': 'Close'})
         stock_returns = hist_stock['Close'].pct_change().dropna()
         spy_returns = spy_bars['Close'].pct_change().dropna()
