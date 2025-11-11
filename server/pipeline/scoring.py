@@ -1,7 +1,7 @@
 from yahooquery import Ticker
 import pandas as pd
 from datetime import datetime, timedelta
-
+import traceback
 
 # ============================================================================
 # COMPREHENSIVE STOCK DATA FETCHING
@@ -10,7 +10,10 @@ from datetime import datetime, timedelta
 def fetch_comprehensive_stock_data(ticker):
     """Fetch all data needed for multi-timeframe analysis"""
     try:
+        print("TICKERTICKER:  " + ticker)
         stock = Ticker(ticker)
+        print("STKSTKSTK")
+        print(stock)
         
         # Get different timeframe histories
         hist_1mo = stock.history(period='1mo', interval='1d')
@@ -185,6 +188,7 @@ def fetch_comprehensive_stock_data(ticker):
         
     except Exception as e:
         print(e)
+        traceback.print_exc()
         return None
 
 
