@@ -1,3 +1,4 @@
+alpaca_trade_api==3.2.0
 beautifulsoup4==4.14.2
 bertopic==0.17.3
 fastapi==0.121.1
@@ -13,7 +14,6 @@ Requests==2.32.5
 sentence_transformers==5.1.1
 spacy==3.8.7
 supabase==2.24.0
-torch==2.7.1
+torch==2.7.1+cu118
 uvicorn==0.38.0
-yahooquery==2.4.1
 yfinance==0.2.66
