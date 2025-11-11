@@ -58,9 +58,9 @@ def fetch_comprehensive_stock_data(ticker):
         
         # Extract data, handling both dict and error cases
         info = info_raw.get(ticker, {}) if isinstance(info_raw, dict) else {}
+        print(info)
         key_stats = key_stats_raw.get(ticker, {}) if isinstance(key_stats_raw, dict) else {}
         financial_data = financial_data_raw.get(ticker, {}) if isinstance(financial_data_raw, dict) else {}
-        print(info)
         
         # Current metrics
         current_price = hist_1mo['close'].iloc[-1]
