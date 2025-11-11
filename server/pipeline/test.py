@@ -1,3 +1,6 @@
-from scoring import *
+from alpaca_trade_api.rest import REST
 
-fetch_comprehensive_stock_data("TSLA")
+api = REST()
+
+bars = api.get_bars("TSLA", "1Day")
+print(bars)
