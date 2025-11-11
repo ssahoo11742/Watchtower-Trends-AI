@@ -16,4 +16,5 @@ spacy==3.8.7
 supabase==2.24.0
 torch==2.7.1
 uvicorn==0.38.0
-yfinance==0.2.66
+yfinance==0.2.40
+
