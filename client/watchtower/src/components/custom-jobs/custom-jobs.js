@@ -206,7 +206,7 @@ export const CustomJobsPage = () => {
       if (saveError) throw saveError;
 
       // Call API endpoint (fire and forget - don't wait for response)
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://watchtower-trends-ai.onrender.com';
+      const apiUrl = 'https://watchtower-trends-ai-oghk.onrender.com';
       fetch(`${apiUrl}/custom_job`, {
         method: 'POST',
         headers: {
