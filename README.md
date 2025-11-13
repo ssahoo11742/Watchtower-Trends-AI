@@ -1681,58 +1681,6 @@ graph TB
 
 ---
 
-### 🎨 Revolutionary UI Features
-
-#### 1. **Live Shockwave Map**
-
-- Central canvas with sector-clustered nodes
-- Animated pulses showing propagation in real-time
-- Color intensity = impact magnitude
-- Click node → expand causal chain
-
-#### 2. **Scenario Simulator**
-```
-┌─────────────────────────────────────┐
-│ Event: Fed Rate Cut 0.50%           │
-│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
-│ Magnitude: [====•=====] 0.50%       │
-│ Timing:    [====•=====] 2 weeks     │
-│                                      │
-│ Predicted Impacts:                   │
-│ • Regional Banks:  +8.2% ± 2.1%     │
-│ • Tech Growth:     +5.7% ± 3.4%     │
-│ • Utilities:       +2.1% ± 1.2%     │
-│                                      │
-│ [Run Simulation] [Compare Baseline] │
-└─────────────────────────────────────┘
-```
-
-#### 3. **Agent Debate Panel**
-```
-🤖 Propagation Agent (Confidence: 85%)
-   "Historical Ford strikes averaged 18-day duration.
-    Expected supplier impact: -12% revenue for Tier 1s"
-   📊 Evidence: 5 historical strikes, 23 supplier nodes
-
-🤖 Reflexivity Agent (Confidence: 72%)
-   "Social amplification factor: 2.3x
-    WallStreetBets mentions +340% in 24h"
-   📱 Evidence: Reddit sentiment spike, options volume
-
-🎯 CONSENSUS: High-confidence downside for F (-8% to -15%)
-              Medium propagation to suppliers (3-5 day lag)
-```
-
-#### 4. **Reflexivity Meter**
-```
-Amplification Risk: ████████░░ 78%
-[Low]           [MODERATE]        [High]
-
-Feedback Loop Detected:
-News → -5% price → Social panic → More coverage → -8% additional
-```
-
----
 
 ### 🔬 Technical Implementation Roadmap
 
