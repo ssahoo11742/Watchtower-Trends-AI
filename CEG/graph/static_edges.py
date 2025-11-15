@@ -1,7 +1,7 @@
 import yfinance as yf
-from suppliers import scrape_importyeti_suppliers
+from CEG.suppliers.suppliers import scrape_importyeti_suppliers
 from commodities_engine.commodities import Commodities
-from neo4j_ops import to_neo4j
+from neo4j_exporter import to_neo4j_enhanced
 import json
 
 class StaticEdges:
@@ -9,7 +9,7 @@ class StaticEdges:
         self.ticker = ticker
         self.country = self.get_location()
         self.sector = self.get_sector()
-        self.url = f"https://www.importyeti.com/company/tesla"
+        self.url = f"https://www.importyeti.com/company/boeing-commercial-airp"
         self.suppliers = self.get_suppliers()
         self.produces = Commodities(ticker).produces
         self.requires = Commodities(ticker).requires
@@ -235,13 +235,13 @@ class StaticEdges:
         return edges_list
     
     def to_neo4j(self, uri="neo4j://127.0.0.1:7687", user="neo4j", password="myhome2911!"):
-        to_neo4j(self.edges(), self.ticker, uri, user, password)
+        to_neo4j_enhanced(self.edges(), self.ticker, uri, user, password)
 
 
 
 # Example usage
 if __name__ == "__main__":
-    static_edges = StaticEdges("TSLA")
+    static_edges = StaticEdges("BA")
     
     # Option 1: Get edges as JSON
     edges = static_edges.edges()

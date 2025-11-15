@@ -1,329 +1,259 @@
 """
-Neo4j Connection and Health Test Script
-Run this before using StaticEdges.to_neo4j() to verify your setup
+ALL-IN-ONE TEST SCRIPT
+======================
+
+This script will:
+1. Test Neo4j connection
+2. Upgrade your existing graph (if needed)
+3. Run a signal propagation simulation
+4. Show you the results
+
+Just update the configuration section below and run:
+    python test_everything.py
 """
 
 from neo4j import GraphDatabase
-from neo4j.exceptions import ServiceUnavailable, AuthError
 import sys
 
-class Neo4jTester:
-    def __init__(self, uri="bolt://localhost:7687", user="neo4j", password="password"):
-        self.uri = uri
-        self.user = user
-        self.password = password
-        self.driver = None
-        
-    def test_connection(self):
-        """Test if Neo4j is running and accessible"""
-        print("\n" + "="*80)
-        print("🔍 Testing Neo4j Connection")
-        print("="*80)
-        
-        try:
-            print(f"\n📡 Attempting to connect to: {self.uri}")
-            print(f"👤 Username: {self.user}")
-            
-            self.driver = GraphDatabase.driver(self.uri, auth=(self.user, self.password))
-            
-            # Verify connectivity
-            self.driver.verify_connectivity()
-            
-            print("✅ Connection successful!")
-            return True
-            
-        except ServiceUnavailable as e:
-            print(f"❌ Connection failed: Neo4j service is not available")
-            print(f"   Error: {e}")
-            print("\n💡 Troubleshooting:")
-            print("   1. Make sure Neo4j is running (check Docker or Neo4j Desktop)")
-            print("   2. Verify the URI is correct (default: bolt://localhost:7687)")
-            print("   3. Check firewall settings")
-            return False
-            
-        except AuthError as e:
-            print(f"❌ Authentication failed: Invalid username or password")
-            print(f"   Error: {e}")
-            print("\n💡 Troubleshooting:")
-            print("   1. Check your username (default: neo4j)")
-            print("   2. Verify your password")
-            print("   3. Reset password in Neo4j Desktop or via cypher-shell")
-            return False
-            
-        except Exception as e:
-            print(f"❌ Unexpected error: {e}")
-            return False
+# ============================================================================
+# CONFIGURATION - UPDATE THESE VALUES
+# ============================================================================
+NEO4J_URI = "bolt://127.0.0.1:7687"
+NEO4J_USER = "neo4j"
+NEO4J_PASSWORD = "myhome2911!"  # ⬅️ CHANGE THIS TO YOUR PASSWORD
+
+TICKER = "QS"  # The company already in your database
+EVENT_DESCRIPTION = "Major supplier disruption"
+EVENT_SIGNAL = -0.7  # Negative signal (bad news)
+
+# ============================================================================
+# DO NOT MODIFY BELOW THIS LINE
+# ============================================================================
+
+def test_connection():
+    """Step 1: Test database connection"""
+    print("\n" + "="*80)
+    print("STEP 1: Testing Neo4j Connection")
+    print("="*80)
     
-    def test_database_write(self):
-        """Test if we can write to the database"""
-        print("\n" + "="*80)
-        print("✍️  Testing Database Write Permissions")
-        print("="*80)
+    try:
+        driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+        with driver.session() as session:
+            result = session.run("MATCH (n) RETURN count(n) as count")
+            count = result.single()["count"]
+            print(f"✅ Connected successfully!")
+            print(f"   Database has {count} nodes")
+            
+            # Check if company exists
+            result = session.run("MATCH (c:Company {ticker: $ticker}) RETURN c", ticker=TICKER)
+            if result.single():
+                print(f"✅ Found company: {TICKER}")
+            else:
+                print(f"❌ Company {TICKER} not found in database")
+                print(f"   Available companies:")
+                result = session.run("MATCH (c:Company) RETURN c.ticker as ticker LIMIT 10")
+                for record in result:
+                    print(f"      - {record['ticker']}")
+                return False
         
-        if not self.driver:
-            print("❌ No active connection. Run test_connection() first.")
-            return False
+        driver.close()
+        return True
         
-        try:
-            with self.driver.session() as session:
-                # Create a test node
-                result = session.run("""
-                    CREATE (t:TestNode {name: 'Neo4j Test', timestamp: datetime()})
-                    RETURN t.name as name, t.timestamp as timestamp
-                """)
-                
-                record = result.single()
-                print(f"✅ Successfully created test node: {record['name']}")
-                print(f"   Timestamp: {record['timestamp']}")
-                
-                # Delete the test node
-                session.run("MATCH (t:TestNode {name: 'Neo4j Test'}) DELETE t")
-                print("✅ Successfully deleted test node")
-                
-                return True
-                
-        except Exception as e:
-            print(f"❌ Write test failed: {e}")
-            print("\n💡 Troubleshooting:")
-            print("   1. Check database permissions")
-            print("   2. Ensure database is not in read-only mode")
-            return False
+    except Exception as e:
+        print(f"❌ Connection failed: {e}")
+        print("\nTroubleshooting:")
+        print("  1. Is Neo4j running? Try: neo4j status")
+        print("  2. Is the password correct?")
+        print("  3. Is the URI correct? (default: bolt://127.0.0.1:7687)")
+        return False
+
+
+def check_schema():
+    """Step 2: Check if schema needs upgrading"""
+    print("\n" + "="*80)
+    print("STEP 2: Checking Schema")
+    print("="*80)
     
-    def test_database_read(self):
-        """Test if we can read from the database"""
-        print("\n" + "="*80)
-        print("📖 Testing Database Read Permissions")
-        print("="*80)
-        
-        if not self.driver:
-            print("❌ No active connection. Run test_connection() first.")
-            return False
-        
-        try:
-            with self.driver.session() as session:
-                # Get database info
-                result = session.run("CALL dbms.components() YIELD name, versions, edition")
-                
-                for record in result:
-                    print(f"✅ Successfully connected to Neo4j")
-                    print(f"   Name: {record['name']}")
-                    print(f"   Version: {record['versions'][0]}")
-                    print(f"   Edition: {record['edition']}")
-                
-                return True
-                
-        except Exception as e:
-            print(f"❌ Read test failed: {e}")
-            return False
+    driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
     
-    def get_database_stats(self):
-        """Get current database statistics"""
-        print("\n" + "="*80)
-        print("📊 Database Statistics")
-        print("="*80)
-        
-        if not self.driver:
-            print("❌ No active connection. Run test_connection() first.")
-            return False
-        
-        try:
-            with self.driver.session() as session:
-                # Count nodes by label
-                result = session.run("""
-                    CALL db.labels() YIELD label
-                    CALL apoc.cypher.run('MATCH (n:`' + label + '`) RETURN count(n) as count', {})
-                    YIELD value
-                    RETURN label, value.count as count
-                    ORDER BY count DESC
-                """)
-                
-                print("\n📦 Nodes by Label:")
-                total_nodes = 0
-                for record in result:
-                    count = record['count']
-                    total_nodes += count
-                    print(f"   {record['label']}: {count}")
-                
-                if total_nodes == 0:
-                    print("   (Database is empty)")
-                else:
-                    print(f"\n   Total Nodes: {total_nodes}")
-                
-                # Count relationships by type
-                result = session.run("""
-                    CALL db.relationshipTypes() YIELD relationshipType
-                    CALL apoc.cypher.run('MATCH ()-[r:`' + relationshipType + '`]->() RETURN count(r) as count', {})
-                    YIELD value
-                    RETURN relationshipType, value.count as count
-                    ORDER BY count DESC
-                """)
-                
-                print("\n🔗 Relationships by Type:")
-                total_rels = 0
-                for record in result:
-                    count = record['count']
-                    total_rels += count
-                    print(f"   {record['relationshipType']}: {count}")
-                
-                if total_rels == 0:
-                    print("   (No relationships)")
-                else:
-                    print(f"\n   Total Relationships: {total_rels}")
-                
+    try:
+        with driver.session() as session:
+            # Check if propagation properties exist
+            result = session.run("""
+                MATCH (c:Company {ticker: $ticker})
+                RETURN 
+                    c.risk_signal as has_signal,
+                    c.base_weight as has_weight
+            """, ticker=TICKER)
+            
+            record = result.single()
+            if record and record['has_signal'] is not None:
+                print("✅ Schema is already upgraded")
+                print(f"   Company has risk_signal: {record['has_signal']}")
+                print(f"   Company has base_weight: {record['has_weight']}")
                 return True
-                
-        except Exception as e:
-            # APOC might not be installed, try simpler query
-            try:
-                with self.driver.session() as session:
-                    result = session.run("MATCH (n) RETURN count(n) as node_count")
-                    node_count = result.single()['node_count']
-                    
-                    result = session.run("MATCH ()-[r]->() RETURN count(r) as rel_count")
-                    rel_count = result.single()['rel_count']
-                    
-                    print(f"\n   Total Nodes: {node_count}")
-                    print(f"   Total Relationships: {rel_count}")
-                    
-                    if node_count == 0:
-                        print("\n   (Database is empty - ready for import!)")
-                    
-                    return True
-            except Exception as e2:
-                print(f"❌ Stats query failed: {e2}")
+            else:
+                print("⚠️  Schema needs upgrading")
                 return False
     
-    def test_company_query(self, ticker="TSLA"):
-        """Test if we can query for a specific company"""
-        print("\n" + "="*80)
-        print(f"🔎 Testing Query for Company: {ticker}")
-        print("="*80)
+    finally:
+        driver.close()
+
+
+def upgrade_schema():
+    """Step 3: Upgrade schema if needed"""
+    print("\n" + "="*80)
+    print("STEP 3: Upgrading Schema")
+    print("="*80)
+    
+    try:
+        from neo4j_enhanced_schema import upgrade_existing_graph
         
-        if not self.driver:
-            print("❌ No active connection. Run test_connection() first.")
-            return False
+        print("Running schema upgrade...")
+        upgrade_existing_graph(
+            ticker=TICKER,
+            uri=NEO4J_URI,
+            user=NEO4J_USER,
+            password=NEO4J_PASSWORD
+        )
+        return True
+        
+    except ImportError:
+        print("❌ Cannot import neo4j_enhanced_schema.py")
+        print("   Make sure the file is in the same directory as this script")
+        return False
+    except Exception as e:
+        print(f"❌ Upgrade failed: {e}")
+        return False
+
+
+def run_propagation():
+    """Step 4: Run signal propagation"""
+    print("\n" + "="*80)
+    print("STEP 4: Running Signal Propagation")
+    print("="*80)
+    
+    try:
+        from signal_propagation import SignalPropagation
+        
+        propagator = SignalPropagation(
+            uri=NEO4J_URI,
+            user=NEO4J_USER,
+            password=NEO4J_PASSWORD
+        )
         
         try:
-            with self.driver.session() as session:
-                result = session.run("""
-                    MATCH (c:Company {ticker: $ticker})
-                    OPTIONAL MATCH (c)-[r]->(n)
-                    RETURN c, count(r) as outgoing_relationships
-                """, ticker=ticker)
+            # Reset previous signals
+            print("Resetting previous signals...")
+            propagator.reset_signals()
+            
+            # Run simulation
+            print(f"\n🎬 Simulating event: {EVENT_DESCRIPTION}")
+            print(f"   Affected entity: {TICKER}")
+            print(f"   Signal strength: {EVENT_SIGNAL}")
+            
+            affected_nodes = propagator.propagate_signal(
+                source_ticker=TICKER,
+                initial_signal=EVENT_SIGNAL,
+                max_hops=3
+            )
+            
+            # Get results
+            print("\n" + "="*80)
+            print("PROPAGATION RESULTS")
+            print("="*80)
+            
+            most_affected = propagator.get_most_affected_nodes(top_n=15)
+            
+            if most_affected:
+                print(f"\nTop {len(most_affected)} Most Affected Entities:\n")
+                print(f"{'#':<4} {'Entity':<35} {'Type':<12} {'Signal':<10}")
+                print("-" * 65)
                 
-                record = result.single()
+                for i, node in enumerate(most_affected, 1):
+                    signal_symbol = "📉" if node['signal'] < 0 else "📈"
+                    print(f"{i:<4} {node['name']:<35} {node['type']:<12} {signal_symbol} {node['signal']:+.4f}")
                 
-                if record and record['c']:
-                    company = record['c']
-                    print(f"✅ Found company: {company.get('name', ticker)}")
-                    print(f"   Ticker: {company.get('ticker')}")
-                    print(f"   Market Cap: ${company.get('marketCap', 0):,.0f}")
-                    print(f"   Sector: {company.get('sector')}")
-                    print(f"   Industry: {company.get('industry')}")
-                    print(f"   Outgoing Relationships: {record['outgoing_relationships']}")
+                # Check for feedback loops
+                print("\n" + "="*80)
+                print("CHECKING FOR FEEDBACK LOOPS")
+                print("="*80)
+                
+                loops = propagator.detect_reflexivity_loops(threshold=0.1)
+                if loops:
+                    print(f"\n⚠️  Detected {len(loops)} feedback loops:")
+                    for i, loop in enumerate(loops[:5], 1):
+                        print(f"  {i}. {loop['node_a']} ↔ {loop['node_b']}")
+                        print(f"     Signals: {loop['signal_a']:.4f} / {loop['signal_b']:.4f}")
                 else:
-                    print(f"⚠️  Company {ticker} not found in database")
-                    print(f"   (This is expected if you haven't imported data yet)")
+                    print("\n✅ No significant feedback loops detected")
+                
+                print("\n" + "="*80)
+                print("SUCCESS!")
+                print("="*80)
+                print("\nNext steps:")
+                print("  1. Open Neo4j Browser: http://localhost:7474")
+                print("  2. Run this query to visualize:")
+                print(f"\n     MATCH (n) WHERE n.risk_signal <> 0 RETURN n LIMIT 50\n")
                 
                 return True
+            else:
+                print("⚠️  No propagation occurred. This might mean:")
+                print("   - The graph has no connections from this company")
+                print("   - Edge weights are too low")
+                print("   - Confidence thresholds filtered all edges")
+                return False
                 
-        except Exception as e:
-            print(f"❌ Query test failed: {e}")
-            return False
-    
-    def close(self):
-        """Close the driver connection"""
-        if self.driver:
-            self.driver.close()
-            print("\n✅ Connection closed")
-    
-    def run_all_tests(self):
-        """Run all tests in sequence"""
-        print("\n" + "🚀 " + "="*76)
-        print("🚀  NEO4J HEALTH CHECK - Running All Tests")
-        print("🚀 " + "="*76)
+        finally:
+            propagator.close()
         
-        results = {
-            "connection": False,
-            "read": False,
-            "write": False,
-            "stats": False,
-            "query": False
-        }
-        
-        # Test 1: Connection
-        results["connection"] = self.test_connection()
-        if not results["connection"]:
-            print("\n❌ Connection failed. Cannot proceed with other tests.")
-            self.close()
-            return results
-        
-        # Test 2: Read
-        results["read"] = self.test_database_read()
-        
-        # Test 3: Write
-        results["write"] = self.test_database_write()
-        
-        # Test 4: Stats
-        results["stats"] = self.get_database_stats()
-        
-        # Test 5: Query
-        results["query"] = self.test_company_query()
-        
-        # Summary
-        print("\n" + "="*80)
-        print("📋 TEST SUMMARY")
-        print("="*80)
-        
-        passed = sum(results.values())
-        total = len(results)
-        
-        for test_name, passed_test in results.items():
-            status = "✅ PASS" if passed_test else "❌ FAIL"
-            print(f"   {test_name.capitalize():20s} {status}")
-        
-        print(f"\n   Score: {passed}/{total} tests passed")
-        
-        if passed == total:
-            print("\n🎉 All tests passed! Your Neo4j setup is ready.")
-            print("   You can now run StaticEdges.to_neo4j() safely.")
-        else:
-            print("\n⚠️  Some tests failed. Please fix the issues before proceeding.")
-        
-        self.close()
-        return results
+    except ImportError:
+        print("❌ Cannot import signal_propagation.py")
+        print("   Make sure the file is in the same directory as this script")
+        return False
+    except Exception as e:
+        print(f"❌ Propagation failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 def main():
-    """Main function to run tests with command line arguments"""
-    import argparse
+    """Run all tests"""
+    print("\n" + "="*80)
+    print("NEO4J SIGNAL PROPAGATION - AUTOMATED TEST")
+    print("="*80)
+    print(f"\nConfiguration:")
+    print(f"  Neo4j URI: {NEO4J_URI}")
+    print(f"  User: {NEO4J_USER}")
+    print(f"  Company: {TICKER}")
+    print(f"  Event: {EVENT_DESCRIPTION}")
     
-    parser = argparse.ArgumentParser(description='Test Neo4j connection and setup')
-    parser.add_argument('--uri', default='bolt://localhost:7687', help='Neo4j URI')
-    parser.add_argument('--user', default='neo4j', help='Neo4j username')
-    parser.add_argument('--password', default='password', help='Neo4j password')
-    parser.add_argument('--ticker', default='TSLA', help='Ticker to test query')
+    # Step 1: Test connection
+    if not test_connection():
+        print("\n❌ Test failed at Step 1: Connection")
+        sys.exit(1)
     
-    args = parser.parse_args()
+    # Step 2: Check schema
+    needs_upgrade = not check_schema()
     
-    # Create tester instance
-    tester = Neo4jTester(uri=args.uri, user=args.user, password=args.password)
+    # Step 3: Upgrade if needed
+    if needs_upgrade:
+        if not upgrade_schema():
+            print("\n❌ Test failed at Step 3: Schema Upgrade")
+            print("\nYou can try manually upgrading by running:")
+            print("  python upgrade_graph.py")
+            sys.exit(1)
     
-    # Run all tests
-    tester.run_all_tests()
+    # Step 4: Run propagation
+    if not run_propagation():
+        print("\n❌ Test failed at Step 4: Propagation")
+        sys.exit(1)
+    
+    print("\n" + "="*80)
+    print("✅ ALL TESTS PASSED!")
+    print("="*80)
 
 
 if __name__ == "__main__":
-    # You can either run with command line arguments or edit these directly:
-    
-    # Option 1: Quick test with defaults
-    tester = Neo4jTester(
-        uri="bolt://127.0.0.1:7687",
-        user="neo4j",
-        password="myhome2911!"  # CHANGE THIS!
-    )
-    tester.run_all_tests()
-    
-    # Option 2: Run with command line arguments
-    # Uncomment the line below and comment out the lines above
-    # main()
+    main()
