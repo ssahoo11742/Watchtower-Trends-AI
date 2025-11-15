@@ -110,5 +110,5 @@ def scrape_importyeti_suppliers(company_url):
     finally:
         driver.quit()
 
-# Test
-result = scrape_importyeti_suppliers("https://www.importyeti.com/company/tesla")
+def get_company_url(ticker):
+    return f"https://www.importyeti.com/company/{ticker.lower()}"

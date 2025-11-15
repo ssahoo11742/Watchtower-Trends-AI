@@ -1,0 +1,3985 @@
+[
+  {
+    "type": "country",
+    "magnitude": 1.0,
+    "relevance": 1.0,
+    "direction": "country->company",
+    "data": {
+      "country_name": "United States",
+      "relationship": "headquarters",
+      "impact_type": "regulatory_environment"
+    }
+  },
+  {
+    "type": "country",
+    "magnitude": 0.85,
+    "relevance": 0.8,
+    "direction": "company->country",
+    "data": {
+      "country_name": "United States",
+      "relationship": "economic_contributor",
+      "impact_type": "employment_tax_innovation",
+      "market_cap": 1344795049984
+    }
+  },
+  {
+    "type": "sector",
+    "magnitude": 0.9,
+    "relevance": 1.0,
+    "direction": "sector->company",
+    "data": {
+      "sector_name": "Consumer Cyclical",
+      "classification_level": "sector",
+      "impact_type": "market_trends_regulations"
+    }
+  },
+  {
+    "type": "sector",
+    "magnitude": 0.95,
+    "relevance": 0.85,
+    "direction": "company->sector",
+    "data": {
+      "sector_name": "Consumer Cyclical",
+      "classification_level": "sector",
+      "impact_type": "innovation_disruption",
+      "market_cap": 1344795049984
+    }
+  },
+  {
+    "type": "industry",
+    "magnitude": 0.95,
+    "relevance": 1.0,
+    "direction": "industry->company",
+    "data": {
+      "industry_name": "Auto Manufacturers",
+      "classification_level": "industry",
+      "impact_type": "competitive_dynamics"
+    }
+  },
+  {
+    "type": "industry",
+    "magnitude": 0.9,
+    "relevance": 0.85,
+    "direction": "company->industry",
+    "data": {
+      "industry_name": "Auto Manufacturers",
+      "classification_level": "industry",
+      "impact_type": "market_share_innovation",
+      "market_cap": 1344795049984
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 1.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Panasonic Japan",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "Kadoma Shi, Japan",
+      "total_shipments": "1,200",
+      "product_description": "Separator Film Pervio Separator Film Pervio, Copper Foil Copper Foil Copper Foil Quantity Wooden Reefer Isf Livingstonintl Tesla Trade Globaltrade Tes...\nHS Codes: (3702.20, 7410.22, 2841.90, 8543.11)See all bills of lading with this supplier",
+      "hs_codes": "3702.20, 7410.22, 2841.90, 8543.11",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.8,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Panasonic Japan",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "Kadoma Shi, Japan",
+      "total_shipments": "1,200",
+      "product_description": "Separator Film Pervio Separator Film Pervio, Copper Foil Copper Foil Copper Foil Quantity Wooden Reefer Isf Livingstonintl Tesla Trade Globaltrade Tes...\nHS Codes: (3702.20, 7410.22, 2841.90, 8543.11)See all bills of lading with this supplier",
+      "hs_codes": "3702.20, 7410.22, 2841.90, 8543.11",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.5,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Dongshan Precision Manufacturing China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-dongshan-precision-manufacturing",
+      "location": "Fenghuangshan, China",
+      "total_shipments": "600",
+      "product_description": "Riser Riser Assembly Shield Vcfront Assembly Shield Vcfr Ont Shp Mobile Tesla Livingstonintl Kbogan Livingstonintl, Grounding Bearing Cap Longitudinal...\nHS Codes: (9306.21, 4415.20, 8474.39, 9401.90)See all bills of lading with this supplier",
+      "hs_codes": "9306.21, 4415.20, 8474.39, 9401.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.4,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Dongshan Precision Manufacturing China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-dongshan-precision-manufacturing",
+      "location": "Fenghuangshan, China",
+      "total_shipments": "600",
+      "product_description": "Riser Riser Assembly Shield Vcfront Assembly Shield Vcfr Ont Shp Mobile Tesla Livingstonintl Kbogan Livingstonintl, Grounding Bearing Cap Longitudinal...\nHS Codes: (9306.21, 4415.20, 8474.39, 9401.90)See all bills of lading with this supplier",
+      "hs_codes": "9306.21, 4415.20, 8474.39, 9401.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.4233,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Ningbo Tuopu Import & Export China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-tuopu-import-export",
+      "location": "Ning'an, China",
+      "total_shipments": "508",
+      "product_description": "Bracket Rsf Stiffener Shp Shp Hlbu Shp Uacu Nsw Solid Wood, Subframe Shp Shp Shipm Ent Solid Wood, Knuckle Assy Shp Shp Mrku Shp Tcnu Shp Msku Shp Mrk...\nHS Codes: (8474.39, 2710.19, 2936.27, 8708.80)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 2710.19, 2936.27, 8708.80",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.3387,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Ningbo Tuopu Import & Export China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-tuopu-import-export",
+      "location": "Ning'an, China",
+      "total_shipments": "508",
+      "product_description": "Bracket Rsf Stiffener Shp Shp Hlbu Shp Uacu Nsw Solid Wood, Subframe Shp Shp Shipm Ent Solid Wood, Knuckle Assy Shp Shp Mrku Shp Tcnu Shp Msku Shp Mrk...\nHS Codes: (8474.39, 2710.19, 2936.27, 8708.80)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 2710.19, 2936.27, 8708.80",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.3992,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Contemporary Amperex Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/contemporary-amperex-technology",
+      "location": "Xin'an, China",
+      "total_shipments": "479",
+      "product_description": "Lithium Ion Batteries Tcnu Shp Mrsu Shp Mrsu Shp Mrsu Shp Mrsu Shp Gcxu Shp Mrku Shp Mrku Shp Mrku Shp Mrsu, Lithium Ion Batteries Mrsu Shp Msku Shp M...\nHS Codes: (8506.50, 8507.60, 9030.20, 7224.90)See all bills of lading with this supplier",
+      "hs_codes": "8506.50, 8507.60, 9030.20, 7224.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.3193,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Contemporary Amperex Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/contemporary-amperex-technology",
+      "location": "Xin'an, China",
+      "total_shipments": "479",
+      "product_description": "Lithium Ion Batteries Tcnu Shp Mrsu Shp Mrsu Shp Mrsu Shp Mrsu Shp Gcxu Shp Mrku Shp Mrku Shp Mrku Shp Mrsu, Lithium Ion Batteries Mrsu Shp Msku Shp M...\nHS Codes: (8506.50, 8507.60, 9030.20, 7224.90)See all bills of lading with this supplier",
+      "hs_codes": "8506.50, 8507.60, 9030.20, 7224.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.33,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Junchuang Auto Technologies China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-junchuang-auto-technologies",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "396",
+      "product_description": "Cvr Sfty Tch Shp Covered Bls Cnhu Cnhu Cnhu Cnhu, Asy Rear License Plate Shp Covered Bls Chn Chn Chn Chn Chn, Splash Cover Cont Roller Electronic Ther...\nHS Codes: (8474.39, 8302.50, 7009.10, 8480.30)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 8302.50, 7009.10, 8480.30",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.264,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Junchuang Auto Technologies China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-junchuang-auto-technologies",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "396",
+      "product_description": "Cvr Sfty Tch Shp Covered Bls Cnhu Cnhu Cnhu Cnhu, Asy Rear License Plate Shp Covered Bls Chn Chn Chn Chn Chn, Splash Cover Cont Roller Electronic Ther...\nHS Codes: (8474.39, 8302.50, 7009.10, 8480.30)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 8302.50, 7009.10, 8480.30",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.3142,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Anhui Xmax New Energy Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/anhui-xmax-new-energy-technology",
+      "location": "Fangxing, China",
+      "total_shipments": "377",
+      "product_description": "Plastic Buckle Shp Covered Bls Chn Chn Chn, Voltage Sense Clip Shp, Aluminum Piece Shp Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu, Cooling Tube, Plastic Buc...\nHS Codes: (7507.20, 8474.39, 7602.00, 2620.60)See all bills of lading with this supplier",
+      "hs_codes": "7507.20, 8474.39, 7602.00, 2620.60",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2513,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Anhui Xmax New Energy Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/anhui-xmax-new-energy-technology",
+      "location": "Fangxing, China",
+      "total_shipments": "377",
+      "product_description": "Plastic Buckle Shp Covered Bls Chn Chn Chn, Voltage Sense Clip Shp, Aluminum Piece Shp Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu, Cooling Tube, Plastic Buc...\nHS Codes: (7507.20, 8474.39, 7602.00, 2620.60)See all bills of lading with this supplier",
+      "hs_codes": "7507.20, 8474.39, 7602.00, 2620.60",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2733,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Ningbo Xusheng Group China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-xusheng-group",
+      "location": "Yanshan, China",
+      "total_shipments": "328",
+      "product_description": "Lwr Aft Link Upr Fore Link Toe Link Susp Lca Assy Shp Shp Solid Wood Xsbu Nbxus, Asy Shp Shp Solid Wood Xsbu Nbxus, Die Cast Seatbk Fork Shp Shp Uacu ...\nHS Codes: (8474.39, 7315.81, 8703.23, 8454.90)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 7315.81, 8703.23, 8454.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2187,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Ningbo Xusheng Group China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-xusheng-group",
+      "location": "Yanshan, China",
+      "total_shipments": "328",
+      "product_description": "Lwr Aft Link Upr Fore Link Toe Link Susp Lca Assy Shp Shp Solid Wood Xsbu Nbxus, Asy Shp Shp Solid Wood Xsbu Nbxus, Die Cast Seatbk Fork Shp Shp Uacu ...\nHS Codes: (8474.39, 7315.81, 8703.23, 8454.90)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 7315.81, 8703.23, 8454.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2583,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Componen China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "310",
+      "product_description": "Asy Endbell Shp Zhejiang China, Oil Pump Oil Cooler Ftz Shp Zhejiang China Covered Bls Cnhu, Heat Sink Shp Shipping Marks Sha Uste, Oil Cooler Shp Han...\nHS Codes: (2922.49, 6911.10, 2513.19, 1509.10)See all bills of lading with this supplier",
+      "hs_codes": "2922.49, 6911.10, 2513.19, 1509.10",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2067,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Componen China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "310",
+      "product_description": "Asy Endbell Shp Zhejiang China, Oil Pump Oil Cooler Ftz Shp Zhejiang China Covered Bls Cnhu, Heat Sink Shp Shipping Marks Sha Uste, Oil Cooler Shp Han...\nHS Codes: (2922.49, 6911.10, 2513.19, 1509.10)See all bills of lading with this supplier",
+      "hs_codes": "2922.49, 6911.10, 2513.19, 1509.10",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2267,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Current Power Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-current-power-technology",
+      "location": "Wujiang, China",
+      "total_shipments": "272",
+      "product_description": "Busbar Shp Ftz Covered Bls Chn Chn Chn Chn, Busbar Shp Covered Bls Chn Chn Chn Chn Chn Chn Chn Chn, Busbar Shp Covered Bls Chn Chn Chn, Busbar Shp Shi...\nHS Codes: (4415.20, 8474.39, 8447.90, 5513.12)See all bills of lading with this supplier",
+      "hs_codes": "4415.20, 8474.39, 8447.90, 5513.12",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1813,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Current Power Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-current-power-technology",
+      "location": "Wujiang, China",
+      "total_shipments": "272",
+      "product_description": "Busbar Shp Ftz Covered Bls Chn Chn Chn Chn, Busbar Shp Covered Bls Chn Chn Chn Chn Chn Chn Chn Chn, Busbar Shp Covered Bls Chn Chn Chn, Busbar Shp Shi...\nHS Codes: (4415.20, 8474.39, 8447.90, 5513.12)See all bills of lading with this supplier",
+      "hs_codes": "4415.20, 8474.39, 8447.90, 5513.12",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.2267,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Blovelight Zhejiang Intelligent Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/blovelight-zhejiang-intelligent-technology",
+      "location": "Daqiao, China",
+      "total_shipments": "272",
+      "product_description": "Cvr Pcba Cot Ippc Shp Yazhong Road Daqiao Town Nanhu District Jiaxing Zhejiang, Plastic Shp Nanhu District Jiaxing Zhejiang, Armrest Detent Ippc Shp D...\nHS Codes: (9021.21, 4415.20, 8708.70, 4410.33)See all bills of lading with this supplier",
+      "hs_codes": "9021.21, 4415.20, 8708.70, 4410.33",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1813,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Blovelight Zhejiang Intelligent Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/blovelight-zhejiang-intelligent-technology",
+      "location": "Daqiao, China",
+      "total_shipments": "272",
+      "product_description": "Cvr Pcba Cot Ippc Shp Yazhong Road Daqiao Town Nanhu District Jiaxing Zhejiang, Plastic Shp Nanhu District Jiaxing Zhejiang, Armrest Detent Ippc Shp D...\nHS Codes: (9021.21, 4415.20, 8708.70, 4410.33)See all bills of lading with this supplier",
+      "hs_codes": "9021.21, 4415.20, 8708.70, 4410.33",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.225,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Jiangsu Xinquan Automotive Trim China",
+      "supplier_url": "https://www.importyeti.com/supplier/jiangsu-xinquan-automotive-trim",
+      "location": "Changchun, China",
+      "total_shipments": "270",
+      "product_description": "Tray Console Bundle Shp Covered Bls Cnhu, Assy Substrate Cushion Fascia Cupholder Assy Shp Covered Chn, Assy Substrate Cushion Fascia Cupholder Assy S...\nHS Codes: (8902.00, 8302.41, 6911.90, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "8902.00, 8302.41, 6911.90, 4415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.18,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Jiangsu Xinquan Automotive Trim China",
+      "supplier_url": "https://www.importyeti.com/supplier/jiangsu-xinquan-automotive-trim",
+      "location": "Changchun, China",
+      "total_shipments": "270",
+      "product_description": "Tray Console Bundle Shp Covered Bls Cnhu, Assy Substrate Cushion Fascia Cupholder Assy Shp Covered Chn, Assy Substrate Cushion Fascia Cupholder Assy S...\nHS Codes: (8902.00, 8302.41, 6911.90, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "8902.00, 8302.41, 6911.90, 4415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1858,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Qingdao Injelic Auto Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/qingdao-injelic-auto-parts",
+      "location": "Qingda, China",
+      "total_shipments": "223",
+      "product_description": "Duct Fascia Frt Side Duct Fascia Frt Side Mini Nub Mini Nub Shp Plts, Mud Flap Shp Covered Bls Cnhu, Cover Tow Hook Brkt Center Assy Shp Covered Bls C...\nHS Codes: (8302.50, 8414.60, 8474.39, 8479.90)See all bills of lading with this supplier",
+      "hs_codes": "8302.50, 8414.60, 8474.39, 8479.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1487,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Qingdao Injelic Auto Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/qingdao-injelic-auto-parts",
+      "location": "Qingda, China",
+      "total_shipments": "223",
+      "product_description": "Duct Fascia Frt Side Duct Fascia Frt Side Mini Nub Mini Nub Shp Plts, Mud Flap Shp Covered Bls Cnhu, Cover Tow Hook Brkt Center Assy Shp Covered Bls C...\nHS Codes: (8302.50, 8414.60, 8474.39, 8479.90)See all bills of lading with this supplier",
+      "hs_codes": "8302.50, 8414.60, 8474.39, 8479.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1783,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhejiang Rongtai Electric Material China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-rongtai-electric-material",
+      "location": "Fengqiao, China",
+      "total_shipments": "214",
+      "product_description": "Pch Mica Shp, Foam Hvc Lite Shp, Shim Shp, Separator Strip Shp, Battery Insulation Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu Cnh...\nHS Codes: (8506.90, 6814.10, 2525.30, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "8506.90, 6814.10, 2525.30, 8474.39",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1427,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhejiang Rongtai Electric Material China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-rongtai-electric-material",
+      "location": "Fengqiao, China",
+      "total_shipments": "214",
+      "product_description": "Pch Mica Shp, Foam Hvc Lite Shp, Shim Shp, Separator Strip Shp, Battery Insulation Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu Cnh...\nHS Codes: (8506.90, 6814.10, 2525.30, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "8506.90, 6814.10, 2525.30, 8474.39",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1658,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Xinpeng Metal Products China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-xinpeng-metal-products",
+      "location": "Yu'an District, China",
+      "total_shipments": "199",
+      "product_description": "Sub Asy Enclosure Tub Spw Shi Pment Shp, Assy Enclosure Add Ons, Asy Tray Dcdc Gen Assy Closure Powerstage Shp Hipping Marks Shp Dcdc Sets Shp Dcdc Po...\nHS Codes: (8518.22, 8406.81, 3922.20, 1202.20)See all bills of lading with this supplier",
+      "hs_codes": "8518.22, 8406.81, 3922.20, 1202.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1327,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Xinpeng Metal Products China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-xinpeng-metal-products",
+      "location": "Yu'an District, China",
+      "total_shipments": "199",
+      "product_description": "Sub Asy Enclosure Tub Spw Shi Pment Shp, Assy Enclosure Add Ons, Asy Tray Dcdc Gen Assy Closure Powerstage Shp Hipping Marks Shp Dcdc Sets Shp Dcdc Po...\nHS Codes: (8518.22, 8406.81, 3922.20, 1202.20)See all bills of lading with this supplier",
+      "hs_codes": "8518.22, 8406.81, 3922.20, 1202.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1508,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "K Usa N Daya Automotive Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/k-usa-n-daya-automotive-parts",
+      "location": "Fenghuang, China",
+      "total_shipments": "181",
+      "product_description": "Assy Shock Tower Cap Shp Ship Also Empire West Warehouse Brookshire Empire Blvd Brookshire Covered Bls Cnhu, Assy Shotgun Otr Assy Shotgun Otr, Assy F...\nHS Codes: (6809.19, 8426.11, 8426.20, 9306.21)See all bills of lading with this supplier",
+      "hs_codes": "6809.19, 8426.11, 8426.20, 9306.21",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1207,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "K Usa N Daya Automotive Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/k-usa-n-daya-automotive-parts",
+      "location": "Fenghuang, China",
+      "total_shipments": "181",
+      "product_description": "Assy Shock Tower Cap Shp Ship Also Empire West Warehouse Brookshire Empire Blvd Brookshire Covered Bls Cnhu, Assy Shotgun Otr Assy Shotgun Otr, Assy F...\nHS Codes: (6809.19, 8426.11, 8426.20, 9306.21)See all bills of lading with this supplier",
+      "hs_codes": "6809.19, 8426.11, 8426.20, 9306.21",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1467,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Citic Dicastal China",
+      "supplier_url": "https://www.importyeti.com/supplier/citic-dicastal",
+      "location": "Hebei, China",
+      "total_shipments": "176",
+      "product_description": "Knuckle Front Left Shp, Aluminium Wheels Auto Shp, Knuckle Shp Hipping Marks, Knuckle Assy Knuckle Assy Shp Knuckle Assy Knuckle Assy Shp Knuckle Assy...\nHS Codes: (7210.69, 7015.90, 2922.22, 2620.60)See all bills of lading with this supplier",
+      "hs_codes": "7210.69, 7015.90, 2922.22, 2620.60",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1173,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Citic Dicastal China",
+      "supplier_url": "https://www.importyeti.com/supplier/citic-dicastal",
+      "location": "Hebei, China",
+      "total_shipments": "176",
+      "product_description": "Knuckle Front Left Shp, Aluminium Wheels Auto Shp, Knuckle Shp Hipping Marks, Knuckle Assy Knuckle Assy Shp Knuckle Assy Knuckle Assy Shp Knuckle Assy...\nHS Codes: (7210.69, 7015.90, 2922.22, 2620.60)See all bills of lading with this supplier",
+      "hs_codes": "7210.69, 7015.90, 2922.22, 2620.60",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1408,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Chongqing Millison Technologies China",
+      "supplier_url": "https://www.importyeti.com/supplier/chongqing-millison-technologies",
+      "location": "Chongqing Jiedao, China",
+      "total_shipments": "169",
+      "product_description": "Asy Mid Gearb Plaid Asy Rhs Endbell Plaidt Asy Lhs Endbell Plaidt Shp, Mid Gearbox Plaid Rhs Endbell Plaidt Lhs Endbell Plaid Shp, Asy Lhs Endbell Pla...\nHS Codes: (8454.30, 0000.00, 8547.90, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "8454.30, 0000.00, 8547.90, 4415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1127,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Chongqing Millison Technologies China",
+      "supplier_url": "https://www.importyeti.com/supplier/chongqing-millison-technologies",
+      "location": "Chongqing Jiedao, China",
+      "total_shipments": "169",
+      "product_description": "Asy Mid Gearb Plaid Asy Rhs Endbell Plaidt Asy Lhs Endbell Plaidt Shp, Mid Gearbox Plaid Rhs Endbell Plaidt Lhs Endbell Plaid Shp, Asy Lhs Endbell Pla...\nHS Codes: (8454.30, 0000.00, 8547.90, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "8454.30, 0000.00, 8547.90, 4415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1358,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhongshan Hord Rapidtools China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhongshan-hord-rapidtools",
+      "location": "Zhongshan, China",
+      "total_shipments": "163",
+      "product_description": "Plywood Plts Ide Bsbr Emi Cntctr Grd Tie Invrtr Hldr Choke Large Bsbr Grd Tie Invrtr Guard Pwrs Grd Tie Invrtr Asy Holder Fuse Grd Tie Invrtr Sulator ...\nHS Codes: (3926.90, 9401.90, 8426.91, 4412.99)See all bills of lading with this supplier",
+      "hs_codes": "3926.90, 9401.90, 8426.91, 4412.99",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1087,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhongshan Hord Rapidtools China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhongshan-hord-rapidtools",
+      "location": "Zhongshan, China",
+      "total_shipments": "163",
+      "product_description": "Plywood Plts Ide Bsbr Emi Cntctr Grd Tie Invrtr Hldr Choke Large Bsbr Grd Tie Invrtr Guard Pwrs Grd Tie Invrtr Asy Holder Fuse Grd Tie Invrtr Sulator ...\nHS Codes: (3926.90, 9401.90, 8426.91, 4412.99)See all bills of lading with this supplier",
+      "hs_codes": "3926.90, 9401.90, 8426.91, 4412.99",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1325,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Connor Manufacturing Suzhou China",
+      "supplier_url": "https://www.importyeti.com/supplier/connor-manufacturing-suzhou",
+      "location": "Suzhou Qu, China",
+      "total_shipments": "159",
+      "product_description": "Assembly Collector Plate Habat Mdls, Nut Plate Asssy Frt Sub Frame Mnt, Nut Plate Assy Masking Patch Nbe Shp China Covered Bls Cnhu, Nut Plate Assy Ma...\nHS Codes: (2921.45, 8474.39, 1508.10, 9603.21)See all bills of lading with this supplier",
+      "hs_codes": "2921.45, 8474.39, 1508.10, 9603.21",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.106,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Connor Manufacturing Suzhou China",
+      "supplier_url": "https://www.importyeti.com/supplier/connor-manufacturing-suzhou",
+      "location": "Suzhou Qu, China",
+      "total_shipments": "159",
+      "product_description": "Assembly Collector Plate Habat Mdls, Nut Plate Asssy Frt Sub Frame Mnt, Nut Plate Assy Masking Patch Nbe Shp China Covered Bls Cnhu, Nut Plate Assy Ma...\nHS Codes: (2921.45, 8474.39, 1508.10, 9603.21)See all bills of lading with this supplier",
+      "hs_codes": "2921.45, 8474.39, 1508.10, 9603.21",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1175,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Thai Xm Thailand",
+      "supplier_url": "https://www.importyeti.com/supplier/thai-xm",
+      "location": "Changwat Rayong, Thailand",
+      "total_shipments": "141",
+      "product_description": "Mount Bracket, Tray Riveted Frame Bottom Tray Riveted Frame Shp, Tray Txmin Tot, Panel Roof Left Panel Roof Middle Left Rail Shp, Enclosure Shp \nHS Codes: (9301.19, 9608.60, 8606.99, 4804.39)See all bills of lading with this supplier",
+      "hs_codes": "9301.19, 9608.60, 8606.99, 4804.39",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.094,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Thai Xm Thailand",
+      "supplier_url": "https://www.importyeti.com/supplier/thai-xm",
+      "location": "Changwat Rayong, Thailand",
+      "total_shipments": "141",
+      "product_description": "Mount Bracket, Tray Riveted Frame Bottom Tray Riveted Frame Shp, Tray Txmin Tot, Panel Roof Left Panel Roof Middle Left Rail Shp, Enclosure Shp \nHS Codes: (9301.19, 9608.60, 8606.99, 4804.39)See all bills of lading with this supplier",
+      "hs_codes": "9301.19, 9608.60, 8606.99, 4804.39",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.115,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Us Farathane Factory China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Shuangbai Xian, China",
+      "total_shipments": "138",
+      "product_description": "Foot Module Idjb Shipme Shp, License Plate Shp Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu, Solar Rail Clips Shp Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu, Solar ...\nHS Codes: (6109.10, 3806.90, 9603.21, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "6109.10, 3806.90, 9603.21, 8474.39",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.092,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Us Farathane Factory China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Shuangbai Xian, China",
+      "total_shipments": "138",
+      "product_description": "Foot Module Idjb Shipme Shp, License Plate Shp Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu, Solar Rail Clips Shp Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu, Solar ...\nHS Codes: (6109.10, 3806.90, 9603.21, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "6109.10, 3806.90, 9603.21, 8474.39",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1133,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Magna Automotive Parts Suzhou China",
+      "supplier_url": "https://www.importyeti.com/supplier/magna-automotive-parts-suzhou",
+      "location": "Suzhou Qu, China",
+      "total_shipments": "136",
+      "product_description": "Sdh Rear Upper Shp, Sdh Rear Lower Sdh Rear Lower Sdh Rear, Hood Striker Liftgate Hinge Assembly Shp Covered Bls Chn, Sdh Front Upper Sdh Rear Lower S...\nHS Codes: (8302.10, 8474.39, 4415.20, 5513.12)See all bills of lading with this supplier",
+      "hs_codes": "8302.10, 8474.39, 4415.20, 5513.12",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0907,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Magna Automotive Parts Suzhou China",
+      "supplier_url": "https://www.importyeti.com/supplier/magna-automotive-parts-suzhou",
+      "location": "Suzhou Qu, China",
+      "total_shipments": "136",
+      "product_description": "Sdh Rear Upper Shp, Sdh Rear Lower Sdh Rear Lower Sdh Rear, Hood Striker Liftgate Hinge Assembly Shp Covered Bls Chn, Sdh Front Upper Sdh Rear Lower S...\nHS Codes: (8302.10, 8474.39, 4415.20, 5513.12)See all bills of lading with this supplier",
+      "hs_codes": "8302.10, 8474.39, 4415.20, 5513.12",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.1017,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Luvata Pori Belgium",
+      "supplier_url": "https://www.importyeti.com/supplier/luvata-pori",
+      "location": "Pori, Finland",
+      "total_shipments": "122",
+      "product_description": "Bar Extrusion Rotor, Components Manufacture Tesla, Components Manufacture Tesla Packed, Components Manufacture Tesla Packed Into Wooden, Copper Profil...\nHS Codes: (7407.10, 8539.90)See all bills of lading with this supplier",
+      "hs_codes": "7407.10, 8539.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0813,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Luvata Pori Belgium",
+      "supplier_url": "https://www.importyeti.com/supplier/luvata-pori",
+      "location": "Pori, Finland",
+      "total_shipments": "122",
+      "product_description": "Bar Extrusion Rotor, Components Manufacture Tesla, Components Manufacture Tesla Packed, Components Manufacture Tesla Packed Into Wooden, Copper Profil...\nHS Codes: (7407.10, 8539.90)See all bills of lading with this supplier",
+      "hs_codes": "7407.10, 8539.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0983,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Hon Hai Precision Industrial Hong Kong",
+      "supplier_url": "https://www.importyeti.com/supplier/hon-hai-precision-industrial",
+      "location": "Longhua, China",
+      "total_shipments": "118",
+      "product_description": "Packed Into Ippc Plts Auto Plastic Customer Pick Aug Transhipment Cargo Form Shenzhen Los Angeles Via Hong Kong Truck Teslashipment, Packed Into Ippcp...\nHS Codes: (3926.90, 8433.40, 9021.21, 8474.90)See all bills of lading with this supplier",
+      "hs_codes": "3926.90, 8433.40, 9021.21, 8474.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0787,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Hon Hai Precision Industrial Hong Kong",
+      "supplier_url": "https://www.importyeti.com/supplier/hon-hai-precision-industrial",
+      "location": "Longhua, China",
+      "total_shipments": "118",
+      "product_description": "Packed Into Ippc Plts Auto Plastic Customer Pick Aug Transhipment Cargo Form Shenzhen Los Angeles Via Hong Kong Truck Teslashipment, Packed Into Ippcp...\nHS Codes: (3926.90, 8433.40, 9021.21, 8474.90)See all bills of lading with this supplier",
+      "hs_codes": "3926.90, 8433.40, 9021.21, 8474.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0967,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Hebei Chinaust Automotive Plastics China",
+      "supplier_url": "https://www.importyeti.com/supplier/hebei-chinaust-automotive-plastics",
+      "location": "Chaoyang, China",
+      "total_shipments": "116",
+      "product_description": "Mnfld Heat Outlet Chiller Inlet Mnfld Batt Pump Inlet Mnfld Pump Outlet Mnfld Cond Enser Pump Outlet Shp, Jmpr Manua Valve Mnfld Qber Return Mnfld Chi...\nHS Codes: (7507.20, 9303.20, 2922.49, 0910.40)See all bills of lading with this supplier",
+      "hs_codes": "7507.20, 9303.20, 2922.49, 0910.40",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0773,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Hebei Chinaust Automotive Plastics China",
+      "supplier_url": "https://www.importyeti.com/supplier/hebei-chinaust-automotive-plastics",
+      "location": "Chaoyang, China",
+      "total_shipments": "116",
+      "product_description": "Mnfld Heat Outlet Chiller Inlet Mnfld Batt Pump Inlet Mnfld Pump Outlet Mnfld Cond Enser Pump Outlet Shp, Jmpr Manua Valve Mnfld Qber Return Mnfld Chi...\nHS Codes: (7507.20, 9303.20, 2922.49, 0910.40)See all bills of lading with this supplier",
+      "hs_codes": "7507.20, 9303.20, 2922.49, 0910.40",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0933,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Taitech Precision Electronic Kunsh China",
+      "supplier_url": "https://www.importyeti.com/supplier/taitech-precision-electronic-kunsh",
+      "location": "Jindong, China",
+      "total_shipments": "112",
+      "product_description": "Plastic Cover Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu, Plastic Cover Shp Covered ...\nHS Codes: (3922.20, 8474.39, 5202.99, 9113.90)See all bills of lading with this supplier",
+      "hs_codes": "3922.20, 8474.39, 5202.99, 9113.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0747,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Taitech Precision Electronic Kunsh China",
+      "supplier_url": "https://www.importyeti.com/supplier/taitech-precision-electronic-kunsh",
+      "location": "Jindong, China",
+      "total_shipments": "112",
+      "product_description": "Plastic Cover Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu, Plastic Cover Shp Covered ...\nHS Codes: (3922.20, 8474.39, 5202.99, 9113.90)See all bills of lading with this supplier",
+      "hs_codes": "3922.20, 8474.39, 5202.99, 9113.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0925,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Indust China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "111",
+      "product_description": "Connector Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu, Connector Shp Covered Bls Chn,...\nHS Codes: (9405.30, 8536.69, 8474.90, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "9405.30, 8536.69, 8474.90, 8474.39",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.074,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Indust China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "111",
+      "product_description": "Connector Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu Cnhu, Connector Shp Covered Bls Chn,...\nHS Codes: (9405.30, 8536.69, 8474.90, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "9405.30, 8536.69, 8474.90, 8474.39",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0842,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Aolin Auto Safety System China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-aolin-auto-safety-system",
+      "location": "Yuanda, China",
+      "total_shipments": "101",
+      "product_description": "Liftgate Striker Hood Striker Lat Side Door Strike Shp, Lift Gate Striker Lock Plate Hood Striker Lat Side Door Striker Lock Shp Covered Bls Chn, Mica...\nHS Codes: (8302.10, 8474.39, 4814.20, 7315.81)See all bills of lading with this supplier",
+      "hs_codes": "8302.10, 8474.39, 4814.20, 7315.81",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0673,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Aolin Auto Safety System China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-aolin-auto-safety-system",
+      "location": "Yuanda, China",
+      "total_shipments": "101",
+      "product_description": "Liftgate Striker Hood Striker Lat Side Door Strike Shp, Lift Gate Striker Lock Plate Hood Striker Lat Side Door Striker Lock Shp Covered Bls Chn, Mica...\nHS Codes: (8302.10, 8474.39, 4814.20, 7315.81)See all bills of lading with this supplier",
+      "hs_codes": "8302.10, 8474.39, 4814.20, 7315.81",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0808,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Fraenkische Cz S R O Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/fraenkische-cz-s-r-o",
+      "location": "Germany",
+      "total_shipments": "97",
+      "product_description": "Stowed Electric Automotive Par, Packed Automtoi Shp Packed Automto Ive Shp Packed Automtoi Shp Packed Automto Ive Shp Packed Automto Ive Shp, Packed A...\nHS Codes: (3917.39, 8708.29, 8483.90, 8415.20)See all bills of lading with this supplier",
+      "hs_codes": "3917.39, 8708.29, 8483.90, 8415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0647,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Fraenkische Cz S R O Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/fraenkische-cz-s-r-o",
+      "location": "Germany",
+      "total_shipments": "97",
+      "product_description": "Stowed Electric Automotive Par, Packed Automtoi Shp Packed Automto Ive Shp Packed Automtoi Shp Packed Automto Ive Shp Packed Automto Ive Shp, Packed A...\nHS Codes: (3917.39, 8708.29, 8483.90, 8415.20)See all bills of lading with this supplier",
+      "hs_codes": "3917.39, 8708.29, 8483.90, 8415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0792,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Seksun Technology Suzhou China",
+      "supplier_url": "https://www.importyeti.com/supplier/seksun-technology-suzhou",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "95",
+      "product_description": "Asy Terminal Bar Shp, Seatbelt Web Guide Assy Shp Ship Also Lancer Warehouse Lancer Blvd San Antonio Covered Bls Cnhu, Asy Terminal Bar Shp Covered Bl...\nHS Codes: (8503.00, 8470.50, 4415.20, 8474.90)See all bills of lading with this supplier",
+      "hs_codes": "8503.00, 8470.50, 4415.20, 8474.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0633,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Seksun Technology Suzhou China",
+      "supplier_url": "https://www.importyeti.com/supplier/seksun-technology-suzhou",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "95",
+      "product_description": "Asy Terminal Bar Shp, Seatbelt Web Guide Assy Shp Ship Also Lancer Warehouse Lancer Blvd San Antonio Covered Bls Cnhu, Asy Terminal Bar Shp Covered Bl...\nHS Codes: (8503.00, 8470.50, 4415.20, 8474.90)See all bills of lading with this supplier",
+      "hs_codes": "8503.00, 8470.50, 4415.20, 8474.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.075,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Standard Profil Spain S A Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/standard-profil-spain-s-a",
+      "location": "Logrono, Spain",
+      "total_shipments": "90",
+      "product_description": "Stowed Electric Automotive, Stowed Pallet Electric Automotive, Stowed Pallet Electric Automotive Arts, Stowed Pallet Electric Automotive Rts, Stowed E...\nHS Codes: (4016.99, 8415.20)See all bills of lading with this supplier",
+      "hs_codes": "4016.99, 8415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.06,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Standard Profil Spain S A Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/standard-profil-spain-s-a",
+      "location": "Logrono, Spain",
+      "total_shipments": "90",
+      "product_description": "Stowed Electric Automotive, Stowed Pallet Electric Automotive, Stowed Pallet Electric Automotive Arts, Stowed Pallet Electric Automotive Rts, Stowed E...\nHS Codes: (4016.99, 8415.20)See all bills of lading with this supplier",
+      "hs_codes": "4016.99, 8415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0717,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Changzhou Almaden China",
+      "supplier_url": "https://www.importyeti.com/supplier/changzhou-almaden",
+      "location": "Changzhou, China",
+      "total_shipments": "86",
+      "product_description": "Asy Door Tonsan Shp Shipping Marks Also Buffalo Riverbend South Park Ave South Park Ave Buffalo, Asy Door Tonsan Shp Also Buffalo Riv Erbend South Par...\nHS Codes: (3925.20, 8479.90, 2936.28, 4902.90)See all bills of lading with this supplier",
+      "hs_codes": "3925.20, 8479.90, 2936.28, 4902.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0573,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Changzhou Almaden China",
+      "supplier_url": "https://www.importyeti.com/supplier/changzhou-almaden",
+      "location": "Changzhou, China",
+      "total_shipments": "86",
+      "product_description": "Asy Door Tonsan Shp Shipping Marks Also Buffalo Riverbend South Park Ave South Park Ave Buffalo, Asy Door Tonsan Shp Also Buffalo Riv Erbend South Par...\nHS Codes: (3925.20, 8479.90, 2936.28, 4902.90)See all bills of lading with this supplier",
+      "hs_codes": "3925.20, 8479.90, 2936.28, 4902.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0683,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Kuka Deutschland Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "82",
+      "product_description": "Robots Attachment, Kuka Robot, Kuka Industrial Roboter Kuka Industrial Roboter, Kuka Industrial Roboter, Robots \nHS Codes: (8479.50, 8514.90)See all bills of lading with this supplier",
+      "hs_codes": "8479.50, 8514.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0547,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Kuka Deutschland Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "82",
+      "product_description": "Robots Attachment, Kuka Robot, Kuka Industrial Roboter Kuka Industrial Roboter, Kuka Industrial Roboter, Robots \nHS Codes: (8479.50, 8514.90)See all bills of lading with this supplier",
+      "hs_codes": "8479.50, 8514.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0675,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "China Spring China",
+      "supplier_url": "https://www.importyeti.com/supplier/china-spring",
+      "location": "Wenchuan Xian, China",
+      "total_shipments": "81",
+      "product_description": "Stabar Assembly Shp Shipping Marks, Stabar Assy, Stabar Assembly, Stabar Assy Shp Covered Bls Cnhu Cnhu Cnhu, Stabar Assembly Stabar Assy Plaid Stabar...\nHS Codes: (7015.90, 8529.90, 9503.20, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "7015.90, 8529.90, 9503.20, 4415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.054,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "China Spring China",
+      "supplier_url": "https://www.importyeti.com/supplier/china-spring",
+      "location": "Wenchuan Xian, China",
+      "total_shipments": "81",
+      "product_description": "Stabar Assembly Shp Shipping Marks, Stabar Assy, Stabar Assembly, Stabar Assy Shp Covered Bls Cnhu Cnhu Cnhu, Stabar Assembly Stabar Assy Plaid Stabar...\nHS Codes: (7015.90, 8529.90, 9503.20, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "7015.90, 8529.90, 9503.20, 4415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.065,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Ningbo Yosun Auto Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-yosun-auto-parts",
+      "location": "Jinshan, China",
+      "total_shipments": "78",
+      "product_description": "Asy Inlet Rear Asy Logic Connector Asy Inlet Front Power Semiconductor Insulator Shp Shp Nsw Solid Wood Xfax, Carrier Left Carrier Right, Asy Inlet Fr...\nHS Codes: (8517.50, 8474.80, 8474.39, 8501.32)See all bills of lading with this supplier",
+      "hs_codes": "8517.50, 8474.80, 8474.39, 8501.32",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.052,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Ningbo Yosun Auto Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-yosun-auto-parts",
+      "location": "Jinshan, China",
+      "total_shipments": "78",
+      "product_description": "Asy Inlet Rear Asy Logic Connector Asy Inlet Front Power Semiconductor Insulator Shp Shp Nsw Solid Wood Xfax, Carrier Left Carrier Right, Asy Inlet Fr...\nHS Codes: (8517.50, 8474.80, 8474.39, 8501.32)See all bills of lading with this supplier",
+      "hs_codes": "8517.50, 8474.80, 8474.39, 8501.32",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0617,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Boyd Hong Kong China",
+      "supplier_url": "https://www.importyeti.com/supplier/boyd-hong-kong",
+      "location": "Hong'en, China",
+      "total_shipments": "74",
+      "product_description": "Adhesive Tape Plastic Plts Adhesive Tape Rolls Shp Wood, Sealed Plywood Plts Foam Shp Wood, Sealed Plywood Plts Plastic Plts Foam Shp Wood, Plywood Pl...\nHS Codes: (3919.90, 4412.99, 9612.10, 8509.20)See all bills of lading with this supplier",
+      "hs_codes": "3919.90, 4412.99, 9612.10, 8509.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0493,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Boyd Hong Kong China",
+      "supplier_url": "https://www.importyeti.com/supplier/boyd-hong-kong",
+      "location": "Hong'en, China",
+      "total_shipments": "74",
+      "product_description": "Adhesive Tape Plastic Plts Adhesive Tape Rolls Shp Wood, Sealed Plywood Plts Foam Shp Wood, Sealed Plywood Plts Plastic Plts Foam Shp Wood, Plywood Pl...\nHS Codes: (3919.90, 4412.99, 9612.10, 8509.20)See all bills of lading with this supplier",
+      "hs_codes": "3919.90, 4412.99, 9612.10, 8509.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0583,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Keiper Changsh Usa Ting Mechanism China",
+      "supplier_url": "https://www.importyeti.com/supplier/keiper-changsh-usa-ting-mechanism",
+      "location": "Dongnan, China",
+      "total_shipments": "70",
+      "product_description": "Track Inner Shp Covered Bls Chn, Tube Recliner Shaft Tube Recliner Shaft Shp, Display Mechanism Asy Shp Covered Bls Chn, Recliner Actuator Shp Covered...\nHS Codes: (8429.11, 8474.39, 8302.50, 8519.31)See all bills of lading with this supplier",
+      "hs_codes": "8429.11, 8474.39, 8302.50, 8519.31",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0467,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Keiper Changsh Usa Ting Mechanism China",
+      "supplier_url": "https://www.importyeti.com/supplier/keiper-changsh-usa-ting-mechanism",
+      "location": "Dongnan, China",
+      "total_shipments": "70",
+      "product_description": "Track Inner Shp Covered Bls Chn, Tube Recliner Shaft Tube Recliner Shaft Shp, Display Mechanism Asy Shp Covered Bls Chn, Recliner Actuator Shp Covered...\nHS Codes: (8429.11, 8474.39, 8302.50, 8519.31)See all bills of lading with this supplier",
+      "hs_codes": "8429.11, 8474.39, 8302.50, 8519.31",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0567,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Anjie Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-anjie-technology",
+      "location": "Fujin, China",
+      "total_shipments": "68",
+      "product_description": "Sensor Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu, Molding Guide Shp Covered Bls Chn Chn Chn Chn Chn, Self Adhesive Foam Shp Ship...\nHS Codes: (8480.30, 4823.12, 8474.90, 8470.50)See all bills of lading with this supplier",
+      "hs_codes": "8480.30, 4823.12, 8474.90, 8470.50",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0453,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Anjie Technology China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-anjie-technology",
+      "location": "Fujin, China",
+      "total_shipments": "68",
+      "product_description": "Sensor Shp Tesla Livingstonintl Kbogan Livingstonintl Covered Bls Cnhu, Molding Guide Shp Covered Bls Chn Chn Chn Chn Chn, Self Adhesive Foam Shp Ship...\nHS Codes: (8480.30, 4823.12, 8474.90, 8470.50)See all bills of lading with this supplier",
+      "hs_codes": "8480.30, 4823.12, 8474.90, 8470.50",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0558,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Jiangsu Mingzhi Auto Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/jiangsu-mingzhi-auto-parts",
+      "location": "Chuangye, China",
+      "total_shipments": "67",
+      "product_description": "Cvr Cndstn Dcdc Cvr Cndstn Dcdc Shp, Asy Prod Tray Cvr Cndstn Dcdc Cvr Cndstn Dcdc Shp Shipping Marks, Molding Cowl Support Bracket Shp Covered Bls Ch...\nHS Codes: (8479.90, 8540.91, 5509.92, 8429.51)See all bills of lading with this supplier",
+      "hs_codes": "8479.90, 8540.91, 5509.92, 8429.51",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0447,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Jiangsu Mingzhi Auto Parts China",
+      "supplier_url": "https://www.importyeti.com/supplier/jiangsu-mingzhi-auto-parts",
+      "location": "Chuangye, China",
+      "total_shipments": "67",
+      "product_description": "Cvr Cndstn Dcdc Cvr Cndstn Dcdc Shp, Asy Prod Tray Cvr Cndstn Dcdc Cvr Cndstn Dcdc Shp Shipping Marks, Molding Cowl Support Bracket Shp Covered Bls Ch...\nHS Codes: (8479.90, 8540.91, 5509.92, 8429.51)See all bills of lading with this supplier",
+      "hs_codes": "8479.90, 8540.91, 5509.92, 8429.51",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0542,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Sk Nexilis South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/sk-nexilis",
+      "location": "Buk-myeon, South Korea",
+      "total_shipments": "65",
+      "product_description": "Pakcages Electrolytic Copper Foil Cargo Stowed Refrigerated Sat Requested Carrying Temperatuof Degrees Celsius Pakcages Electrolytic Copper Foil, Carg...\nHS Codes: (7402.00, 7410.11, 2620.60, 8901.30)See all bills of lading with this supplier",
+      "hs_codes": "7402.00, 7410.11, 2620.60, 8901.30",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0433,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Sk Nexilis South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/sk-nexilis",
+      "location": "Buk-myeon, South Korea",
+      "total_shipments": "65",
+      "product_description": "Pakcages Electrolytic Copper Foil Cargo Stowed Refrigerated Sat Requested Carrying Temperatuof Degrees Celsius Pakcages Electrolytic Copper Foil, Carg...\nHS Codes: (7402.00, 7410.11, 2620.60, 8901.30)See all bills of lading with this supplier",
+      "hs_codes": "7402.00, 7410.11, 2620.60, 8901.30",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0525,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Yanfeng International Seating Systems China",
+      "supplier_url": "https://www.importyeti.com/supplier/yanfeng-international-seating-systems",
+      "location": "Pudong Xinqu, China",
+      "total_shipments": "63",
+      "product_description": "Front Seat Plastic Shp Covered Bls Cnhu, Seat Complete Split Assy Bolsters White Pur Split Assy Blk Shp Covered Bls Chn, Trim Asy Trim Asy Fsb Row Sea...\nHS Codes: (8302.10, 9401.80, 9401.90, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "8302.10, 9401.80, 9401.90, 8474.39",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.042,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Yanfeng International Seating Systems China",
+      "supplier_url": "https://www.importyeti.com/supplier/yanfeng-international-seating-systems",
+      "location": "Pudong Xinqu, China",
+      "total_shipments": "63",
+      "product_description": "Front Seat Plastic Shp Covered Bls Cnhu, Seat Complete Split Assy Bolsters White Pur Split Assy Blk Shp Covered Bls Chn, Trim Asy Trim Asy Fsb Row Sea...\nHS Codes: (8302.10, 9401.80, 9401.90, 8474.39)See all bills of lading with this supplier",
+      "hs_codes": "8302.10, 9401.80, 9401.90, 8474.39",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0517,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Sheetwell Metal Manufactur China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-sheetwell-metal-manufactur",
+      "location": "Jiading, China",
+      "total_shipments": "62",
+      "product_description": "Flashing Splice Ridge Blk Shp Port Dues Terminal Fee Sea Sealing Service Export General Administrative Fee Fee Export Documentation Fee Thc Othc Termi...\nHS Codes: (8547.90, 8474.39, 6913.90, 2905.44)See all bills of lading with this supplier",
+      "hs_codes": "8547.90, 8474.39, 6913.90, 2905.44",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0413,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Sheetwell Metal Manufactur China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-sheetwell-metal-manufactur",
+      "location": "Jiading, China",
+      "total_shipments": "62",
+      "product_description": "Flashing Splice Ridge Blk Shp Port Dues Terminal Fee Sea Sealing Service Export General Administrative Fee Fee Export Documentation Fee Thc Othc Termi...\nHS Codes: (8547.90, 8474.39, 6913.90, 2905.44)See all bills of lading with this supplier",
+      "hs_codes": "8547.90, 8474.39, 6913.90, 2905.44",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.05,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Bizlink K Usa N China",
+      "supplier_url": "https://www.importyeti.com/supplier/bizlink-k-usa-n",
+      "location": "Nanhe Xian, China",
+      "total_shipments": "60",
+      "product_description": "Flood Port Assy Groundstrap Rear Performance Asy Cable Gnd Strap Shp Covered Bls Cnhu, Cbl Assy Harness Asy Cable Rdu Gnd Strap Asy Cable Fdu Gnd Stra...\nHS Codes: (8474.39, 7117.19, 4415.20, 5607.29)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 7117.19, 4415.20, 5607.29",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.04,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Bizlink K Usa N China",
+      "supplier_url": "https://www.importyeti.com/supplier/bizlink-k-usa-n",
+      "location": "Nanhe Xian, China",
+      "total_shipments": "60",
+      "product_description": "Flood Port Assy Groundstrap Rear Performance Asy Cable Gnd Strap Shp Covered Bls Cnhu, Cbl Assy Harness Asy Cable Rdu Gnd Strap Asy Cable Fdu Gnd Stra...\nHS Codes: (8474.39, 7117.19, 4415.20, 5607.29)See all bills of lading with this supplier",
+      "hs_codes": "8474.39, 7117.19, 4415.20, 5607.29",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0492,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Valeo Schalter Und Sensoren Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/valeo-schalter-und-sensoren",
+      "location": "Wemding, Germany",
+      "total_shipments": "59",
+      "product_description": "Tesla Components Anufacture Tesla, Tesla Components Manufacture Tesla Packed Llets, Tesla Components Anufacture Tesla Packed, Components Manufacture T...\nHS Codes: (8537.10, 8415.20, 8512.90)See all bills of lading with this supplier",
+      "hs_codes": "8537.10, 8415.20, 8512.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0393,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Valeo Schalter Und Sensoren Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/valeo-schalter-und-sensoren",
+      "location": "Wemding, Germany",
+      "total_shipments": "59",
+      "product_description": "Tesla Components Anufacture Tesla, Tesla Components Manufacture Tesla Packed Llets, Tesla Components Anufacture Tesla Packed, Components Manufacture T...\nHS Codes: (8537.10, 8415.20, 8512.90)See all bills of lading with this supplier",
+      "hs_codes": "8537.10, 8415.20, 8512.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0467,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Methode Electronics Shanghai China",
+      "supplier_url": "https://www.importyeti.com/supplier/methode-electronics-shanghai",
+      "location": "Jinqiao, China",
+      "total_shipments": "56",
+      "product_description": "Busbar Plts, Mbzzz Zzz Zzz Zzz Cpu Usb Hub Unit Gyro, Busbar, Busbar Shp China Covered Bls Cnhu Cnhu Cnhu Cnhu, Busbar Shp Zone Shanghai China \nHS Codes: (2922.49, 2922.50, 8474.39, 9022.30)See all bills of lading with this supplier",
+      "hs_codes": "2922.49, 2922.50, 8474.39, 9022.30",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0373,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Methode Electronics Shanghai China",
+      "supplier_url": "https://www.importyeti.com/supplier/methode-electronics-shanghai",
+      "location": "Jinqiao, China",
+      "total_shipments": "56",
+      "product_description": "Busbar Plts, Mbzzz Zzz Zzz Zzz Cpu Usb Hub Unit Gyro, Busbar, Busbar Shp China Covered Bls Cnhu Cnhu Cnhu Cnhu, Busbar Shp Zone Shanghai China \nHS Codes: (2922.49, 2922.50, 8474.39, 9022.30)See all bills of lading with this supplier",
+      "hs_codes": "2922.49, 2922.50, 8474.39, 9022.30",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.045,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Tongling Jingda Rea Special Enameled Wire China",
+      "supplier_url": "https://www.importyeti.com/supplier/tongling-jingda-rea-special-enameled-wire",
+      "location": "Tongling Xian, China",
+      "total_shipments": "54",
+      "product_description": "Enameled Copper Wire Shp, Enameled Copper Wire Shipmentno Shp, Enameled Copper Wire Shp Covered Bls Cnhu Cnhu Cnhu, Enameled Copper Wire Shp Ship Also...\nHS Codes: (7403.12, 7006.00, 8474.39, 8474.90)See all bills of lading with this supplier",
+      "hs_codes": "7403.12, 7006.00, 8474.39, 8474.90",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.036,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Tongling Jingda Rea Special Enameled Wire China",
+      "supplier_url": "https://www.importyeti.com/supplier/tongling-jingda-rea-special-enameled-wire",
+      "location": "Tongling Xian, China",
+      "total_shipments": "54",
+      "product_description": "Enameled Copper Wire Shp, Enameled Copper Wire Shipmentno Shp, Enameled Copper Wire Shp Covered Bls Cnhu Cnhu Cnhu, Enameled Copper Wire Shp Ship Also...\nHS Codes: (7403.12, 7006.00, 8474.39, 8474.90)See all bills of lading with this supplier",
+      "hs_codes": "7403.12, 7006.00, 8474.39, 8474.90",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0425,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Automobile Air Conditioner China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-automobile-air-conditioner",
+      "location": "Yu'an District, China",
+      "total_shipments": "51",
+      "product_description": "Line Asy Penta Shp, Line Asy Shp, Line Asy Cmp Manifold Shp Covered Bls Cnhu Cnhu Cnhu Cnhu, Line Asy Mfld Cmp, Line Shp Covered Bls Cnhu \nHS Codes: (8517.11, 8474.39, 8474.90, 4820.40)See all bills of lading with this supplier",
+      "hs_codes": "8517.11, 8474.39, 8474.90, 4820.40",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.034,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Automobile Air Conditioner China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-automobile-air-conditioner",
+      "location": "Yu'an District, China",
+      "total_shipments": "51",
+      "product_description": "Line Asy Penta Shp, Line Asy Shp, Line Asy Cmp Manifold Shp Covered Bls Cnhu Cnhu Cnhu Cnhu, Line Asy Mfld Cmp, Line Shp Covered Bls Cnhu \nHS Codes: (8517.11, 8474.39, 8474.90, 4820.40)See all bills of lading with this supplier",
+      "hs_codes": "8517.11, 8474.39, 8474.90, 4820.40",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0392,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Teklas Bulgaria Greece",
+      "supplier_url": "https://www.importyeti.com/supplier/teklas-bulgaria",
+      "location": "Obshtina Kardzhali, Bulgaria",
+      "total_shipments": "47",
+      "product_description": "Stowed Electric Automotive Par, Automotive Spare, Automotive Partsautomotive, Automotive, Automotive Partsautomotive Partsautomotive \nHS Codes: (8415.90, 3917.40, 8483.90, 8415.20)See all bills of lading with this supplier",
+      "hs_codes": "8415.90, 3917.40, 8483.90, 8415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0313,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Teklas Bulgaria Greece",
+      "supplier_url": "https://www.importyeti.com/supplier/teklas-bulgaria",
+      "location": "Obshtina Kardzhali, Bulgaria",
+      "total_shipments": "47",
+      "product_description": "Stowed Electric Automotive Par, Automotive Spare, Automotive Partsautomotive, Automotive, Automotive Partsautomotive Partsautomotive \nHS Codes: (8415.90, 3917.40, 8483.90, 8415.20)See all bills of lading with this supplier",
+      "hs_codes": "8415.90, 3917.40, 8483.90, 8415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0392,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Chunxing Precision Mechanical China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-chunxing-precision-mechanical",
+      "location": "Jinling, China",
+      "total_shipments": "47",
+      "product_description": "Busbar Shp Covered Bls Cnhu Cnhu, Busbar Shp Covered Bls Chn, Busbar Shp Covered Bls Chn Chn Chn, Asy Link Pos Hvbat Shp Covered Bls Chn Chn Chn, Asy ...\nHS Codes: (8447.90, 7315.81, 8474.39, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "8447.90, 7315.81, 8474.39, 4415.20",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0313,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Chunxing Precision Mechanical China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-chunxing-precision-mechanical",
+      "location": "Jinling, China",
+      "total_shipments": "47",
+      "product_description": "Busbar Shp Covered Bls Cnhu Cnhu, Busbar Shp Covered Bls Chn, Busbar Shp Covered Bls Chn Chn Chn, Asy Link Pos Hvbat Shp Covered Bls Chn Chn Chn, Asy ...\nHS Codes: (8447.90, 7315.81, 8474.39, 4415.20)See all bills of lading with this supplier",
+      "hs_codes": "8447.90, 7315.81, 8474.39, 4415.20",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Magnetron S A Colombia",
+      "supplier_url": "https://www.importyeti.com/supplier/magnetron-s-a",
+      "location": "Pereira, Colombia",
+      "total_shipments": "",
+      "product_description": "Transformer",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Magnetron S A Colombia",
+      "supplier_url": "https://www.importyeti.com/supplier/magnetron-s-a",
+      "location": "Pereira, Colombia",
+      "total_shipments": "",
+      "product_description": "Transformer",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Socomec S A Belgium",
+      "supplier_url": "https://www.importyeti.com/supplier/socomec-s-a",
+      "location": "Belgium",
+      "total_shipments": "",
+      "product_description": "Electrical Apparatus Switching Protectingelectrical Circuitshs Dap Termshbl Sxbs",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Socomec S A Belgium",
+      "supplier_url": "https://www.importyeti.com/supplier/socomec-s-a",
+      "location": "Belgium",
+      "total_shipments": "",
+      "product_description": "Electrical Apparatus Switching Protectingelectrical Circuitshs Dap Termshbl Sxbs",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Asahi Kasei E Materials Korea Inc South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/asahi-kasei-e-materials-korea",
+      "location": "Yeongdeungpo-gu, South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Separator Lithium Ion Battery Pex Behalf Panasonic Operational Excellen ...",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Asahi Kasei E Materials Korea Inc South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/asahi-kasei-e-materials-korea",
+      "location": "Yeongdeungpo-gu, South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Separator Lithium Ion Battery Pex Behalf Panasonic Operational Excellen ...",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Panasonic Operational Excellence Co Ltd South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Separator Film Pervio Ussi Reefer Teslausabroker Kuehne Nagel Isf Kuehne...",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Panasonic Operational Excellence Co Ltd South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Separator Film Pervio Ussi Reefer Teslausabroker Kuehne Nagel Isf Kuehne...",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Panasonic Operational Excellence Co Ltd South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Separator Film Pervio Ussf Reefer Teslausabroker Kuehne Nagel Isf Kuehne...",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Panasonic Operational Excellence Co Ltd South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Separator Film Pervio Ussf Reefer Teslausabroker Kuehne Nagel Isf Kuehne...",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Panasonic South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "Sandong-ri, South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Setela Separator Polyethylene Film Reefer Panasonic Kadoma Motomachi Kad...",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Panasonic South Korea",
+      "supplier_url": "https://www.importyeti.com/supplier/panasonic",
+      "location": "Sandong-ri, South Korea",
+      "total_shipments": "",
+      "product_description": "Cargo Stowed Refrigerated Sthe Requested Carrying Temperature Degrees Celsius Setela Separator Polyethylene Film Reefer Panasonic Kadoma Motomachi Kad...",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Chongqing Millison Technologies Inc China",
+      "supplier_url": "https://www.importyeti.com/supplier/chongqing-millison-technologies",
+      "location": "Chongqing Jiedao, China",
+      "total_shipments": "",
+      "product_description": "Nutplate Casting Door Nutplate Casting Ciw Door Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Chongqing Millison Technologies Inc China",
+      "supplier_url": "https://www.importyeti.com/supplier/chongqing-millison-technologies",
+      "location": "Chongqing Jiedao, China",
+      "total_shipments": "",
+      "product_description": "Nutplate Casting Door Nutplate Casting Ciw Door Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Chongqing Pingwei Automotive Systems Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/chongqing-pingwei-automotive-systems",
+      "location": "Huayuan, China",
+      "total_shipments": "",
+      "product_description": "Top Cover Top Cover Mica Top Cover Top Cover Mica Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Chongqing Pingwei Automotive Systems Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/chongqing-pingwei-automotive-systems",
+      "location": "Huayuan, China",
+      "total_shipments": "",
+      "product_description": "Top Cover Top Cover Mica Top Cover Top Cover Mica Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Zhejiang Sanhua Automotive Components Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/zhejiang-sanhua-automotive-componen",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Heat Sink Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Current Power Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-current-power-technology",
+      "location": "Wujiang, China",
+      "total_shipments": "",
+      "product_description": "Busbar Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Current Power Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-current-power-technology",
+      "location": "Wujiang, China",
+      "total_shipments": "",
+      "product_description": "Busbar Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Us Farathane China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Lingang, China",
+      "total_shipments": "",
+      "product_description": "Trough Trim Short Version Trough Trim Cover Assy Short Version Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Us Farathane China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Lingang, China",
+      "total_shipments": "",
+      "product_description": "Trough Trim Short Version Trough Trim Cover Assy Short Version Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Us Farathane China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Lingang, China",
+      "total_shipments": "",
+      "product_description": "Trough Trim Short Version Trough Trim Cover Assy Short Version Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Us Farathane China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Lingang, China",
+      "total_shipments": "",
+      "product_description": "Trough Trim Short Version Trough Trim Cover Assy Short Version Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Us Farathane China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Lingang, China",
+      "total_shipments": "",
+      "product_description": "Trough Trim Short Version Trough Trim Cover Assy Short Version Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Us Farathane China",
+      "supplier_url": "https://www.importyeti.com/supplier/us-farathane-factory",
+      "location": "Lingang, China",
+      "total_shipments": "",
+      "product_description": "Trough Trim Short Version Trough Trim Cover Assy Short Version Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Yinlun Heat Exchange System Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-yinlun-heat-exchange-system",
+      "location": "Tangshi, China",
+      "total_shipments": "",
+      "product_description": "Fan Blades Roof Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Yinlun Heat Exchange System Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-yinlun-heat-exchange-system",
+      "location": "Tangshi, China",
+      "total_shipments": "",
+      "product_description": "Fan Blades Roof Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Yinlun Heat Exchange System Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-yinlun-heat-exchange-system",
+      "location": "Qing'an, China",
+      "total_shipments": "",
+      "product_description": "Rdiator Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Yinlun Heat Exchange System Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-yinlun-heat-exchange-system",
+      "location": "Qing'an, China",
+      "total_shipments": "",
+      "product_description": "Rdiator Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Current Power Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-current-power-technology",
+      "location": "Wujiang, China",
+      "total_shipments": "",
+      "product_description": "Busbar Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Current Power Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-current-power-technology",
+      "location": "Wujiang, China",
+      "total_shipments": "",
+      "product_description": "Busbar Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Junchuang Auto Technologies Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-junchuang-auto-technologies",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "",
+      "product_description": "Asy Unting Sub Assembly Asy Breath Mountin Plr Bracket Plr Bracket Soft Trim Harpoon Soft Trim Harpoon Cntr Mid Floor Common Bracket Seat Outboard Sup...",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Junchuang Auto Technologies Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-junchuang-auto-technologies",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "",
+      "product_description": "Asy Unting Sub Assembly Asy Breath Mountin Plr Bracket Plr Bracket Soft Trim Harpoon Soft Trim Harpoon Cntr Mid Floor Common Bracket Seat Outboard Sup...",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Junchuang Auto Technologies Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-junchuang-auto-technologies",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "",
+      "product_description": "Shock Tower Cover Brkt Hcu Molding Wheel Fairing Molding Wheel Fairing Molding Wheel Fairing Molding Shock Tower Cover Pillar Ramp Asy Plr Sprt Brkt S...",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Junchuang Auto Technologies Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-junchuang-auto-technologies",
+      "location": "Wuzhong'an, China",
+      "total_shipments": "",
+      "product_description": "Shock Tower Cover Brkt Hcu Molding Wheel Fairing Molding Wheel Fairing Molding Wheel Fairing Molding Shock Tower Cover Pillar Ramp Asy Plr Sprt Brkt S...",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Changzhou Almaden Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/changzhou-almaden",
+      "location": "Changzhou, China",
+      "total_shipments": "",
+      "product_description": "Front Cover Assy Shp Shp Shp Shp Shp Ftz",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Changzhou Almaden Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/changzhou-almaden",
+      "location": "Changzhou, China",
+      "total_shipments": "",
+      "product_description": "Front Cover Assy Shp Shp Shp Shp Shp Ftz",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Teklas Bulgaria Ead China",
+      "supplier_url": "https://www.importyeti.com/supplier/teklas-bulgaria",
+      "location": "China",
+      "total_shipments": "",
+      "product_description": "Automotive Spare",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Teklas Bulgaria Ead China",
+      "supplier_url": "https://www.importyeti.com/supplier/teklas-bulgaria",
+      "location": "China",
+      "total_shipments": "",
+      "product_description": "Automotive Spare",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Vekan Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-vekan-technology",
+      "location": "Zhangji, China",
+      "total_shipments": "",
+      "product_description": "Aluminum Sheet Metal Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Vekan Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-vekan-technology",
+      "location": "Zhangji, China",
+      "total_shipments": "",
+      "product_description": "Aluminum Sheet Metal Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Vekan Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-vekan-technology",
+      "location": "Zhangji, China",
+      "total_shipments": "",
+      "product_description": "Aluminum Sheet Metal Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Vekan Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-vekan-technology",
+      "location": "Zhangji, China",
+      "total_shipments": "",
+      "product_description": "Aluminum Sheet Metal Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Vekan Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-vekan-technology",
+      "location": "Zhangji, China",
+      "total_shipments": "",
+      "product_description": "Aluminum Sheet Metal Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Vekan Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-vekan-technology",
+      "location": "Zhangji, China",
+      "total_shipments": "",
+      "product_description": "Aluminum Sheet Metal Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Xuancheng L Usa Re Precision Industrial Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/xuancheng-l-usa-re-precision-indust",
+      "location": "Xuanzhou Qu, China",
+      "total_shipments": "",
+      "product_description": "Battery Series Module Ftz Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Batom Co Ltd Taiwan",
+      "supplier_url": "https://www.importyeti.com/supplier/batom",
+      "location": "Siyu Village, Taiwan",
+      "total_shipments": "",
+      "product_description": "Asy Int Shaft Plts Asy Int Shaft Macro Taiwan Shp List",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Batom Co Ltd Taiwan",
+      "supplier_url": "https://www.importyeti.com/supplier/batom",
+      "location": "Siyu Village, Taiwan",
+      "total_shipments": "",
+      "product_description": "Asy Int Shaft Plts Asy Int Shaft Macro Taiwan Shp List",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Kuka Deutschland Gmbh Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/kuka-deutschland",
+      "location": "Augsburg, Germany",
+      "total_shipments": "",
+      "product_description": "Kuka Industrial Roboter",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Tesla Gigafactory Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/tesla-gigafactory",
+      "location": "Germany",
+      "total_shipments": "",
+      "product_description": "Packed Palletsautomotive Spare Partsshp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Tesla Gigafactory Germany",
+      "supplier_url": "https://www.importyeti.com/supplier/tesla-gigafactory",
+      "location": "Germany",
+      "total_shipments": "",
+      "product_description": "Packed Palletsautomotive Spare Partsshp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Boyd Hong Kong Limited China",
+      "supplier_url": "https://www.importyeti.com/supplier/boyd-hong-kong",
+      "location": "Hong'en, China",
+      "total_shipments": "",
+      "product_description": "Plywood Plts Tote Floor Shp Wood",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Boyd Hong Kong Limited China",
+      "supplier_url": "https://www.importyeti.com/supplier/boyd-hong-kong",
+      "location": "Hong'en, China",
+      "total_shipments": "",
+      "product_description": "Plywood Plts Tote Floor Shp Wood",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Hangzhou Haibao Electronic Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/hangzhou-haibao-electronic",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Epoxy Glass Fiber Sheet Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Hangzhou Haibao Electronic Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/hangzhou-haibao-electronic",
+      "location": "Hangzhou Shi, China",
+      "total_shipments": "",
+      "product_description": "Epoxy Glass Fiber Sheet Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Gestamp Auto Components K Usa N Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/gestamp-auto-components-k-usa-n",
+      "location": "Yuxi, China",
+      "total_shipments": "",
+      "product_description": "Top Cover Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Gestamp Auto Components K Usa N Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/gestamp-auto-components-k-usa-n",
+      "location": "Yuxi, China",
+      "total_shipments": "",
+      "product_description": "Top Cover Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Suzhou Koyo Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-koyo-technology",
+      "location": "Xiangcheng Qu, China",
+      "total_shipments": "",
+      "product_description": "Asy Tub Fbs Subasy Deadfront Fbs Shp Shp Shp Shp Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Suzhou Koyo Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/suzhou-koyo-technology",
+      "location": "Xiangcheng Qu, China",
+      "total_shipments": "",
+      "product_description": "Asy Tub Fbs Subasy Deadfront Fbs Shp Shp Shp Shp Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Blovelight Zhejiang Intelligent Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/blovelight-zhejiang-intelligent-technology",
+      "location": "China",
+      "total_shipments": "",
+      "product_description": "Plastic Shp Nanhu District Jiaxing Zhejiang",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Blovelight Zhejiang Intelligent Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/blovelight-zhejiang-intelligent-technology",
+      "location": "China",
+      "total_shipments": "",
+      "product_description": "Plastic Shp Nanhu District Jiaxing Zhejiang",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Shanghai Xinpeng Metal Products Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-xinpeng-metal-products",
+      "location": "Qingpu, China",
+      "total_shipments": "",
+      "product_description": "Sub Asy Enclosure Tub Spw Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Shanghai Xinpeng Metal Products Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/shanghai-xinpeng-metal-products",
+      "location": "Qingpu, China",
+      "total_shipments": "",
+      "product_description": "Sub Asy Enclosure Tub Spw Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Qingdao Injelic Auto Parts Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/qingdao-injelic-auto-parts",
+      "location": "Qingda, China",
+      "total_shipments": "",
+      "product_description": "Brkt Center Assy Brkt Asm Fascia Frt Ctr Fdr Brkt Asm Fascia Frt Ctr Fdr Wing Bracket Assy Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Qingdao Injelic Auto Parts Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/qingdao-injelic-auto-parts",
+      "location": "Qingda, China",
+      "total_shipments": "",
+      "product_description": "Brkt Center Assy Brkt Asm Fascia Frt Ctr Fdr Brkt Asm Fascia Frt Ctr Fdr Wing Bracket Assy Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Citic Dicastal Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/citic-dicastal",
+      "location": "Hebei, China",
+      "total_shipments": "",
+      "product_description": "Aluminium Wheels Auto Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Citic Dicastal Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/citic-dicastal",
+      "location": "Hebei, China",
+      "total_shipments": "",
+      "product_description": "Aluminium Wheels Auto Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Volex Interconnect Systems Suzhou Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/volex-interconnect-systems-suzhou",
+      "location": "Fumin, China",
+      "total_shipments": "",
+      "product_description": "Asy Outlet Adapter Shp China",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Volex Interconnect Systems Suzhou Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/volex-interconnect-systems-suzhou",
+      "location": "Fumin, China",
+      "total_shipments": "",
+      "product_description": "Asy Outlet Adapter Shp China",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Ningbo Tuopu Vibro Acoustics Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-tuopu-import-export",
+      "location": "Beilun Qu, China",
+      "total_shipments": "",
+      "product_description": "Bumper Beam Foam Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Ningbo Tuopu Vibro Acoustics Technology Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/ningbo-tuopu-import-export",
+      "location": "Beilun Qu, China",
+      "total_shipments": "",
+      "product_description": "Bumper Beam Foam Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.85,
+    "direction": "supplier->company",
+    "data": {
+      "supplier_name": "Jiangsu Xinquan Automotive Trim Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/jiangsu-xinquan-automotive-trim",
+      "location": "Changchun, China",
+      "total_shipments": "",
+      "product_description": "Tray Console Bundle Shp",
+      "hs_codes": "",
+      "impact_type": "supply_provision"
+    }
+  },
+  {
+    "type": "supplier",
+    "magnitude": 0.0,
+    "relevance": 0.75,
+    "direction": "company->supplier",
+    "data": {
+      "supplier_name": "Jiangsu Xinquan Automotive Trim Co Ltd China",
+      "supplier_url": "https://www.importyeti.com/supplier/jiangsu-xinquan-automotive-trim",
+      "location": "Changchun, China",
+      "total_shipments": "",
+      "product_description": "Tray Console Bundle Shp",
+      "hs_codes": "",
+      "impact_type": "demand_generation"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 5.2e-05,
+    "relevance": 0.519,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "316000",
+      "description": "Leather and allied product manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 2.6e-05,
+    "relevance": 0.519,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "3259A0",
+      "description": "All other chemical product and preparation manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 2.4e-05,
+    "relevance": 0.52,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "326190",
+      "description": "Other plastics product manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000232,
+    "relevance": 0.767,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "327100",
+      "description": "Clay product and refractory manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 2.7e-05,
+    "relevance": 0.52,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "33291A",
+      "description": "Valve and fittings other than plumbing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 1.3e-05,
+    "relevance": 0.46,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "33299A",
+      "description": "Ammunition, arms, ordnance, and accessories manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.00018,
+    "relevance": 0.404,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "333111",
+      "description": "Farm machinery and equipment manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.004818,
+    "relevance": 0.416,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "333316",
+      "description": "Photographic and photocopying equipment manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.112578,
+    "relevance": 0.767,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "333414",
+      "description": "Heating equipment (except warm air furnaces) manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000263,
+    "relevance": 0.6435,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "333415",
+      "description": "Air conditioning, refrigeration, and warm air heating equipment manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.001237,
+    "relevance": 0.417,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "333618",
+      "description": "Other engine equipment manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000292,
+    "relevance": 0.455,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334111",
+      "description": "Electronic computer manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.001567,
+    "relevance": 0.416,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334112",
+      "description": "Computer storage device manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 7.6e-05,
+    "relevance": 0.46,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334220",
+      "description": "Broadcast and wireless communications equipment",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.11557,
+    "relevance": 0.416,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334413",
+      "description": "Semiconductor and related device manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000847,
+    "relevance": 0.416,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "33441A",
+      "description": "Other electronic component manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.113383,
+    "relevance": 0.52,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334512",
+      "description": "Automatic environmental control manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000292,
+    "relevance": 0.455,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334513",
+      "description": "Industrial process variable instruments manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.108813,
+    "relevance": 0.455,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "334515",
+      "description": "Electricity and signal testing instruments manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000311,
+    "relevance": 0.455,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "33451A",
+      "description": "Watch, clock, and other measuring and controlling device manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.00198,
+    "relevance": 0.416,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "335110",
+      "description": "Electric lamp bulb and part manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.002267,
+    "relevance": 0.5855,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "335220",
+      "description": "Major household appliance manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.114254,
+    "relevance": 0.412,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "335312",
+      "description": "Motor and generator manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.00208,
+    "relevance": 0.466,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "335314",
+      "description": "Relay and industrial control manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000741,
+    "relevance": 0.412,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "335930",
+      "description": "Wiring device manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.00346,
+    "relevance": 0.4335,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "335999",
+      "description": "All other miscellaneous electrical equipment and component manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000129,
+    "relevance": 0.422,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336112",
+      "description": "Light truck and utility vehicle manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.100168,
+    "relevance": 0.422,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336120",
+      "description": "Heavy duty truck manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.014021,
+    "relevance": 0.404,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336214",
+      "description": "Travel trailer and camper manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 4.7e-05,
+    "relevance": 0.422,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336390",
+      "description": "Other motor vehicle parts manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.109531,
+    "relevance": 0.46,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336414",
+      "description": "Guided missile and space vehicle manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.002274,
+    "relevance": 0.46,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "33641A",
+      "description": "Propulsion units and parts for space vehicles and guided missiles",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 6e-06,
+    "relevance": 0.422,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336500",
+      "description": "Railroad rolling stock manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000362,
+    "relevance": 0.404,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336991",
+      "description": "Motorcycle, bicycle, and parts manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.001314,
+    "relevance": 0.46,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336992",
+      "description": "Military armored vehicle, tank, and tank component manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.086439,
+    "relevance": 0.404,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "336999",
+      "description": "All other transportation equipment manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.000185,
+    "relevance": 0.519,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "339920",
+      "description": "Sporting and athletic goods manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 0.100056,
+    "relevance": 0.519,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "339930",
+      "description": "Doll, toy, and game manufacturing",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 2.2e-05,
+    "relevance": 0.519,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "541800",
+      "description": "Advertising, public relations, and related services",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "produces",
+    "magnitude": 6.3e-05,
+    "relevance": 0.767,
+    "direction": "company->commodity",
+    "data": {
+      "naics_code": "S00401",
+      "description": "N/A",
+      "commodity_type": "output"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.011004,
+    "relevance": 0.416,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "221100",
+      "description": "Electric power generation, transmission, and distribution",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.049626,
+    "relevance": 0.519,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "313300",
+      "description": "Textile and fabric finishing and fabric coating mills",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.013308,
+    "relevance": 0.519,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "322210",
+      "description": "Paperboard container manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.025068,
+    "relevance": 0.519,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "325211",
+      "description": "Plastics material and resin manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.012458,
+    "relevance": 0.767,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "325510",
+      "description": "Paint and coating manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.02282,
+    "relevance": 0.404,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "326110",
+      "description": "Plastics packaging materials and unlaminated film and sheet manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.034094,
+    "relevance": 0.404,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "326210",
+      "description": "Tire manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.06122,
+    "relevance": 0.646,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "331110",
+      "description": "Iron and steel mills and ferroalloy manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.011147,
+    "relevance": 0.416,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "331410",
+      "description": "Nonferrous metal (except aluminum) smelting and refining",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.017808,
+    "relevance": 0.52,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "332320",
+      "description": "Ornamental and architectural metal products manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.020179,
+    "relevance": 0.767,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "333414",
+      "description": "Heating equipment (except warm air furnaces) manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.14381,
+    "relevance": 0.4127,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "333618",
+      "description": "Other engine equipment manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.022508,
+    "relevance": 0.4875,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334418",
+      "description": "Printed circuit assembly (electronic assembly) manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.016354,
+    "relevance": 0.52,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "33441A",
+      "description": "Other electronic component manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.008898,
+    "relevance": 0.46,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334511",
+      "description": "Search, detection, and navigation instruments manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.066411,
+    "relevance": 0.408,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "336310",
+      "description": "Motor vehicle gasoline engine and engine parts manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.04938,
+    "relevance": 0.422,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "336350",
+      "description": "Motor vehicle transmission and power train parts manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.057296,
+    "relevance": 0.422,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "336360",
+      "description": "Motor vehicle seating and interior trim manufacturing",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.068847,
+    "relevance": 0.46,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "33641A",
+      "description": "Propulsion units and parts for space vehicles and guided missiles",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.051661,
+    "relevance": 0.413,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "423100",
+      "description": "Motor vehicle and motor vehicle parts and supplies",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.071137,
+    "relevance": 0.4526,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "423600",
+      "description": "Household appliances and electrical and electronic goods",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.014325,
+    "relevance": 0.422,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "423800",
+      "description": "Machinery, equipment, and supplies",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.020082,
+    "relevance": 0.767,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "423A00",
+      "description": "Other durable goods merchant wholesalers",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.012358,
+    "relevance": 0.519,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "424A00",
+      "description": "Other nondurable goods merchant wholesalers",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.008403,
+    "relevance": 0.455,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "493000",
+      "description": "Warehousing and storage",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.004849,
+    "relevance": 0.455,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "541100",
+      "description": "Legal services",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.086026,
+    "relevance": 0.5157,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "550000",
+      "description": "Management of companies and enterprises",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.018922,
+    "relevance": 0.46,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "561300",
+      "description": "Employment services",
+      "layer": "direct",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.004455,
+    "relevance": 0.519,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "321100",
+      "description": "Sawmills and wood preservation",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.004481,
+    "relevance": 0.416,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "325180",
+      "description": "Other basic inorganic chemical manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.004889,
+    "relevance": 0.52,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "331490",
+      "description": "Nonferrous metal (except copper and aluminum) rolling, drawing, extruding and alloying",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.043442,
+    "relevance": 0.422,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "333613",
+      "description": "Mechanical power transmission equipment manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.057035,
+    "relevance": 0.4637,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334118",
+      "description": "Computer terminals and other computer peripheral equipment manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.117018,
+    "relevance": 0.4783,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334220",
+      "description": "Broadcast and wireless communications equipment",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.161269,
+    "relevance": 0.4446,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334413",
+      "description": "Semiconductor and related device manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.011217,
+    "relevance": 0.767,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334512",
+      "description": "Automatic environmental control manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.120473,
+    "relevance": 0.4767,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "334515",
+      "description": "Electricity and signal testing instruments manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.324018,
+    "relevance": 0.5303,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "335312",
+      "description": "Motor and generator manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.034377,
+    "relevance": 0.4335,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "335314",
+      "description": "Relay and industrial control manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.085406,
+    "relevance": 0.4483,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "336390",
+      "description": "Other motor vehicle parts manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.005571,
+    "relevance": 0.46,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "339990",
+      "description": "All other miscellaneous manufacturing",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  },
+  {
+    "type": "requires",
+    "magnitude": 0.02635,
+    "relevance": 0.5393,
+    "direction": "commodity->company",
+    "data": {
+      "naics_code": "S00300",
+      "description": "Noncomparable imports",
+      "layer": "indirect",
+      "commodity_type": "input"
+    }
+  }
+]
