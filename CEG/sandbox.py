@@ -1,6 +1,23 @@
 from graph.operators import add_ticker, propagate, reset_signals
-from graph.neo4j_exporter import to_neo4j_enhanced
-from graph.static_edges import StaticEdges
+from graph.signal_propagation import SignalPropagation
+# from graph.neo4j_exporter import to_neo4j_enhanced
+# import time
+# from graph.static_edges import StaticEdges
+# start_time = time.time()
+
+# edges = StaticEdges("QS")
+# edges.to_neo4j(
+#     canonical_companies_csv="./data/companies_filtered.csv",
+#     auto_canonicalize=True,      # Enable auto-grouping
+#     min_occurrences=2,
+#     password="myhome2911!"
+# )
+
+# end_time = time.time()
+# elapsed_time = end_time - start_time
+
+# print(f"⏱️  Execution time: {elapsed_time:.2f} seconds")
+# print(f"⏱️  Execution time: {elapsed_time/60:.2f} minutes")
 
 # # Generate edges for Boeing
 # print("Generating edges...")
@@ -49,19 +66,19 @@ for node in results['summary']['most_affected'][:5]:
     print(f"  {node['name']}: {node['signal']:.3f}")
 
 
-results = propagate(
-    source_ticker="BA",
-    signal=-0.9,           # Strong negative signal
-    max_hops=3,            # Propagate 3 levels deep
-    confidence_threshold=0.5  # Only use high-confidence edges
-)
+# results = propagate(
+#     source_ticker="BA",
+#     signal=-0.9,           # Strong negative signal
+#     max_hops=3,            # Propagate 3 levels deep
+#     confidence_threshold=0.5  # Only use high-confidence edges
+# )
 
-# 3. Check the results
-print(f"Total affected: {results['summary']['total_affected']}")
-print("\nMost impacted entities:")
-for node in results['summary']['most_affected'][:5]:
-    print(f"  {node['name']}: {node['signal']:.3f}")
+# # 3. Check the results
+# print(f"Total affected: {results['summary']['total_affected']}")
+# print("\nMost impacted entities:")
+# for node in results['summary']['most_affected'][:5]:
+#     print(f"  {node['name']}: {node['signal']:.3f}")
     
     
-# 4. Reset when done
-reset_signals()
+# # 4. Reset when done
+# reset_signals()

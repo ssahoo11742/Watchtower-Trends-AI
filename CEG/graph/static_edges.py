@@ -1,7 +1,7 @@
 import yfinance as yf
-from CEG.suppliers.suppliers import scrape_importyeti_suppliers
+from suppliers.suppliers import scrape_importyeti_suppliers
 from commodities_engine.commodities import Commodities
-from neo4j_exporter import to_neo4j_enhanced
+from .neo4j_exporter import to_neo4j_enhanced  # UPDATED IMPORT
 import json
 
 class StaticEdges:
@@ -9,7 +9,7 @@ class StaticEdges:
         self.ticker = ticker
         self.country = self.get_location()
         self.sector = self.get_sector()
-        self.url = f"https://www.importyeti.com/company/boeing-commercial-airp"
+        self.url = f"https://www.importyeti.com/company/quantum-scape"
         self.suppliers = self.get_suppliers()
         self.produces = Commodities(ticker).produces
         self.requires = Commodities(ticker).requires
@@ -30,16 +30,7 @@ class StaticEdges:
     
     def edges(self):
         """
-        Returns edges in standardized JSON format:
-        {
-            "type": edge type (country, sector, supplier, produces, requires),
-            "magnitude": impact magnitude (normalized value or boilerplate),
-            "relevance": confidence/relevance score (0-1),
-            "direction": flow direction (company->target or target->company),
-            "data": edge-specific additional data
-        }
-        
-        Bidirectional relationships create two edges with different magnitudes/relevance.
+        Returns edges in standardized JSON format.
         """
         edges_list = []
         
@@ -234,37 +225,40 @@ class StaticEdges:
         
         return edges_list
     
-    def to_neo4j(self, uri="neo4j://127.0.0.1:7687", user="neo4j", password="myhome2911!"):
-        to_neo4j_enhanced(self.edges(), self.ticker, uri, user, password)
-
+    def to_neo4j(self, 
+                canonical_companies_csv="companies_filtered.csv",
+                auto_canonicalize=False,     # ADD THIS
+                min_occurrences=2,           # ADD THIS
+                uri="bolt://127.0.0.1:7687", 
+                user="neo4j", 
+                password="myhome2911!"):
+        
+        to_neo4j_enhanced(
+            self.edges(), 
+            self.ticker,
+            canonical_companies_csv=canonical_companies_csv,
+            auto_canonicalize=auto_canonicalize,    # PASS IT
+            min_occurrences=min_occurrences,        # PASS IT
+            uri=uri,
+            user=user,
+            password=password
+        )
 
 
 # Example usage
 if __name__ == "__main__":
-    static_edges = StaticEdges("BA")
-    
-    # Option 1: Get edges as JSON
-    edges = static_edges.edges()
-    
-    from collections import Counter
-    edge_types = Counter([e['type'] for e in edges])
-    
-    print(f"\n📊 Total Edges: {len(edges)}")
-    print(f"Edge Types: {dict(edge_types)}\n")
-    
-    # Save to JSON
-    with open('tesla_edges.json', 'w') as f:
-        json.dump(edges, f, indent=2)
-    print("✅ Full edges saved to 'tesla_edges.json'")
-    
-    # Option 2: Export to Neo4j
-    print("\n" + "=" * 80)
-    print("Exporting to Neo4j...")
-    print("=" * 80)
-    
-    success = static_edges.to_neo4j(
-        uri="bolt://127.0.0.1:7687",
-        user="neo4j",
+    edges = StaticEdges("BA")
+    edges.to_neo4j(
+        canonical_companies_csv="companies_filtered.csv",
+        auto_canonicalize=True,      # Enable auto-grouping
+        min_occurrences=2,
         password="myhome2911!"
     )
     
+    # Option 3: Export to Neo4j WITHOUT entity resolution (legacy mode)
+    # static_edges.to_neo4j(
+    #     canonical_companies_csv=None,  # Disable entity resolution
+    #     uri="bolt://127.0.0.1:7687",
+    #     user="neo4j",
+    #     password="myhome2911!"
+    # )

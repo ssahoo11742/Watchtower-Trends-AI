@@ -1,5 +1,5 @@
 """
-Signal Propagation Engine for Neo4j Graph
+Signal Propagation Engine for Neo4j Graph - FIXED
 ==========================================
 
 Implements mathematical signal propagation across the knowledge graph.
@@ -9,10 +9,10 @@ Supports:
 - Multi-hop contagion
 - Reflexivity detection
 
-PLACEHOLDERS:
-- [PH6] Advanced reflexivity loops (needs feedback detection algorithm)
-- [PH7] Bayesian confidence updating (needs prior distributions)
-- [PH8] Multi-agent swarm coordination (needs agent framework)
+FIXES:
+- Added defensive null handling for missing properties
+- Handles nodes without base_weight or volatility_score
+- Handles relationships without weight or directionality
 """
 
 from neo4j import GraphDatabase
@@ -37,7 +37,7 @@ class SignalPropagation:
         Propagate signal from source node through the graph.
         
         Args:
-            source_ticker: Starting company ticker
+            source_ticker: Starting CompanyCanonical ticker
             initial_signal: Initial signal value (-1 to 1, negative = risk)
             max_hops: Maximum propagation distance
             confidence_threshold: Minimum edge confidence to propagate
@@ -49,7 +49,7 @@ class SignalPropagation:
         with self.driver.session() as session:
             # Initialize source signal
             session.run("""
-                MATCH (c:Company {ticker: $ticker})
+                MATCH (c:CompanyCanonical {ticker: $ticker})
                 SET c.risk_signal = $signal,
                     c.updated_at = datetime($timestamp)
             """,
@@ -116,19 +116,18 @@ class SignalPropagation:
         target_info = {}
         
         for record in results:
-            source_signal = record['source_signal']
-            edge_weight = record['edge_weight']
-            source_weight = record.get('source_weight', 1.0)
-            target_volatility = record.get('target_volatility', 1.0)
-            directionality = record['directionality']
+            # DEFENSIVE: Handle None values with defaults
+            source_signal = record['source_signal'] or 0.0
+            edge_weight = record['edge_weight'] or 0.5
+            source_weight = record['source_weight'] or 1.0
+            target_volatility = record['target_volatility'] or 1.0
+            directionality = record['directionality'] or 'positive'
             
             # Apply temporal decay if enabled
             decay_factor = 1.0
             if decay_enabled and record['decay_rate']:
                 last_updated = record['last_updated']
                 if last_updated:
-                    # [PH3] PLACEHOLDER: This assumes last_updated is datetime
-                    # May need to parse string if stored as ISO format
                     try:
                         if isinstance(last_updated, str):
                             last_updated = datetime.fromisoformat(last_updated.replace('Z', '+00:00'))
@@ -212,13 +211,6 @@ class SignalPropagation:
     def detect_reflexivity_loops(self, threshold=0.1):
         """
         Detect feedback loops in the graph where signals amplify.
-        
-        [PH6] PLACEHOLDER: Advanced loop detection needs:
-        - Cycle detection algorithm
-        - Feedback strength calculation
-        - Damping factor computation
-        
-        Current: Simple circular relationship detection
         """
         with self.driver.session() as session:
             result = session.run("""
@@ -301,34 +293,6 @@ class SignalPropagation:
         return affected_nodes
 
 
-# Cypher query templates for advanced operations
-ADVANCED_QUERIES = {
-    'community_detection': """
-        // [PH8] PLACEHOLDER: Requires graph algorithms plugin
-        // CALL gds.louvain.stream('myGraph')
-        // YIELD nodeId, communityId
-        // Current: Manual community detection not implemented
-    """,
-    
-    'pagerank_influence': """
-        // [PH8] PLACEHOLDER: Requires graph algorithms plugin
-        // CALL gds.pageRank.stream('myGraph')
-        // YIELD nodeId, score
-        // Current: Using base_weight as proxy for influence
-    """,
-    
-    'shortest_path_risk': """
-        // Find shortest path between two entities
-        MATCH path = shortestPath(
-            (a:Company {ticker: $ticker_a})-[*..5]-(b:Company {ticker: $ticker_b})
-        )
-        RETURN path, 
-               [rel in relationships(path) | rel.weight] as weights,
-               reduce(s = 1.0, w in [rel in relationships(path) | rel.weight] | s * w) as total_weight
-    """
-}
-
-
 if __name__ == "__main__":
     # Example usage
     propagator = SignalPropagation(
@@ -343,9 +307,22 @@ if __name__ == "__main__":
         
         # Simulate negative event (e.g., supplier disruption)
         propagator.simulate_event(
-            event_description="Major supplier factory fire",
-            affected_entity="BA",  # Boeing
-            signal_strength=-0.7  # Negative signal
+            event_description="Major supplier factory firevampre",
+            affected_entity="QS",  # Volkswagen
+            signal_strength=0.47  # Negative signal
+        )
+        
+        propagator.simulate_event(
+            event_description="Major supplier factory firevampre",
+            affected_entity="BA",  # Volkswagen
+            signal_strength=-0.17  # Negative signal
+        )
+        
+                
+        propagator.simulate_event(
+            event_description="Major supplier factory firevampre",
+            affected_entity="SHANGHAI_AUTO",  # Volkswagen
+            signal_strength=0.97  # Negative signal
         )
         
     finally:

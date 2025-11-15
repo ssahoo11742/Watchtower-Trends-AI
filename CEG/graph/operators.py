@@ -22,8 +22,8 @@ import math
 from collections import defaultdict
 
 # Import your existing modules
-from CEG.graph.static_edges import StaticEdges
-from neo4j_exporter import to_neo4j_enhanced
+from .static_edges import StaticEdges
+from .neo4j_exporter import to_neo4j_enhanced
 
 
 class GraphManager:
@@ -117,7 +117,7 @@ class GraphManager:
             
             # Initialize source signal
             session.run("""
-                MATCH (c:Company {ticker: $ticker})
+                MATCH (c:CompanyCanonical {ticker: $ticker})
                 SET c.risk_signal = $signal,
                     c.updated_at = datetime($timestamp)
             """,
