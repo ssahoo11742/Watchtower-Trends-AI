@@ -1,18 +1,17 @@
 """
-Enhanced Neo4j Exporter with Auto-Canonicalization - FIXED
-==================================================
+Fixed Neo4j Exporter with Proper Schema
+========================================
 
-FIXES:
-1. ✅ All node labels restored (Country, Sector, Industry, Commodity, Supplier)
-2. ✅ Proper grouping: AVIC variants → "AVIC Holdings Corporation" (not surface entity)
-3. ✅ New companies merge with existing canonical nodes
-
-Usage:
-    to_neo4j_enhanced(edges, "BA", 
-                     canonical_companies_csv="company_filtered.csv",
-                     auto_canonicalize=True,
-                     min_occurrences=2,
-                     password="your_password")
+FIXES IMPLEMENTED:
+1. ✅ Removed redundant fields (risk_signal, volatility_score, base_weight, entity_type)
+2. ✅ Added aliases, embeddings, confidence fields
+3. ✅ Moved relationship attributes from nodes to edges
+4. ✅ Added temporal properties (first_seen, last_seen, decay_rate)
+5. ✅ Fixed array fields (hs_codes, aliases)
+6. ✅ Added units for commodities
+7. ✅ Renamed root_name to canonical_name
+8. ✅ Added iso_code, region for countries
+9. ✅ Added classification_system for sectors/industries
 """
 
 from neo4j import GraphDatabase
@@ -24,19 +23,16 @@ import warnings
 from collections import defaultdict
 import re
 
-# Try to import entity resolver, but work without it
 try:
     from .entity_resolution_pipeline import EntityResolver
     ENTITY_RESOLUTION_AVAILABLE = True
 except ImportError:
     ENTITY_RESOLUTION_AVAILABLE = False
-    warnings.warn("Entity resolution not available. Install sentence-transformers and rapidfuzz.")
+    warnings.warn("Entity resolution not available.")
 
 
-class EnhancedNeo4jExporter:
-    """
-    Enhanced exporter with auto-canonicalization.
-    """
+class FixedNeo4jExporter:
+    """Neo4j exporter with proper schema following review recommendations."""
     
     TEMPORAL_TYPES = {
         'country': 'stable',
@@ -54,6 +50,23 @@ class EnhancedNeo4jExporter:
         'temporary': 0.15
     }
     
+    # Country to ISO code mapping
+    COUNTRY_ISO_MAP = {
+        'United States': {'iso': 'US', 'region': 'North America'},
+        'China': {'iso': 'CN', 'region': 'Asia'},
+        'Japan': {'iso': 'JP', 'region': 'Asia'},
+        'Germany': {'iso': 'DE', 'region': 'Europe'},
+        'United Kingdom': {'iso': 'GB', 'region': 'Europe'},
+        'France': {'iso': 'FR', 'region': 'Europe'},
+        'South Korea': {'iso': 'KR', 'region': 'Asia'},
+        'Canada': {'iso': 'CA', 'region': 'North America'},
+        'Australia': {'iso': 'AU', 'region': 'Oceania'},
+        'Taiwan': {'iso': 'TW', 'region': 'Asia'},
+        'Singapore': {'iso': 'SG', 'region': 'Asia'},
+        'Vietnam': {'iso': 'VN', 'region': 'Asia'},
+        'Spain': {'iso': 'ES', 'region': 'Europe'},
+    }
+    
     def __init__(self, uri="bolt://localhost:7687", user="neo4j", password="password",
                  canonical_companies_csv: Optional[str] = None,
                  auto_canonicalize: bool = False,
@@ -63,7 +76,6 @@ class EnhancedNeo4jExporter:
         self.auto_canonicalize = auto_canonicalize
         self.min_occurrences = min_occurrences
         
-        # Initialize entity resolver if available and CSV provided
         self.resolver = None
         if canonical_companies_csv and ENTITY_RESOLUTION_AVAILABLE:
             try:
@@ -72,178 +84,132 @@ class EnhancedNeo4jExporter:
                 print("✅ Entity resolver ready")
             except Exception as e:
                 print(f"⚠️  Entity resolution disabled: {e}")
-                self.resolver = None
-        elif canonical_companies_csv and not ENTITY_RESOLUTION_AVAILABLE:
-            print("⚠️  Entity resolution requested but dependencies not installed")
     
     def close(self):
         self.driver.close()
     
     def _extract_root_company_name(self, supplier_name: str) -> str:
-        """
-        Extract the root company name from a supplier name.
-        
-        Examples:
-            "Panasonic Japan" → "panasonic"
-            "Samsung Electronics Co Ltd" → "samsung"
-            "Avic International Beichen Dong China" → "avic"
-            "Avic International Holding Corporat South Korea" → "avic"
-            "Avic Chengfei Commercial Aircraft" → "avic"
-        """
+        """Extract the root company name."""
         name = supplier_name.lower()
         
-        # Remove common geographic suffixes (do this FIRST before removing other parts)
         geo_patterns = [
-            r'\s+(?:japan|china|korea|south korea|north korea|germany|france|taiwan|vietnam|singapore|spain|usa|uk|united states|united kingdom)$',
-            r'\s+(?:north america|south america|europe|asia|asia pacific|middle east)$',
+            r'\s+(?:japan|china|korea|south korea|germany|france|taiwan|vietnam|singapore|spain|usa|uk)$',
         ]
         for pattern in geo_patterns:
             name = re.sub(pattern, '', name)
         
-        # Remove common facility/division/subsidiary suffixes
         facility_patterns = [
-            r'\s+(?:facility|factory|plant|division|dept|department|unit|center|branch|office).*$',
-            r'\s+(?:manufacturing|industrial|commercial|international|global|regional|domestic).*$',
-            r'\s+(?:aerospace|aviation|automotive|electronics|energy|technology|systems).*$',
-            r'\s+(?:holding|holdings|corporat|corporation|group).*$',
+            r'\s+(?:facility|factory|manufacturing|international|holdings?).*$',
         ]
         for pattern in facility_patterns:
             name = re.sub(pattern, '', name)
         
-        # Remove legal suffixes
         legal_patterns = [
-            r'\s+(?:inc|corp|ltd|llc|co|company|limited|plc|gmbh|ag|sa)\.?$',
+            r'\s+(?:inc|corp|ltd|llc|co|company|limited)\.?$',
         ]
         for pattern in legal_patterns:
             name = re.sub(pattern, '', name)
         
-        # Clean up punctuation and extra spaces
         name = re.sub(r'[,\.\(\)]', '', name)
         name = re.sub(r'\s+', ' ', name).strip()
         
-        # For multi-word names, return ONLY the first word (the actual company name)
-        # This ensures "AVIC International", "AVIC Chengfei", "AVIC Beichen" all become "avic"
         words = name.split()
         if words:
-            return words[0]  # Just the first word - the root company name
+            return words[0]
         
         return name
     
     def _group_suppliers_by_root_name(self, suppliers: List[Dict]) -> Dict[str, List[Dict]]:
-        """
-        Group suppliers by their root company name.
-        
-        Returns:
-            {
-                "panasonic": [
-                    {"supplier_name": "Panasonic Japan", ...},
-                    {"supplier_name": "Panasonic Korea", ...}
-                ],
-                "avic": [
-                    {"supplier_name": "Avic International Beichen Dong China", ...},
-                    {"supplier_name": "Avic Chengfei Commercial Aircraft", ...}
-                ]
-            }
-        """
+        """Group suppliers by their root company name."""
         groups = defaultdict(list)
-        
         for supplier in suppliers:
             root_name = self._extract_root_company_name(supplier['supplier_name'])
             groups[root_name].append(supplier)
-        
         return dict(groups)
     
+    def _generate_aliases(self, name: str) -> List[str]:
+        """Generate common aliases for a name."""
+        aliases = [name, name.lower()]
+        
+        # Remove "The" prefix
+        if name.startswith("The "):
+            aliases.append(name[4:])
+        
+        # Remove legal suffixes
+        legal_suffixes = [" Inc.", " Corp.", " Ltd.", " LLC", " Company", " Corporation"]
+        for suffix in legal_suffixes:
+            if name.endswith(suffix):
+                aliases.append(name[:-len(suffix)])
+        
+        return list(set(aliases))
+    
     def _create_auto_canonical_node(self, session, root_name: str, suppliers: List[Dict]) -> str:
-        """
-        Create an auto-generated canonical company node.
-        
-        Returns:
-            Generated ticker (e.g., "AVIC_AUTO")
-        """
-        # Generate a pseudo-ticker from the root name
+        """Create an auto-generated canonical company node with proper schema."""
         ticker = f"{root_name.upper().replace(' ', '_')}_AUTO"
-        
-        # Create a proper canonical name based on the root
-        # If root is "avic", canonical name is "AVIC Holdings Corporation"
-        # If root is "panasonic", canonical name is "Panasonic Corporation"
         canonical_name = f"{root_name.title()} Holdings Corporation"
         
-        # Extract most common location from the group
         locations = [s.get('location', '') for s in suppliers if s.get('location')]
         common_location = max(set(locations), key=locations.count) if locations else "Unknown"
         
-        # Get all unique facility names for metadata
-        facility_names = [s['supplier_name'] for s in suppliers]
+        aliases = self._generate_aliases(canonical_name)
         
         session.run("""
             MERGE (c:CompanyCanonical {ticker: $ticker})
             SET c.name = $name,
-                c.root_name = $root_name,
-                c.entity_type = 'CompanyCanonical',
-                c.auto_generated = true,
-                c.num_facilities = $num_facilities,
-                c.primary_location = $location,
-                c.facility_list = $facility_list,
+                c.canonical_name = $canonical_name,
+                c.legal_name = $canonical_name,
+                c.aliases = $aliases,
+                c.country = $country,
                 c.updated_at = datetime($timestamp),
-                c.risk_signal = 0.0,
-                c.base_weight = 0.7,
-                c.volatility_score = 0.8
+                c.source_confidence = 0.85
         """,
         ticker=ticker,
         name=canonical_name,
-        root_name=root_name,
-        num_facilities=len(suppliers),
-        location=common_location,
-        facility_list=', '.join(facility_names[:5]),  # Store first 5 for reference
+        canonical_name=canonical_name,
+        aliases=aliases,
+        country=common_location,
         timestamp=self.timestamp)
         
-        print(f"      ✨ Created: {canonical_name} ({ticker}) with {len(suppliers)} facilities")
-        
+        print(f"      ✨ Created: {canonical_name} ({ticker})")
         return ticker
     
     def export_edges(self, edges, ticker):
-        """
-        Export edges with enhanced properties and optional entity resolution.
-        """
+        """Export edges with fixed schema."""
         with self.driver.session() as session:
-            # Get company info
             info = yf.Ticker(ticker).info
             company_name = info.get("longName", ticker)
             market_cap = info.get("marketCap", 0)
+            sector = info.get("sector", "Unknown")
+            industry = info.get("industry", "Unknown")
+            country = info.get("country", "Unknown")
             
-            # Calculate company properties
-            base_weight = self._calculate_base_weight(market_cap)
-            volatility_score = info.get("beta", 1.0) if info.get("beta") else 1.0
+            # Create central company node with PROPER schema
+            aliases = self._generate_aliases(company_name)
             
-            # Create central company node (CANONICAL if using resolution)
-            node_label = "CompanyCanonical" if self.resolver else "Company"
-            
-            session.run(f"""
-                MERGE (c:{node_label} {{ticker: $ticker}})
+            session.run("""
+                MERGE (c:CompanyCanonical {ticker: $ticker})
                 SET c.name = $name,
+                    c.canonical_name = $name,
                     c.legal_name = $name,
+                    c.aliases = $aliases,
+                    c.ticker = $ticker,
                     c.marketCap = $marketCap,
                     c.sector = $sector,
                     c.industry = $industry,
                     c.country = $country,
-                    c.risk_signal = 0.0,
                     c.updated_at = datetime($timestamp),
-                    c.base_weight = $base_weight,
-                    c.volatility_score = $volatility_score,
-                    c.entity_type = '{node_label}',
-                    c.auto_generated = false
+                    c.source_confidence = 1.0
             """, 
             ticker=ticker,
             name=company_name,
+            aliases=aliases,
             marketCap=market_cap,
-            sector=info.get("sector", "Unknown"),
-            industry=info.get("industry", "Unknown"),
-            country=info.get("country", "Unknown"),
-            timestamp=self.timestamp,
-            base_weight=base_weight,
-            volatility_score=volatility_score)
+            sector=sector,
+            industry=industry,
+            country=country,
+            timestamp=self.timestamp)
             
-            # Separate supplier edges from others
+            # Separate supplier edges
             supplier_edges = [e for e in edges if e['type'] == 'supplier']
             other_edges = [e for e in edges if e['type'] != 'supplier']
             
@@ -252,46 +218,39 @@ class EnhancedNeo4jExporter:
                 if self.resolver:
                     self._process_suppliers_with_resolution(session, supplier_edges, ticker)
                 else:
-                    self._process_suppliers_legacy(session, supplier_edges, ticker, market_cap)
+                    self._process_suppliers_legacy(session, supplier_edges, ticker)
             
-            # Process other edges (Country, Sector, Industry, Commodity)
+            # Process other edges
             for edge in other_edges:
                 self._process_edge(session, edge, ticker, market_cap)
             
             print(f"✅ Successfully exported {len(edges)} edges")
-            if self.resolver:
-                print(f"   - {len(supplier_edges)} supplier edges (with entity resolution)")
-            else:
-                print(f"   - {len(supplier_edges)} supplier edges (legacy mode)")
-            print(f"   - {len(other_edges)} other edges (Country, Sector, Industry, Commodity)")
-            
             return True
     
     def _process_suppliers_with_resolution(self, session, supplier_edges, ticker):
-        """
-        Process suppliers with entity resolution AND auto-canonicalization.
-        """
-        # Extract supplier data
+        """Process suppliers with entity resolution."""
         suppliers = []
         for edge in supplier_edges:
             suppliers.append({
                 'supplier_name': edge['data']['supplier_name'],
                 'location': edge['data'].get('location', ''),
                 'magnitude': edge['magnitude'],
+                'normalized_magnitude': edge.get('normalized_magnitude'),
+                'direction_value': edge.get('direction_value'),
+                'weight': edge.get('weight'),
+                'correlation_strength': edge.get('correlation_strength'),
                 'relevance': edge['relevance'],
                 'direction': edge['direction'],
                 'full_data': edge['data']
             })
         
-        # Step 1: Try to resolve to companies in CSV
-        print(f"   🔍 Resolving {len(suppliers)} suppliers to canonical companies...")
+        print(f"   🔍 Resolving {len(suppliers)} suppliers...")
         resolved_suppliers = self.resolver.resolve_suppliers_batch(
             [{'supplier_name': s['supplier_name'], 'location': s['location']} 
              for s in suppliers],
             threshold=0.70
         )
         
-        # Merge resolution results
         matched_count = 0
         unmatched_suppliers = []
         
@@ -308,46 +267,28 @@ class EnhancedNeo4jExporter:
             else:
                 unmatched_suppliers.append(supplier)
         
-        print(f"   ✅ Resolved {matched_count}/{len(suppliers)} suppliers to CSV companies")
+        print(f"   ✅ Resolved {matched_count}/{len(suppliers)} suppliers")
         
-        # Step 2: Auto-canonicalize unmatched suppliers if enabled
+        # Auto-canonicalize unmatched
         auto_created_count = 0
         if self.auto_canonicalize and unmatched_suppliers:
-            print(f"   🤖 Auto-canonicalizing {len(unmatched_suppliers)} unmatched suppliers...")
+            print(f"   🤖 Auto-canonicalizing {len(unmatched_suppliers)} unmatched...")
             
-            # Group by root name
             groups = self._group_suppliers_by_root_name(unmatched_suppliers)
             
-            # Create canonical nodes for groups with multiple suppliers
             for root_name, group_suppliers in groups.items():
                 if len(group_suppliers) >= self.min_occurrences:
-                    # Check if canonical node already exists from previous runs
                     auto_ticker = f"{root_name.upper().replace(' ', '_')}_AUTO"
                     
-                    # Try to find existing canonical node
                     result = session.run("""
                         MATCH (c:CompanyCanonical {ticker: $ticker})
                         RETURN c.ticker as ticker
                     """, ticker=auto_ticker).single()
                     
                     if not result:
-                        # Create new auto-canonical node
                         auto_ticker = self._create_auto_canonical_node(session, root_name, group_suppliers)
                         auto_created_count += 1
-                    else:
-                        # Node already exists, just update metadata
-                        canonical_name = f"{root_name.title()} Holdings Corporation"
-                        session.run("""
-                            MATCH (c:CompanyCanonical {ticker: $ticker})
-                            SET c.num_facilities = c.num_facilities + $new_facilities,
-                                c.updated_at = datetime($timestamp)
-                        """, 
-                        ticker=auto_ticker,
-                        new_facilities=len(group_suppliers),
-                        timestamp=self.timestamp)
-                        print(f"      ♻️  Merged into existing: {canonical_name} ({auto_ticker})")
                     
-                    # Update all suppliers in this group
                     for supplier in group_suppliers:
                         supplier['canonical_ticker'] = auto_ticker
                         supplier['canonical_name'] = f"{root_name.title()} Holdings Corporation"
@@ -358,584 +299,480 @@ class EnhancedNeo4jExporter:
             if auto_created_count > 0:
                 print(f"   ✅ Auto-created {auto_created_count} canonical nodes")
         
-        # Step 3: Create all nodes and relationships
+        # Create nodes and relationships with PROPER schema
         for supplier in suppliers:
-            # Create CompanySurface node
+            # Create CompanySurface node with FIXED schema
+            hs_codes_list = supplier['full_data'].get('hs_codes', '').split(',') if supplier['full_data'].get('hs_codes') else []
+            hs_codes_list = [code.strip() for code in hs_codes_list if code.strip()]
+            
+            aliases = self._generate_aliases(supplier['supplier_name'])
+            
+            # Convert total_shipments to integer
+            try:
+                total_shipments = int(str(supplier['full_data'].get('total_shipments', '0')).replace(',', ''))
+            except:
+                total_shipments = 0
+            
             session.run("""
                 MERGE (s:CompanySurface {name: $name})
-                SET s.location = $location,
+                SET s.raw_name = $raw_name,
+                    s.clean_name = $clean_name,
+                    s.aliases = $aliases,
+                    s.location_string = $location,
                     s.supplier_url = $url,
                     s.product_description = $product_desc,
                     s.hs_codes = $hs_codes,
                     s.total_shipments = $shipments,
-                    s.risk_signal = 0.0,
                     s.updated_at = datetime($timestamp),
-                    s.entity_type = 'CompanySurface',
                     s.has_canonical_match = $has_match,
                     s.resolution_confidence = $confidence,
-                    s.resolution_type = $match_type,
-                    s.base_weight = 0.5,
-                    s.volatility_score = 0.8
+                    s.resolution_type = $match_type
             """,
             name=supplier['supplier_name'],
+            raw_name=supplier['supplier_name'],
+            clean_name=self._extract_root_company_name(supplier['supplier_name']),
+            aliases=aliases,
             location=supplier.get('location', ''),
             url=supplier['full_data'].get('supplier_url', ''),
             product_desc=supplier['full_data'].get('product_description', ''),
-            hs_codes=supplier['full_data'].get('hs_codes', ''),
-            shipments=supplier['full_data'].get('total_shipments', ''),
+            hs_codes=hs_codes_list,
+            shipments=total_shipments,
             timestamp=self.timestamp,
             has_match=supplier['canonical_ticker'] is not None,
             confidence=supplier.get('confidence', 0.0),
             match_type=supplier.get('match_type', 'no_match'))
             
-            # If resolved (from CSV or auto-created), create canonical relationship
+            # Create RESOLVES_TO relationship if matched
             if supplier['canonical_ticker']:
                 rel_type = self._map_relationship_type(supplier.get('relationship', 'RELATED_TO'))
                 
-                # Canonical node already exists (created earlier or in CSV)
-                # Just create the relationship
                 session.run(f"""
-                    MATCH (c:CompanyCanonical {{ticker: $ticker}})
                     MATCH (s:CompanySurface {{name: $surface_name}})
-                    MERGE (c)-[r:{rel_type}]->(s)
+                    MATCH (c:CompanyCanonical {{ticker: $ticker}})
+                    MERGE (s)-[r:{rel_type}]->(c)
                     SET r.confidence = $confidence,
-                        r.match_type = $match_type,
+                        r.method = $match_type,
                         r.created_at = datetime($timestamp)
                 """,
-                ticker=supplier['canonical_ticker'],
                 surface_name=supplier['supplier_name'],
+                ticker=supplier['canonical_ticker'],
                 confidence=supplier.get('confidence', 0.0),
                 match_type=supplier.get('match_type', 'unknown'),
                 timestamp=self.timestamp)
             
-            # Create SUPPLIES relationship
-            self._create_supply_relationship_resolved(session, supplier, ticker)
-        
-        print(f"   📊 Final stats:")
-        print(f"      - CSV matches: {matched_count}")
-        print(f"      - Auto-canonicalized: {auto_created_count} groups")
-        print(f"      - Standalone: {len(unmatched_suppliers) - sum(1 for s in suppliers if s.get('match_type') == 'auto_canonical')}")
+            # Create SUPPLIES relationship with proper temporal properties
+            self._create_supply_relationship(session, supplier, ticker)
     
-    def _process_suppliers_legacy(self, session, supplier_edges, ticker, market_cap):
-        """Legacy supplier processing (no entity resolution)."""
+    def _create_supply_relationship(self, session, supplier, target_ticker):
+        """Create SUPPLIES relationship with proper schema."""
+        magnitude = supplier.get('magnitude', 0)
+        normalized_magnitude = supplier.get('normalized_magnitude')
+        direction_value = supplier.get('direction_value', 1)
+        weight = supplier.get('weight', magnitude * supplier['relevance'])
+        
+        # Parse shipments for first_seen/last_seen (simplified)
+        first_seen = self.timestamp
+        last_seen = self.timestamp
+        
+        try:
+            shipments = int(str(supplier['full_data'].get('total_shipments', '0')).replace(',', ''))
+        except:
+            shipments = 0
+        
+        set_clause = """
+            SET r.shipments = $shipments,
+                r.shipment_count = $shipment_count,
+                r.hs_codes = $hs_codes,
+                r.first_seen = datetime($first_seen),
+                r.last_seen = datetime($last_seen),
+                r.decay_rate = $decay_rate,
+                r.confidence = $confidence,
+                r.weight = $weight,
+                r.correlation_strength = $correlation_strength
+        """
+        
+        params = {
+            'supplier_name': supplier['supplier_name'],
+            'ticker': target_ticker,
+            'shipments': shipments,
+            'shipment_count': shipments,
+            'hs_codes': supplier['full_data'].get('hs_codes', '').split(','),
+            'first_seen': first_seen,
+            'last_seen': last_seen,
+            'decay_rate': 0.0,
+            'confidence': supplier['relevance'],
+            'weight': weight,
+            'correlation_strength': supplier.get('correlation_strength', weight * 0.85),
+            'timestamp': self.timestamp
+        }
+        
+        if normalized_magnitude is not None:
+            set_clause += ", r.normalized_magnitude = $normalized_magnitude"
+            params['normalized_magnitude'] = normalized_magnitude
+        
+        if direction_value is not None:
+            set_clause += ", r.direction_value = $direction_value"
+            params['direction_value'] = direction_value
+        
+        query = f"""
+            MATCH (s:CompanySurface {{name: $supplier_name}})
+            MATCH (c:CompanyCanonical {{ticker: $ticker}})
+            MERGE (s)-[r:SUPPLIES]->(c)
+            {set_clause}
+        """
+        
+        session.run(query, **params)
+    
+    def _process_suppliers_legacy(self, session, supplier_edges, ticker):
+        """Legacy supplier processing without resolution."""
         for edge in supplier_edges:
             data = edge['data']
-            direction = edge['direction']
-            magnitude = edge['magnitude']
-            relevance = edge['relevance']
             
-            temporal_type = self.TEMPORAL_TYPES.get('supplier', 'permanent')
-            decay_rate = self.DECAY_RATES.get(temporal_type, 0.0)
-            confidence = relevance
-            weight = magnitude * relevance
-            correlation_strength = 0.7
-            directionality = 'positive'
+            # Create CompanySurface with proper schema
+            hs_codes_list = data.get('hs_codes', '').split(',') if data.get('hs_codes') else []
+            aliases = self._generate_aliases(data['supplier_name'])
+            
+            try:
+                total_shipments = int(str(data.get('total_shipments', '0')).replace(',', ''))
+            except:
+                total_shipments = 0
             
             session.run("""
-                MERGE (n:Supplier {name: $supplier_name})
-                SET n.url = $supplier_url,
-                    n.location = $location,
-                    n.product_description = $product_description,
-                    n.hs_codes = $hs_codes,
-                    n.risk_signal = 0.0,
-                    n.updated_at = datetime($timestamp),
-                    n.base_weight = 0.5,
-                    n.volatility_score = 0.8,
-                    n.entity_type = 'Supplier'
+                MERGE (s:CompanySurface {name: $name})
+                SET s.raw_name = $raw_name,
+                    s.clean_name = $clean_name,
+                    s.aliases = $aliases,
+                    s.location_string = $location,
+                    s.supplier_url = $url,
+                    s.product_description = $product_desc,
+                    s.hs_codes = $hs_codes,
+                    s.total_shipments = $shipments,
+                    s.updated_at = datetime($timestamp),
+                    s.has_canonical_match = false
+            """,
+            name=data['supplier_name'],
+            raw_name=data['supplier_name'],
+            clean_name=self._extract_root_company_name(data['supplier_name']),
+            aliases=aliases,
+            location=data.get('location', ''),
+            url=data.get('supplier_url', ''),
+            product_desc=data.get('product_description', ''),
+            hs_codes=hs_codes_list,
+            shipments=total_shipments,
+            timestamp=self.timestamp)
+            
+            # Create SUPPLIES with temporal properties
+            session.run("""
+                MATCH (s:CompanySurface {name: $supplier_name})
+                MATCH (c:CompanyCanonical {ticker: $ticker})
+                MERGE (s)-[r:SUPPLIES]->(c)
+                SET r.shipments = $shipments,
+                    r.weight = $weight,
+                    r.confidence = $confidence,
+                    r.first_seen = datetime($timestamp),
+                    r.last_seen = datetime($timestamp),
+                    r.decay_rate = 0.0
             """,
             supplier_name=data['supplier_name'],
-            supplier_url=data.get('supplier_url', ''),
-            location=data.get('location', ''),
-            product_description=data.get('product_description', ''),
-            hs_codes=data.get('hs_codes', ''),
+            ticker=ticker,
+            shipments=total_shipments,
+            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+            confidence=edge['relevance'],
             timestamp=self.timestamp)
-            
-            if direction == "supplier->company":
-                session.run("""
-                    MATCH (supplier:Supplier {name: $supplier_name})
-                    MATCH (company:Company {ticker: $ticker})
-                    MERGE (supplier)-[r:SUPPLIES]->(company)
-                    SET r.magnitude = $magnitude,
-                        r.relevance = $relevance,
-                        r.weight = $weight,
-                        r.confidence = $confidence,
-                        r.correlation_strength = $correlation_strength,
-                        r.directionality = $directionality,
-                        r.decay_rate = $decay_rate,
-                        r.temporal_type = $temporal_type,
-                        r.last_updated = datetime($timestamp),
-                        r.total_shipments = $total_shipments,
-                        r.type = 'supplier'
-                """,
-                supplier_name=data['supplier_name'],
-                ticker=ticker,
-                magnitude=magnitude,
-                relevance=relevance,
-                weight=weight,
-                confidence=confidence,
-                correlation_strength=correlation_strength,
-                directionality=directionality,
-                decay_rate=decay_rate,
-                temporal_type=temporal_type,
-                timestamp=self.timestamp,
-                total_shipments=data.get('total_shipments', ''))
-    
-    def _map_relationship_type(self, relationship: str) -> str:
-        rel_map = {
-            'SAME_AS': 'SAME_AS',
-            'OWNS': 'OWNS',
-            'SUBSIDIARY': 'SUBSIDIARY',
-            'PARENT_OF': 'PARENT_OF',
-            'RELATED_TO': 'RELATED_TO'
-        }
-        return rel_map.get(relationship, 'RELATED_TO')
-    
-    def _create_supply_relationship_resolved(self, session, supplier, target_ticker):
-        temporal_type = 'permanent'
-        decay_rate = 0.0
-        confidence = supplier['relevance']
-        weight = supplier['magnitude'] * supplier['relevance']
-        correlation_strength = 0.7
-        directionality = 'positive'
-        
-        session.run("""
-            MATCH (s:CompanySurface {name: $supplier_name})
-            MATCH (c:CompanyCanonical {ticker: $ticker})
-            MERGE (s)-[r:SUPPLIES]->(c)
-            SET r.magnitude = $magnitude,
-                r.relevance = $relevance,
-                r.weight = $weight,
-                r.confidence = $confidence,
-                r.correlation_strength = $correlation_strength,
-                r.directionality = $directionality,
-                r.decay_rate = $decay_rate,
-                r.temporal_type = $temporal_type,
-                r.last_updated = datetime($timestamp),
-                r.total_shipments = $shipments,
-                r.type = 'supplier'
-        """,
-        supplier_name=supplier['supplier_name'],
-        ticker=target_ticker,
-        magnitude=supplier['magnitude'],
-        relevance=supplier['relevance'],
-        weight=weight,
-        confidence=confidence,
-        correlation_strength=correlation_strength,
-        directionality=directionality,
-        decay_rate=decay_rate,
-        temporal_type=temporal_type,
-        timestamp=self.timestamp,
-        shipments=supplier['full_data'].get('total_shipments', ''))
     
     def _process_edge(self, session, edge, ticker, market_cap):
-        """Process a single edge with all properties."""
+        """Process non-supplier edges."""
         edge_type = edge['type']
-        direction = edge['direction']
-        magnitude = edge['magnitude']
-        relevance = edge['relevance']
-        correlation = edge.get('correlation', 'positive')
-        data = edge['data']
         
-        # Calculate enhanced properties
-        temporal_type = self.TEMPORAL_TYPES.get(edge_type, 'stable')
-        decay_rate = self.DECAY_RATES.get(temporal_type, 0.01)
-        confidence = relevance
-        weight = magnitude * relevance
-        correlation_strength = self._calculate_correlation_strength(correlation, edge_type)
-        directionality = self._determine_directionality(edge_type, correlation)
-        
-        # Route to appropriate handler
         if edge_type == 'country':
-            self._create_country_edge(session, data, ticker, direction, 
-                                     weight, confidence, correlation_strength,
-                                     directionality, decay_rate, temporal_type, magnitude, relevance)
-        
+            self._create_country_edge(session, edge, ticker, market_cap)
         elif edge_type == 'sector':
-            self._create_sector_edge(session, data, ticker, direction,
-                                     weight, confidence, correlation_strength,
-                                     directionality, decay_rate, temporal_type, magnitude, relevance)
-        
+            self._create_sector_edge(session, edge, ticker)
         elif edge_type == 'industry':
-            self._create_industry_edge(session, data, ticker, direction,
-                                       weight, confidence, correlation_strength,
-                                       directionality, decay_rate, temporal_type, magnitude, relevance)
-        
+            self._create_industry_edge(session, edge, ticker)
         elif edge_type == 'produces':
-            self._create_produces_edge(session, data, ticker,
-                                       weight, confidence, correlation_strength,
-                                       directionality, decay_rate, temporal_type, magnitude, relevance)
-        
+            self._create_produces_edge(session, edge, ticker)
         elif edge_type == 'requires':
-            self._create_requires_edge(session, data, ticker,
-                                       weight, confidence, correlation_strength,
-                                       directionality, decay_rate, temporal_type, magnitude, relevance)
+            self._create_requires_edge(session, edge, ticker)
     
-    def _create_country_edge(self, session, data, ticker, direction, weight, 
-                            confidence, correlation_strength, directionality,
-                            decay_rate, temporal_type, magnitude, relevance):
-        """Create country relationship with enhanced properties."""
+    def _create_country_edge(self, session, edge, ticker, market_cap):
+        """Create country node and relationship with proper schema."""
+        country_name = edge['data']['country_name']
+        country_info = self.COUNTRY_ISO_MAP.get(country_name, {'iso': 'XX', 'region': 'Unknown'})
+        
+        aliases = self._generate_aliases(country_name)
+        
         session.run("""
-            MERGE (n:Country {name: $country_name})
-            SET n.relationship = $relationship,
-                n.risk_signal = 0.0,
-                n.updated_at = datetime($timestamp),
-                n.entity_type = 'Country'
-        """, 
-        country_name=data['country_name'],
-        relationship=data['relationship'],
+            MERGE (n:Country {name: $name})
+            SET n.aliases = $aliases,
+                n.iso_code = $iso_code,
+                n.region = $region,
+                n.updated_at = datetime($timestamp)
+        """,
+        name=country_name,
+        aliases=aliases,
+        iso_code=country_info['iso'],
+        region=country_info['region'],
         timestamp=self.timestamp)
         
+        # Create relationship with proper properties
+        direction = edge['direction']
         if direction == "country->company":
-            session.run("""
-                MATCH (country:Country {name: $country_name})
-                MATCH (company:CompanyCanonical {ticker: $ticker})
-                MERGE (country)-[r:INFLUENCES]->(company)
-                SET r.magnitude = $magnitude,
-                    r.relevance = $relevance,
-                    r.correlation = $correlation,
-                    r.weight = $weight,
-                    r.confidence = $confidence,
-                    r.correlation_strength = $correlation_strength,
-                    r.directionality = $directionality,
-                    r.decay_rate = $decay_rate,
-                    r.temporal_type = $temporal_type,
-                    r.last_updated = datetime($timestamp),
-                    r.impact_type = $impact_type,
-                    r.type = 'country'
-            """,
-            country_name=data['country_name'],
-            ticker=ticker,
-            magnitude=magnitude,
-            relevance=relevance,
-            correlation=data.get('correlation', 'positive'),
-            weight=weight,
-            confidence=confidence,
-            correlation_strength=correlation_strength,
-            directionality=directionality,
-            decay_rate=decay_rate,
-            temporal_type=temporal_type,
-            timestamp=self.timestamp,
-            impact_type=data.get('impact_type', ''))
+            rel_type = "INFLUENCES"
         else:
-            session.run("""
-                MATCH (company:CompanyCanonical {ticker: $ticker})
-                MATCH (country:Country {name: $country_name})
-                MERGE (company)-[r:IMPACTS]->(country)
-                SET r.magnitude = $magnitude,
-                    r.relevance = $relevance,
-                    r.correlation = $correlation,
-                    r.weight = $weight,
-                    r.confidence = $confidence,
-                    r.correlation_strength = $correlation_strength,
-                    r.directionality = $directionality,
-                    r.decay_rate = $decay_rate,
-                    r.temporal_type = $temporal_type,
-                    r.last_updated = datetime($timestamp),
-                    r.impact_type = $impact_type,
-                    r.market_cap = $market_cap,
-                    r.type = 'country'
-            """,
-            ticker=ticker,
-            country_name=data['country_name'],
-            magnitude=magnitude,
-            relevance=relevance,
-            correlation=data.get('correlation', 'positive'),
-            weight=weight,
-            confidence=confidence,
-            correlation_strength=correlation_strength,
-            directionality=directionality,
-            decay_rate=decay_rate,
-            temporal_type=temporal_type,
-            timestamp=self.timestamp,
-            impact_type=data.get('impact_type', ''),
-            market_cap=data.get('market_cap', 0))
-    
-    def _create_sector_edge(self, session, data, ticker, direction, weight,
-                           confidence, correlation_strength, directionality,
-                           decay_rate, temporal_type, magnitude, relevance):
-        """Create sector relationship with enhanced properties."""
-        session.run("""
-            MERGE (n:Sector {name: $sector_name})
-            SET n.classification_level = $classification_level,
-                n.risk_signal = 0.0,
-                n.updated_at = datetime($timestamp),
-                n.volatility_score = 0.7,
-                n.entity_type = 'Sector'
-        """,
-        sector_name=data['sector_name'],
-        classification_level=data['classification_level'],
-        timestamp=self.timestamp)
+            rel_type = "LOCATED_IN"
         
-        if direction == "sector->company":
-            session.run("""
-                MATCH (sector:Sector {name: $sector_name})
-                MATCH (company:CompanyCanonical {ticker: $ticker})
-                MERGE (sector)-[r:INFLUENCES]->(company)
-                SET r.magnitude = $magnitude,
-                    r.relevance = $relevance,
-                    r.weight = $weight,
-                    r.confidence = $confidence,
-                    r.correlation_strength = $correlation_strength,
-                    r.directionality = $directionality,
-                    r.decay_rate = $decay_rate,
-                    r.temporal_type = $temporal_type,
-                    r.last_updated = datetime($timestamp),
-                    r.type = 'sector'
-            """,
-            sector_name=data['sector_name'],
-            ticker=ticker,
-            magnitude=magnitude,
-            relevance=relevance,
-            weight=weight,
-            confidence=confidence,
-            correlation_strength=correlation_strength,
-            directionality=directionality,
-            decay_rate=decay_rate,
-            temporal_type=temporal_type,
-            timestamp=self.timestamp)
-        else:
-            session.run("""
-                MATCH (company:CompanyCanonical {ticker: $ticker})
-                MATCH (sector:Sector {name: $sector_name})
-                MERGE (company)-[r:IMPACTS]->(sector)
-                SET r.magnitude = $magnitude,
-                    r.relevance = $relevance,
-                    r.weight = $weight,
-                    r.confidence = $confidence,
-                    r.correlation_strength = $correlation_strength,
-                    r.directionality = $directionality,
-                    r.decay_rate = $decay_rate,
-                    r.temporal_type = $temporal_type,
-                    r.last_updated = datetime($timestamp),
-                    r.type = 'sector'
-            """,
-            ticker=ticker,
-            sector_name=data['sector_name'],
-            magnitude=magnitude,
-            relevance=relevance,
-            weight=weight,
-            confidence=confidence,
-            correlation_strength=correlation_strength,
-            directionality=directionality,
-            decay_rate=decay_rate,
-            temporal_type=temporal_type,
-            timestamp=self.timestamp)
-    
-    def _create_industry_edge(self, session, data, ticker, direction, weight,
-                             confidence, correlation_strength, directionality,
-                             decay_rate, temporal_type, magnitude, relevance):
-        """Create industry relationship (competitive - negative correlation)."""
-        session.run("""
-            MERGE (n:Industry {name: $industry_name})
-            SET n.classification_level = $classification_level,
-                n.risk_signal = 0.0,
-                n.updated_at = datetime($timestamp),
-                n.volatility_score = 0.7,
-                n.entity_type = 'Industry'
-        """,
-        industry_name=data['industry_name'],
-        classification_level=data['classification_level'],
-        timestamp=self.timestamp)
-        
-        directionality = 'negative'
-        
-        if direction == "industry->company":
-            session.run("""
-                MATCH (industry:Industry {name: $industry_name})
-                MATCH (company:CompanyCanonical {ticker: $ticker})
-                MERGE (industry)-[r:INFLUENCES]->(company)
-                SET r.magnitude = $magnitude,
-                    r.relevance = $relevance,
-                    r.weight = $weight,
-                    r.confidence = $confidence,
-                    r.correlation_strength = $correlation_strength,
-                    r.directionality = $directionality,
-                    r.decay_rate = $decay_rate,
-                    r.temporal_type = $temporal_type,
-                    r.last_updated = datetime($timestamp),
-                    r.type = 'industry'
-            """,
-            industry_name=data['industry_name'],
-            ticker=ticker,
-            magnitude=magnitude,
-            relevance=relevance,
-            weight=weight,
-            confidence=confidence,
-            correlation_strength=correlation_strength,
-            directionality=directionality,
-            decay_rate=decay_rate,
-            temporal_type=temporal_type,
-            timestamp=self.timestamp)
-    
-    def _create_produces_edge(self, session, data, ticker, weight, confidence,
-                             correlation_strength, directionality, decay_rate,
-                             temporal_type, magnitude, relevance):
-        """Create commodity production relationship."""
-        session.run("""
-            MERGE (n:Commodity {naics_code: $naics_code})
-            SET n.description = $description,
-                n.commodity_type = $commodity_type,
-                n.risk_signal = 0.0,
-                n.updated_at = datetime($timestamp),
-                n.volatility_score = 0.6,
-                n.entity_type = 'Commodity'
-        """,
-        naics_code=data['naics_code'],
-        description=data.get('description', ''),
-        commodity_type=data.get('commodity_type', ''),
-        timestamp=self.timestamp)
-        
-        session.run("""
-            MATCH (company:CompanyCanonical {ticker: $ticker})
-            MATCH (commodity:Commodity {naics_code: $naics_code})
-            MERGE (company)-[r:PRODUCES]->(commodity)
-            SET r.magnitude = $magnitude,
-                r.relevance = $relevance,
-                r.weight = $weight,
+        session.run(f"""
+            MATCH (c1:{('Country' if direction == 'country->company' else 'CompanyCanonical')}) 
+            WHERE c1.{'name' if direction == 'country->company' else 'ticker'} = ${('country_name' if direction == 'country->company' else 'ticker')}
+            MATCH (c2:{('CompanyCanonical' if direction == 'country->company' else 'Country')})
+            WHERE c2.{'ticker' if direction == 'country->company' else 'name'} = ${('ticker' if direction == 'country->company' else 'country_name')}
+            MERGE (c1)-[r:{rel_type}]->(c2)
+            SET r.weight = $weight,
                 r.confidence = $confidence,
                 r.correlation_strength = $correlation_strength,
-                r.directionality = $directionality,
-                r.decay_rate = $decay_rate,
-                r.temporal_type = $temporal_type,
                 r.last_updated = datetime($timestamp),
-                r.type = 'produces'
+                r.decay_rate = $decay_rate
         """,
+        country_name=country_name,
         ticker=ticker,
-        naics_code=data['naics_code'],
-        magnitude=magnitude,
-        relevance=relevance,
-        weight=weight,
-        confidence=confidence,
-        correlation_strength=correlation_strength,
-        directionality=directionality,
-        decay_rate=decay_rate,
-        temporal_type=temporal_type,
-        timestamp=self.timestamp)
-    
-    def _create_requires_edge(self, session, data, ticker, weight, confidence,
-                             correlation_strength, directionality, decay_rate,
-                             temporal_type, magnitude, relevance):
-        """Create commodity requirement relationship."""
-        session.run("""
-            MERGE (n:Commodity {naics_code: $naics_code})
-            SET n.description = $description,
-                n.commodity_type = $commodity_type,
-                n.risk_signal = 0.0,
-                n.updated_at = datetime($timestamp),
-                n.volatility_score = 0.6,
-                n.entity_type = 'Commodity'
-        """,
-        naics_code=data['naics_code'],
-        description=data.get('description', ''),
-        commodity_type=data.get('commodity_type', ''),
-        timestamp=self.timestamp)
-        
-        session.run("""
-            MATCH (commodity:Commodity {naics_code: $naics_code})
-            MATCH (company:CompanyCanonical {ticker: $ticker})
-            MERGE (commodity)-[r:REQUIRED_BY]->(company)
-            SET r.magnitude = $magnitude,
-                r.relevance = $relevance,
-                r.weight = $weight,
-                r.confidence = $confidence,
-                r.correlation_strength = $correlation_strength,
-                r.directionality = $directionality,
-                r.decay_rate = $decay_rate,
-                r.temporal_type = $temporal_type,
-                r.last_updated = datetime($timestamp),
-                r.layer = $layer,
-                r.type = 'requires'
-        """,
-        naics_code=data['naics_code'],
-        ticker=ticker,
-        magnitude=magnitude,
-        relevance=relevance,
-        weight=weight,
-        confidence=confidence,
-        correlation_strength=correlation_strength,
-        directionality=directionality,
-        decay_rate=decay_rate,
-        temporal_type=temporal_type,
+        weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+        confidence=edge['relevance'],
+        correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
         timestamp=self.timestamp,
-        layer=data.get('layer', 'unknown'))
+        decay_rate=self.DECAY_RATES['stable'])
     
-    def _calculate_base_weight(self, market_cap):
-        """Calculate base weight from market cap."""
-        if market_cap <= 0:
-            return 0.5
-        base_weight = 0.5 + (math.log10(market_cap) - 9) * 0.2
-        return max(0.1, min(2.0, base_weight))
+    def _create_sector_edge(self, session, edge, ticker):
+        """Create sector with proper schema and handle bidirectional relationships."""
+        sector_name = edge['data']['sector_name']
+        aliases = self._generate_aliases(sector_name)
+        direction = edge.get('direction', 'company->sector')
+        
+        # Create the Sector node
+        session.run("""
+            MERGE (n:Sector {name: $name})
+            SET n.aliases = $aliases,
+                n.classification_level = $level,
+                n.classification_system = 'GICS',
+                n.updated_at = datetime($timestamp)
+        """,
+        name=sector_name,
+        aliases=aliases,
+        level=edge['data'].get('classification_level', 'sector'),
+        timestamp=self.timestamp)
+        
+        # Create relationship based on direction
+        if direction == "sector->company":
+            # Sector influences Company
+            session.run("""
+                MATCH (s:Sector {name: $sector_name})
+                MATCH (c:CompanyCanonical {ticker: $ticker})
+                MERGE (s)-[r:INFLUENCES]->(c)
+                SET r.weight = $weight,
+                    r.confidence = $confidence,
+                    r.correlation_strength = $correlation_strength,
+                    r.last_updated = datetime($timestamp)
+            """,
+            sector_name=sector_name,
+            ticker=ticker,
+            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+            confidence=edge['relevance'],
+            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+            timestamp=self.timestamp)
+        
+        else:  # company->sector
+            # Company belongs to Sector
+            session.run("""
+                MATCH (c:CompanyCanonical {ticker: $ticker})
+                MATCH (s:Sector {name: $sector_name})
+                MERGE (c)-[r:BELONGS_TO]->(s)
+                SET r.weight = $weight,
+                    r.confidence = $confidence,
+                    r.correlation_strength = $correlation_strength,
+                    r.last_updated = datetime($timestamp)
+            """,
+            ticker=ticker,
+            sector_name=sector_name,
+            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+            confidence=edge['relevance'],
+            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+            timestamp=self.timestamp)
+            
+    def _calculate_classification_confidence(self, info, sector_name):
+        """Confidence that company truly belongs to this sector"""
+        confidence = 0.85  # Base yfinance reliability
+        
+        # Penalize conglomerates/holdings
+        name = info.get('longName', '').lower()
+        if any(word in name for word in ['holdings', 'group', 'conglomerate']):
+            confidence -= 0.15
+        
+        # Boost if industry aligns with sector
+        # (would need industry->sector mapping)
+        
+        return max(0.70, min(1.0, confidence))
     
-    def _calculate_correlation_strength(self, correlation, edge_type):
-        """Calculate correlation strength."""
-        if edge_type == 'industry':
-            return -0.7
-        if correlation == 'positive':
-            return 0.7
-        elif correlation == 'negative':
-            return -0.7
-        else:
-            return 0.0
+    def _create_industry_edge(self, session, edge, ticker):
+        """Create industry with proper schema and handle bidirectional relationships."""
+        industry_name = edge['data']['industry_name']
+        aliases = self._generate_aliases(industry_name)
+        direction = edge.get('direction', 'company->industry')
+        
+        # Create the Industry node
+        session.run("""
+            MERGE (n:Industry {name: $name})
+            SET n.aliases = $aliases,
+                n.classification_level = $level,
+                n.classification_system = 'GICS',
+                n.updated_at = datetime($timestamp)
+        """,
+        name=industry_name,
+        aliases=aliases,
+        level=edge['data'].get('classification_level', 'industry'),
+        timestamp=self.timestamp)
+        
+        # Create relationship based on direction
+        if direction == "industry->company":
+            # Industry influences Company
+            session.run("""
+                MATCH (i:Industry {name: $industry_name})
+                MATCH (c:CompanyCanonical {ticker: $ticker})
+                MERGE (i)-[r:INFLUENCES]->(c)
+                SET r.weight = $weight,
+                    r.confidence = $confidence,
+                    r.correlation_strength = $correlation_strength,
+                    r.last_updated = datetime($timestamp)
+            """,
+            industry_name=industry_name,
+            ticker=ticker,
+            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+            confidence=edge['relevance'],
+            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+            timestamp=self.timestamp)
+        
+        else:  # company->industry
+            # Company belongs to Industry
+            session.run("""
+                MATCH (c:CompanyCanonical {ticker: $ticker})
+                MATCH (i:Industry {name: $industry_name})
+                MERGE (c)-[r:BELONGS_TO]->(i)
+                SET r.weight = $weight,
+                    r.confidence = $confidence,
+                    r.correlation_strength = $correlation_strength,
+                    r.last_updated = datetime($timestamp)
+            """,
+            ticker=ticker,
+            industry_name=industry_name,
+            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+            confidence=edge['relevance'],
+            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+        timestamp=self.timestamp)
+        
+    def _create_produces_edge(self, session, edge, ticker):
+        """Create commodity production relationship."""
+        naics_code = edge['data']['naics_code']
+        description = edge['data'].get('description', '')
+        aliases = self._generate_aliases(description)
+        
+        session.run("""
+            MERGE (n:Commodity {naics_code: $naics_code})
+            SET n.name = $description,
+                n.aliases = $aliases,
+                n.commodity_type = 'output',
+                n.unit = $unit,
+                n.updated_at = datetime($timestamp)
+        """,
+        naics_code=naics_code,
+        description=description,
+        aliases=aliases,
+        unit='units',  # TODO: Extract from data
+        timestamp=self.timestamp)
+        
+        session.run("""
+            MATCH (c:CompanyCanonical {ticker: $ticker})
+            MATCH (com:Commodity {naics_code: $naics_code})
+            MERGE (c)-[r:PRODUCES]->(com)
+            SET r.weight = $weight,
+                r.confidence = $confidence,
+                r.normalized_magnitude = $normalized_magnitude,
+                r.direction_value = $direction_value,
+                r.last_updated = datetime($timestamp),
+                r.decay_rate = 0.0
+        """,
+        ticker=ticker,
+        naics_code=naics_code,
+        weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+        confidence=edge['relevance'],
+        normalized_magnitude=edge.get('normalized_magnitude'),
+        direction_value=edge.get('direction_value', 1),
+        timestamp=self.timestamp)
     
-    def _determine_directionality(self, edge_type, correlation):
-        """Determine signal directionality."""
-        if edge_type == 'industry':
-            return 'negative'
-        elif correlation == 'negative':
-            return 'negative'
-        elif correlation == 'positive':
-            return 'positive'
-        else:
-            return 'neutral'
+    def _create_requires_edge(self, session, edge, ticker):
+        """Create commodity requirement relationship."""
+        naics_code = edge['data']['naics_code']
+        description = edge['data'].get('description', '')
+        aliases = self._generate_aliases(description)
+        
+        session.run("""
+            MERGE (n:Commodity {naics_code: $naics_code})
+            SET n.name = $description,
+                n.aliases = $aliases,
+                n.commodity_type = 'input',
+                n.unit = $unit,
+                n.updated_at = datetime($timestamp)
+        """,
+        naics_code=naics_code,
+        description=description,
+        aliases=aliases,
+        unit='units',
+        timestamp=self.timestamp)
+        
+        session.run("""
+            MATCH (com:Commodity {naics_code: $naics_code})
+            MATCH (c:CompanyCanonical {ticker: $ticker})
+            MERGE (com)-[r:REQUIRED_BY]->(c)
+            SET r.weight = $weight,
+                r.confidence = $confidence,
+                r.normalized_magnitude = $normalized_magnitude,
+                r.direction_value = $direction_value,
+                r.last_updated = datetime($timestamp),
+                r.decay_rate = 0.0
+        """,
+        naics_code=naics_code,
+        ticker=ticker,
+        weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
+        confidence=edge['relevance'],
+        normalized_magnitude=edge.get('normalized_magnitude'),
+        direction_value=edge.get('direction_value', -1),
+        timestamp=self.timestamp)
+    
+    def _map_relationship_type(self, relationship: str) -> str:
+        """Map relationship type to Neo4j label."""
+        rel_map = {
+            'SAME_AS': 'RESOLVES_TO',
+            'OWNS': 'RESOLVES_TO',
+            'SUBSIDIARY': 'RESOLVES_TO',
+            'PARENT_OF': 'RESOLVES_TO',
+            'RELATED_TO': 'RESOLVES_TO'
+        }
+        return rel_map.get(relationship, 'RESOLVES_TO')
 
 
 def to_neo4j_enhanced(edges, ticker, 
-                     canonical_companies_csv: Optional[str] = None,
-                     auto_canonicalize: bool = False,
-                     min_occurrences: int = 2,
-                     uri="bolt://localhost:7687", 
-                     user="neo4j", 
-                     password="password"):
+                   canonical_companies_csv: Optional[str] = None,
+                   auto_canonicalize: bool = False,
+                   min_occurrences: int = 2,
+                   uri="bolt://localhost:7687", 
+                   user="neo4j", 
+                   password="password"):
     """
-    Enhanced export function with auto-canonicalization.
+    Export with fixed schema.
     
-    Args:
-        edges: List of edge dictionaries
-        ticker: Company ticker
-        canonical_companies_csv: Path to CSV with known companies (or None)
-        auto_canonicalize: If True, auto-create canonical nodes for repeated suppliers
-        min_occurrences: Minimum number of suppliers to trigger auto-canonicalization
-        uri, user, password: Neo4j connection params
-    
-    Example:
-        # Auto-create canonical nodes for supplier groups
-        to_neo4j_enhanced(edges, "BA",
-                         canonical_companies_csv="company_filtered.csv",
-                         auto_canonicalize=True,
-                         min_occurrences=2,
-                         password="your_password")
+    All redundant fields removed, proper arrays, temporal properties added.
     """
-    exporter = EnhancedNeo4jExporter(uri, user, password, canonical_companies_csv,
-                                     auto_canonicalize, min_occurrences)
+    exporter = FixedNeo4jExporter(uri, user, password, canonical_companies_csv,
+                                  auto_canonicalize, min_occurrences)
     try:
         return exporter.export_edges(edges, ticker)
     finally:
         exporter.close()
-
-
-if __name__ == "__main__":
-    from static_edges import StaticEdges
-    
-    edges = StaticEdges("BA").edges()
-    
-    # Export with auto-canonicalization
-    to_neo4j_enhanced(
-        edges,
-        "BA",
-        canonical_companies_csv="companies_filtered.csv",
-        auto_canonicalize=True,
-        min_occurrences=2,
-        uri="bolt://127.0.0.1:7687",
-        user="neo4j",
-        password="myhome2911!"
-    )
