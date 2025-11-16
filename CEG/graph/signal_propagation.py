@@ -1,8 +1,13 @@
 """
-Modern Signal Propagation Engine with Entity Tracking
-=====================================================
+Bounded Signal Propagation Engine for Neo4j Graph
+=================================================
 
-Tracks signal changes to specific entities at each propagation hop.
+Signals represent normalized impact scores in range [-1, 1]:
+- -1.0 = Maximum negative impact (stock expected to do very badly)
+- 0.0 = No impact (neutral)
+- +1.0 = Maximum positive impact (stock expected to do very well)
+
+Signals combine using probabilistic/sentiment fusion, not simple addition.
 """
 
 from neo4j import GraphDatabase
@@ -12,79 +17,152 @@ from collections import defaultdict
 from typing import Dict, List, Tuple, Optional
 
 
-class ModernPropagation:
+class BoundedPropagation:
     """
-    Propagates signals through knowledge graph with detailed entity tracking.
+    Propagates bounded sentiment signals through knowledge graph.
+    All signals stay within [-1, 1] range.
     """
     
     def __init__(self, uri="bolt://localhost:7687", user="neo4j", password="password"):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
         self.timestamp = datetime.now().isoformat()
-        self.entity_tracker = defaultdict(list)  # Track changes per entity
+        self.entity_tracker = defaultdict(list)
     
     def close(self):
         self.driver.close()
     
+    @staticmethod
+    def combine_signals(signals: List[float]) -> float:
+        """
+        Combine multiple signals using probabilistic fusion.
+        
+        This ensures:
+        1. Result stays in [-1, 1]
+        2. Multiple weak signals can't overpower a strong signal
+        3. Conflicting signals partially cancel out
+        
+        Uses modified opinion pooling formula.
+        """
+        if not signals:
+            return 0.0
+        
+        if len(signals) == 1:
+            return max(-1.0, min(1.0, signals[0]))
+        
+        # Separate positive and negative signals
+        positive = [s for s in signals if s > 0]
+        negative = [s for s in signals if s < 0]
+        
+        # Combine same-direction signals with diminishing returns
+        def combine_same_direction(sigs):
+            if not sigs:
+                return 0.0
+            # Sort by magnitude
+            sigs = sorted(sigs, key=abs, reverse=True)
+            result = sigs[0]
+            for sig in sigs[1:]:
+                # Each additional signal has diminishing impact
+                result = result + sig * (1 - abs(result))
+            return result
+        
+        pos_combined = combine_same_direction(positive)
+        neg_combined = combine_same_direction(negative)
+        
+        # Combine opposing signals (they partially cancel)
+        final = pos_combined + neg_combined
+        
+        # Ensure bounded
+        return max(-1.0, min(1.0, final))
+    
     def propagate_shock(self, 
-                       source_ticker: str,
-                       shock_magnitude: float,
+                       source_ticker: str = None,
+                       shock_magnitude: float = None,
                        shock_type: str = "supply_disruption",
                        max_hops: int = 3,
                        min_propagation_threshold: float = 0.01,
                        track_entities: List[str] = None,
-                       feedback_mode: str = "realistic") -> Dict:
+                       feedback_mode: str = "realistic",
+                       events: List[Dict] = None) -> Dict:
         """
-        Propagate a shock through the network with entity tracking.
+        Propagate bounded shock(s) through the network.
         
         Args:
-            source_ticker: Starting company ticker
-            shock_magnitude: Initial shock strength (-1.0 to 1.0)
-            shock_type: Type of shock
+            source_ticker: Single source (deprecated, use events instead)
+            shock_magnitude: Single magnitude (deprecated, use events instead)
+            shock_type: Type of shock (used for all events if not specified per-event)
             max_hops: Maximum propagation distance
             min_propagation_threshold: Minimum signal strength to continue
             track_entities: List of tickers/names to track at each hop
-            feedback_mode: How to handle feedback loops:
-                - "realistic" (default): Allow feedback with damping
-                - "isolated": Prevent source from receiving any signals
-                - "full": Allow unlimited feedback (can amplify unrealistically)
+            feedback_mode: "realistic" (dampened), "isolated" (none), "full" (unlimited)
+            events: List of events, e.g.:
+                    [
+                        {'ticker': 'QS', 'magnitude': -0.7, 'type': 'supply_disruption'},
+                        {'ticker': 'TSLA', 'magnitude': 0.1, 'type': 'demand_surge'},
+                        {'ticker': 'A', 'magnitude': -0.2}
+                    ]
         
         Returns:
-            Dict with propagation results and per-entity evolution
+            Dict with propagation results
         """
         
+        # Handle both old single-event and new multi-event API
+        if events is None:
+            if source_ticker is None or shock_magnitude is None:
+                raise ValueError("Must provide either (source_ticker, shock_magnitude) or events list")
+            events = [{'ticker': source_ticker, 'magnitude': shock_magnitude, 'type': shock_type}]
+        
+        # Validate all event magnitudes
+        for event in events:
+            mag = event['magnitude']
+            if not -1.0 <= mag <= 1.0:
+                raise ValueError(f"magnitude must be in [-1, 1], got {mag} for {event['ticker']}")
+        
         print(f"\n{'='*80}")
-        print(f"🚨 SHOCK PROPAGATION: {shock_type}")
+        print(f"🚨 BOUNDED SHOCK PROPAGATION: {len(events)} Event(s)")
         print(f"{'='*80}")
-        print(f"Source: {source_ticker}")
-        print(f"Magnitude: {shock_magnitude:+.4f}")
-        print(f"Max Hops: {max_hops}")
+        for event in events:
+            ticker = event['ticker']
+            magnitude = event['magnitude']
+            event_type = event.get('type', shock_type)
+            print(f"  • {ticker:10} {magnitude:+.4f}  ({event_type})")
+        print(f"\nMax Hops: {max_hops}")
         print(f"Feedback Mode: {feedback_mode}")
         if track_entities:
             print(f"Tracking: {', '.join(track_entities)}")
         
         with self.driver.session() as session:
-            # Reset entity tracker
             self.entity_tracker.clear()
             
-            # Get source node elementId and initial signal for feedback handling
-            source_element_id = None
-            source_initial_signal = shock_magnitude
-            result = session.run("""
-                MATCH (c:CompanyCanonical {ticker: $ticker})
-                RETURN elementId(c) as element_id
-            """, ticker=source_ticker)
-            record = result.single()
-            if record:
-                source_element_id = record['element_id']
+            # Get source node elementIds for all events
+            source_element_ids = {}
+            initial_signals = {}
             
-            # Initialize source node signal
-            self._initialize_signal(session, source_ticker, shock_magnitude)
+            for event in events:
+                ticker = event['ticker']
+                magnitude = event['magnitude']
+                
+                result = session.run("""
+                    MATCH (c:CompanyCanonical {ticker: $ticker})
+                    RETURN elementId(c) as element_id
+                """, ticker=ticker)
+                record = result.single()
+                if record:
+                    source_element_ids[ticker] = record['element_id']
+                    initial_signals[ticker] = magnitude
+                else:
+                    print(f"⚠️  Warning: {ticker} not found in graph")
             
-            # Track initial state for all tracked entities
+            # Initialize all source nodes with their signals
+            for event in events:
+                ticker = event['ticker']
+                magnitude = event['magnitude']
+                if ticker in source_element_ids:
+                    self._initialize_signal(session, ticker, magnitude)
+            
+            # Track initial state
             if track_entities:
                 self._snapshot_entities(session, track_entities, hop=0, phase="initial")
             
-            # Track propagation results
             all_affected = {}
             hop_summary = []
             
@@ -94,7 +172,6 @@ class ModernPropagation:
                 print(f"HOP {hop}/{max_hops}")
                 print(f"{'─'*80}")
                 
-                # Snapshot BEFORE propagation
                 if track_entities:
                     self._snapshot_entities(session, track_entities, hop=hop, phase="before")
                 
@@ -102,19 +179,20 @@ class ModernPropagation:
                     session,
                     min_threshold=min_propagation_threshold,
                     shock_type=shock_type,
-                    exclude_element_id=source_element_id if feedback_mode == "isolated" else None
+                    exclude_element_ids=set(source_element_ids.values()) if feedback_mode == "isolated" else None,
+                    hop_number=hop
                 )
                 
-                # Apply feedback damping for realistic mode
-                if feedback_mode == "realistic" and source_element_id:
-                    self._apply_feedback_damping(
-                        session, 
-                        source_element_id, 
-                        source_initial_signal,
-                        damping_factor=0.005  # Only allow 30% of feedback to affect source
-                    )
+                # Apply feedback damping for realistic mode (for all source nodes)
+                if feedback_mode == "realistic":
+                    for ticker, element_id in source_element_ids.items():
+                        self._apply_feedback_damping(
+                            session, 
+                            element_id, 
+                            initial_signals[ticker],
+                            damping_factor=0.1
+                        )
                 
-                # Snapshot AFTER propagation
                 if track_entities:
                     self._snapshot_entities(session, track_entities, hop=hop, phase="after")
                     self._print_entity_changes(track_entities, hop)
@@ -128,25 +206,24 @@ class ModernPropagation:
                     if node_id not in all_affected:
                         all_affected[node_id] = info
                     else:
-                        all_affected[node_id]['signal'] += info['signal']
-                        all_affected[node_id]['hop'] = min(all_affected[node_id]['hop'], info['hop'])
+                        # Already tracked
+                        pass
                 
-                # After feedback damping, update the affected_nodes entry for source if it exists
-                if feedback_mode == "realistic" and source_element_id:
-                    # Get actual signal value from database after damping
-                    actual_signal = session.run("""
-                        MATCH (n)
-                        WHERE elementId(n) = $source_id
-                        RETURN n.signal as signal
-                    """, source_id=source_element_id).single()
-                    
-                    if actual_signal and source_element_id in all_affected:
-                        all_affected[source_element_id]['signal'] = actual_signal['signal']
+                # After feedback damping, update source signals in affected_nodes
+                if feedback_mode == "realistic":
+                    for ticker, element_id in source_element_ids.items():
+                        actual_signal = session.run("""
+                            MATCH (n)
+                            WHERE elementId(n) = $source_id
+                            RETURN n.signal as signal
+                        """, source_id=element_id).single()
+                        
+                        if actual_signal and element_id in all_affected:
+                            all_affected[element_id]['signal'] = actual_signal['signal']
                 
                 hop_summary.append({
                     'hop': hop,
-                    'nodes_affected': len(affected_nodes),
-                    'total_signal_magnitude': sum(abs(n['signal']) for n in affected_nodes.values())
+                    'nodes_affected': len(affected_nodes)
                 })
                 
                 print(f"  → {len(affected_nodes)} nodes affected")
@@ -154,28 +231,237 @@ class ModernPropagation:
             # Generate summary
             summary = self._generate_summary(session, all_affected, hop_summary)
             
-            # Add entity tracking to results
             if track_entities:
                 summary['entity_evolution'] = self._get_entity_evolution(track_entities)
             
             return {
-                'source': source_ticker,
-                'shock_magnitude': shock_magnitude,
+                'events': events,
                 'shock_type': shock_type,
                 'affected_nodes': all_affected,
                 'summary': summary,
                 'entity_tracking': dict(self.entity_tracker) if track_entities else {}
             }
     
-    def _snapshot_entities(self, session, entity_ids: List[str], hop: int, phase: str):
-        """
-        Capture current signal state for tracked entities.
+    def _initialize_signal(self, session, ticker: str, magnitude: float):
+        """Set initial signal on source node."""
+        session.run("""
+            MATCH (c:CompanyCanonical {ticker: $ticker})
+            SET c.signal = $magnitude,
+                c.signal_updated = datetime($timestamp)
+        """,
+        ticker=ticker,
+        magnitude=magnitude,
+        timestamp=self.timestamp)
         
-        Args:
-            entity_ids: List of tickers or names to track
-            hop: Current hop number
-            phase: 'initial', 'before', or 'after'
+        print(f"✓ Initialized signal on {ticker}: {magnitude:+.4f}")
+    
+    def _propagate_one_hop(self, 
+                          session,
+                          min_threshold: float,
+                          shock_type: str,
+                          exclude_element_ids: set = None,
+                          hop_number: int = 1) -> Dict:
         """
+        Propagate bounded signals one hop.
+        Signals are attenuated by distance (hop number).
+        """
+        
+        # Attenuation factor: signals weaken over distance
+        distance_decay = 0.7 ** (hop_number - 1)  # 70% per hop
+        
+        where_clauses = [
+            "source.signal IS NOT NULL",
+            "source.signal <> 0",
+            "abs(source.signal) >= $min_threshold"
+        ]
+        
+        if exclude_element_ids:
+            where_clauses.append("NOT elementId(target) IN $exclude_ids")
+        
+        query = f"""
+        MATCH (source)-[r]->(target)
+        WHERE {' AND '.join(where_clauses)}
+        RETURN 
+            elementId(source) as source_id,
+            labels(source)[0] as source_type,
+            COALESCE(source.name, source.ticker) as source_name,
+            source.signal as source_signal,
+            elementId(target) as target_id,
+            labels(target)[0] as target_type,
+            COALESCE(target.name, target.ticker) as target_name,
+            COALESCE(target.ticker, target.name) as target_identifier,
+            type(r) as rel_type,
+            COALESCE(r.weight, 0.5) as edge_weight,
+            COALESCE(r.confidence, 0.8) as edge_confidence,
+            COALESCE(r.direction_value, 0) as direction_value
+        """
+        
+        params = {'min_threshold': min_threshold}
+        if exclude_element_ids:
+            params['exclude_ids'] = list(exclude_element_ids)
+        
+        results = session.run(query, **params)
+        
+        # Group incoming signals by target
+        target_signals = defaultdict(lambda: {
+            'signals': [],
+            'source_count': 0,
+            'paths': []
+        })
+        
+        target_metadata = {}
+        
+        for record in results:
+            source_signal = record['source_signal']
+            edge_weight = record['edge_weight']
+            edge_confidence = record['edge_confidence']
+            direction_value = record['direction_value']
+            rel_type = record['rel_type']
+            
+            # Calculate propagation strength
+            propagation_strength = self._calculate_propagation_multiplier(
+                rel_type=rel_type,
+                edge_weight=edge_weight,
+                edge_confidence=edge_confidence,
+                direction_value=direction_value,
+                shock_type=shock_type
+            )
+            
+            # Apply distance decay
+            propagation_strength *= distance_decay
+            
+            # Calculate propagated signal (stays bounded)
+            propagated_signal = source_signal * propagation_strength
+            
+            # Ensure bounded
+            propagated_signal = max(-1.0, min(1.0, propagated_signal))
+            
+            target_id = record['target_id']
+            target_signals[target_id]['signals'].append(propagated_signal)
+            target_signals[target_id]['source_count'] += 1
+            target_signals[target_id]['paths'].append({
+                'from': record['source_name'],
+                'relationship': rel_type,
+                'contribution': propagated_signal
+            })
+            
+            if target_id not in target_metadata:
+                target_metadata[target_id] = {
+                    'type': record['target_type'],
+                    'name': record['target_name'],
+                    'identifier': record['target_identifier']
+                }
+        
+        # Combine signals at each target using bounded fusion
+        affected_nodes = {}
+        
+        for target_id, signal_data in target_signals.items():
+            # Combine multiple incoming signals
+            combined_signal = self.combine_signals(signal_data['signals'])
+            
+            # Get current signal (for accumulation across hops)
+            current = session.run("""
+                MATCH (n)
+                WHERE elementId(n) = $node_id
+                RETURN COALESCE(n.signal, 0.0) as current_signal
+            """, node_id=target_id).single()
+            
+            current_signal = current['current_signal'] if current else 0.0
+            
+            # Combine with existing signal
+            final_signal = self.combine_signals([current_signal, combined_signal])
+            
+            # Update node
+            session.run("""
+                MATCH (n)
+                WHERE elementId(n) = $node_id
+                SET n.signal = $signal,
+                    n.signal_updated = datetime($timestamp)
+            """,
+            node_id=target_id,
+            signal=final_signal,
+            timestamp=self.timestamp)
+            
+            metadata = target_metadata[target_id]
+            affected_nodes[target_id] = {
+                'name': metadata['name'],
+                'type': metadata['type'],
+                'signal': final_signal,
+                'source_count': signal_data['source_count'],
+                'top_paths': sorted(signal_data['paths'], 
+                                   key=lambda x: abs(x['contribution']), 
+                                   reverse=True)[:3],
+                'hop': hop_number
+            }
+            
+            print(f"  {metadata['type']:15} | {metadata['name']:30} | {final_signal:+.4f}")
+        
+        return affected_nodes
+    
+    def _calculate_propagation_multiplier(self,
+                                         rel_type: str,
+                                         edge_weight: float,
+                                         edge_confidence: float,
+                                         direction_value: float,
+                                         shock_type: str) -> float:
+        """
+        Calculate propagation strength (how much signal passes through edge).
+        Returns value in [0, 1] range typically.
+        """
+        
+        base_strength = edge_weight * edge_confidence
+        
+        if rel_type == "SUPPLIES":
+            if shock_type == "supply_disruption":
+                return base_strength * 0.8  # Strong but not amplifying
+            else:
+                return base_strength * 0.6
+        
+        elif rel_type in ["PRODUCES", "REQUIRED_BY"]:
+            if direction_value != 0:
+                return base_strength * 0.7
+            else:
+                return base_strength * 0.4
+        
+        elif rel_type == "INFLUENCES":
+            return base_strength * 0.6
+        
+        elif rel_type == "BELONGS_TO":
+            return base_strength * 0.5
+        
+        elif rel_type == "LOCATED_IN":
+            if shock_type == "regulatory_change":
+                return base_strength * 0.7
+            else:
+                return base_strength * 0.5
+        
+        else:
+            return base_strength * 0.5
+    
+    def _apply_feedback_damping(self, session, source_element_id: str, 
+                               initial_signal: float, damping_factor: float = 0.1):
+        """Apply conservative damping to feedback."""
+        result = session.run("""
+            MATCH (n)
+            WHERE elementId(n) = $source_id
+            WITH n, n.signal as current_signal, $initial_signal as initial_signal
+            WITH n, current_signal, initial_signal,
+                 current_signal - initial_signal as feedback
+            SET n.signal = initial_signal + (feedback * $damping_factor)
+            RETURN n.signal as new_signal, feedback as feedback_amount
+        """, 
+        source_id=source_element_id, 
+        initial_signal=initial_signal,
+        damping_factor=damping_factor)
+        
+        record = result.single()
+        if record:
+            feedback = record['feedback_amount']
+            if abs(feedback) > 0.001:
+                print(f"  🔄 Feedback damped: {feedback:+.4f} × {damping_factor} = {feedback * damping_factor:+.4f}")
+    
+    def _snapshot_entities(self, session, entity_ids: List[str], hop: int, phase: str):
+        """Capture current signal state for tracked entities."""
         query = """
         MATCH (n)
         WHERE n.ticker IN $entity_ids OR n.name IN $entity_ids
@@ -209,14 +495,12 @@ class ModernPropagation:
                 continue
             
             snapshots = self.entity_tracker[entity_id]
-            
-            # Find before and after for this hop
             before = next((s for s in snapshots if s['hop'] == hop and s['phase'] == 'before'), None)
             after = next((s for s in snapshots if s['hop'] == hop and s['phase'] == 'after'), None)
             
             if before and after:
                 change = after['signal'] - before['signal']
-                if abs(change) > 0.0001:  # Only show meaningful changes
+                if abs(change) > 0.0001:
                     print(f"     {entity_id:15} | {before['signal']:+.4f} → {after['signal']:+.4f} (Δ {change:+.4f})")
                 else:
                     print(f"     {entity_id:15} | {before['signal']:+.4f} (no change)")
@@ -231,12 +515,9 @@ class ModernPropagation:
                 continue
             
             snapshots = self.entity_tracker[entity_id]
-            
-            # Get initial and final states
             initial = next((s for s in snapshots if s['phase'] == 'initial'), None)
             final = snapshots[-1] if snapshots else None
             
-            # Calculate hop-by-hop changes
             hop_changes = []
             for hop_num in set(s['hop'] for s in snapshots if s['hop'] > 0):
                 before = next((s for s in snapshots if s['hop'] == hop_num and s['phase'] == 'before'), None)
@@ -285,7 +566,6 @@ class ModernPropagation:
             print(f"\n📈 {entity_name} ({entity_type})")
             print(f"{'─'*80}")
             
-            # Group by hop
             hops = sorted(set(s['hop'] for s in snapshots))
             
             for hop in hops:
@@ -303,7 +583,6 @@ class ModernPropagation:
                         arrow = "↑" if change > 0 else "↓" if change < 0 else "→"
                         print(f"  Hop {hop}: {before['signal']:+.4f} → {after['signal']:+.4f}  {arrow} {change:+.4f}")
             
-            # Summary
             initial_val = snapshots[0]['signal']
             final_val = snapshots[-1]['signal']
             total_change = final_val - initial_val
@@ -313,207 +592,8 @@ class ModernPropagation:
             print(f"    Final:         {final_val:+.4f}")
             print(f"    Total Change:  {total_change:+.4f}")
     
-    def _apply_feedback_damping(self, session, source_element_id: str, 
-                               initial_signal: float, damping_factor: float = 0.3):
-        """
-        Apply damping to feedback received by source node.
-        
-        In realistic mode, the source can receive feedback, but it's dampened
-        to prevent unrealistic amplification. This models:
-        - Market adaptation and resilience
-        - Management response to cascading effects
-        - Natural friction in economic systems
-        """
-        result = session.run("""
-            MATCH (n)
-            WHERE elementId(n) = $source_id
-            WITH n, n.signal as current_signal, $initial_signal as initial_signal
-            // Calculate feedback component (signal beyond initial shock)
-            WITH n, current_signal, initial_signal,
-                 current_signal - initial_signal as feedback
-            // Apply damping to feedback only
-            SET n.signal = initial_signal + (feedback * $damping_factor)
-            RETURN n.signal as new_signal, feedback as feedback_amount
-        """, 
-        source_id=source_element_id, 
-        initial_signal=initial_signal,
-        damping_factor=damping_factor)
-        
-        record = result.single()
-        if record:
-            feedback = record['feedback_amount']
-            if abs(feedback) > 0.001:
-                print(f"  🔄 Feedback damping applied to source: {feedback:+.4f} × {damping_factor} = {feedback * damping_factor:+.4f}")
-    
-    def _initialize_signal(self, session, ticker: str, magnitude: float):
-        """Set initial signal on source node."""
-        session.run("""
-            MATCH (c:CompanyCanonical {ticker: $ticker})
-            SET c.signal = $magnitude,
-                c.signal_updated = datetime($timestamp)
-        """,
-        ticker=ticker,
-        magnitude=magnitude,
-        timestamp=self.timestamp)
-        
-        print(f"✓ Initialized signal on {ticker}: {magnitude:+.4f}")
-    
-    def _propagate_one_hop(self, 
-                          session,
-                          min_threshold: float,
-                          shock_type: str,
-                          exclude_element_id: str = None) -> Dict:
-        """Propagate signals one hop from all active nodes."""
-        
-        # Build query with optional exclusion of source node
-        where_clauses = [
-            "source.signal IS NOT NULL",
-            "source.signal <> 0",
-            "abs(source.signal) >= $min_threshold"
-        ]
-        
-        if exclude_element_id:
-            where_clauses.append("elementId(target) <> $exclude_id")
-        
-        query = f"""
-        MATCH (source)-[r]->(target)
-        WHERE {' AND '.join(where_clauses)}
-        RETURN 
-            elementId(source) as source_id,
-            labels(source)[0] as source_type,
-            COALESCE(source.name, source.ticker) as source_name,
-            source.signal as source_signal,
-            elementId(target) as target_id,
-            labels(target)[0] as target_type,
-            COALESCE(target.name, target.ticker) as target_name,
-            type(r) as rel_type,
-            COALESCE(r.weight, 0.5) as edge_weight,
-            COALESCE(r.confidence, 0.8) as edge_confidence,
-            COALESCE(r.direction_value, 0) as direction_value,
-            COALESCE(r.decay_rate, 0.0) as decay_rate
-        """
-        
-        params = {'min_threshold': min_threshold}
-        if exclude_element_id:
-            params['exclude_id'] = exclude_element_id
-        
-        results = session.run(query, **params)
-        
-        target_signals = defaultdict(lambda: {
-            'signal': 0.0,
-            'source_count': 0,
-            'paths': []
-        })
-        
-        target_metadata = {}
-        
-        for record in results:
-            source_signal = record['source_signal']
-            edge_weight = record['edge_weight']
-            edge_confidence = record['edge_confidence']
-            direction_value = record['direction_value']
-            rel_type = record['rel_type']
-            
-            propagation_multiplier = self._calculate_propagation_multiplier(
-                rel_type=rel_type,
-                edge_weight=edge_weight,
-                edge_confidence=edge_confidence,
-                direction_value=direction_value,
-                shock_type=shock_type
-            )
-            
-            propagated_signal = source_signal * propagation_multiplier
-            
-            decay_rate = record['decay_rate']
-            if decay_rate > 0:
-                decay_factor = math.exp(-decay_rate * 1.0)
-                propagated_signal *= decay_factor
-            
-            target_id = record['target_id']
-            target_signals[target_id]['signal'] += propagated_signal
-            target_signals[target_id]['source_count'] += 1
-            target_signals[target_id]['paths'].append({
-                'from': record['source_name'],
-                'relationship': rel_type,
-                'contribution': propagated_signal
-            })
-            
-            if target_id not in target_metadata:
-                target_metadata[target_id] = {
-                    'type': record['target_type'],
-                    'name': record['target_name']
-                }
-        
-        affected_nodes = {}
-        
-        for target_id, signal_data in target_signals.items():
-            total_signal = signal_data['signal']
-            
-            session.run("""
-                MATCH (n)
-                WHERE elementId(n) = $node_id
-                SET n.signal = COALESCE(n.signal, 0.0) + $signal,
-                    n.signal_updated = datetime($timestamp)
-            """,
-            node_id=target_id,
-            signal=total_signal,
-            timestamp=self.timestamp)
-            
-            metadata = target_metadata[target_id]
-            affected_nodes[target_id] = {
-                'name': metadata['name'],
-                'type': metadata['type'],
-                'signal': total_signal,
-                'source_count': signal_data['source_count'],
-                'top_paths': sorted(signal_data['paths'], 
-                                   key=lambda x: abs(x['contribution']), 
-                                   reverse=True)[:3],
-                'hop': 1
-            }
-            
-            print(f"  {metadata['type']:15} | {metadata['name']:30} | {total_signal:+.4f}")
-        
-        return affected_nodes
-    
-    def _calculate_propagation_multiplier(self,
-                                         rel_type: str,
-                                         edge_weight: float,
-                                         edge_confidence: float,
-                                         direction_value: float,
-                                         shock_type: str) -> float:
-        """Calculate propagation multiplier based on relationship type."""
-        
-        base_multiplier = edge_weight * edge_confidence
-        
-        if rel_type == "SUPPLIES":
-            if shock_type == "supply_disruption":
-                return base_multiplier * 1.2
-            else:
-                return base_multiplier
-        
-        elif rel_type in ["PRODUCES", "REQUIRED_BY"]:
-            if direction_value != 0:
-                return base_multiplier * abs(direction_value)
-            else:
-                return base_multiplier * 0.5
-        
-        elif rel_type == "INFLUENCES":
-            return base_multiplier
-        
-        elif rel_type == "BELONGS_TO":
-            return base_multiplier * 0.7
-        
-        elif rel_type == "LOCATED_IN":
-            if shock_type == "regulatory_change":
-                return base_multiplier * 1.3
-            else:
-                return base_multiplier * 0.8
-        
-        else:
-            return base_multiplier
-    
     def _generate_summary(self, session, affected_nodes: Dict, hop_summary: List) -> Dict:
-        """Generate summary statistics using actual current signals from database."""
+        """Generate summary statistics using actual current signals."""
         
         if not affected_nodes:
             return {
@@ -523,7 +603,7 @@ class ModernPropagation:
                 'most_affected': []
             }
         
-        # Get current signals from database for accuracy
+        # Get current signals from database
         node_ids = list(affected_nodes.keys())
         current_signals = {}
         
@@ -542,7 +622,6 @@ class ModernPropagation:
             if node_id in affected_nodes:
                 affected_nodes[node_id]['signal'] = signal
         
-        # Count by node type
         by_type = defaultdict(int)
         for node in affected_nodes.values():
             by_type[node['type']] += 1
@@ -576,11 +655,88 @@ class ModernPropagation:
         for node_type, count in sorted(by_type.items(), key=lambda x: -x[1]):
             print(f"  {node_type:20} {count:4} nodes")
         
-        print(f"\nTop 10 Most Affected:")
+        print(f"\nTop 10 Most Affected (by absolute impact):")
         for i, node in enumerate(most_affected, 1):
             print(f"  {i:2}. {node['name']:30} ({node['type']:15}) {node['signal']:+.4f}")
         
         return summary
+    
+    def diagnose_path(self, ticker: str, max_depth: int = 3):
+        """Diagnose signal propagation paths to specific entity."""
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (target {ticker: $ticker})
+                WHERE target.signal IS NOT NULL
+                RETURN 
+                    target.signal as final_signal,
+                    labels(target)[0] as target_type,
+                    target.name as target_name
+            """, ticker=ticker)
+            
+            record = result.single()
+            if not record:
+                print(f"❌ {ticker} not found or has no signal")
+                return
+            
+            print(f"\n{'='*80}")
+            print(f"🔍 SIGNAL DIAGNOSIS: {ticker}")
+            print(f"{'='*80}")
+            print(f"Final Signal: {record['final_signal']:+.4f}")
+            print(f"Type: {record['target_type']}")
+            print(f"\nTracing incoming signals...")
+            
+            paths_query = """
+            MATCH path = (source)-[rels*1..3]->(target {ticker: $ticker})
+            WHERE source.signal IS NOT NULL
+            AND length(path) <= $max_depth
+            WITH path, source, target, rels
+            RETURN 
+                [n in nodes(path) | COALESCE(n.name, n.ticker)] as node_names,
+                [n in nodes(path) | labels(n)[0]] as node_types,
+                [n in nodes(path) | COALESCE(n.signal, 0.0)] as node_signals,
+                [r in rels | type(r)] as rel_types,
+                [r in rels | COALESCE(r.weight, 0.5)] as weights,
+                [r in rels | COALESCE(r.confidence, 0.8)] as confidences,
+                [r in rels | COALESCE(r.direction_value, 0)] as directions,
+                source.signal as source_signal
+            ORDER BY abs(source.signal) DESC
+            LIMIT 10
+            """
+            
+            paths = session.run(paths_query, ticker=ticker, max_depth=max_depth)
+            
+            for i, path in enumerate(paths, 1):
+                print(f"\n{'─'*80}")
+                print(f"PATH {i}:")
+                print(f"{'─'*80}")
+                
+                nodes = path['node_names']
+                types = path['node_types']
+                signals = path['node_signals']
+                rels = path['rel_types']
+                weights = path['weights']
+                confidences = path['confidences']
+                directions = path['directions']
+                
+                current_signal = path['source_signal']
+                print(f"  START: {nodes[0]} ({types[0]}) signal={current_signal:+.4f}")
+                
+                for j in range(len(rels)):
+                    weight = weights[j]
+                    conf = confidences[j]
+                    direction = directions[j]
+                    rel = rels[j]
+                    
+                    multiplier = weight * conf * 0.7  # distance decay
+                    propagated = current_signal * multiplier
+                    propagated = max(-1.0, min(1.0, propagated))
+                    
+                    print(f"    ↓ {rel}")
+                    print(f"      w={weight:.2f} × c={conf:.2f} × decay=0.7 = {multiplier:.3f}")
+                    print(f"      {current_signal:+.4f} × {multiplier:.3f} = {propagated:+.4f}")
+                    print(f"  → {nodes[j+1]} ({types[j+1]}) cumulative={signals[j+1]:+.4f}")
+                    
+                    current_signal = propagated
     
     def reset_signals(self):
         """Clear all propagation signals."""
@@ -601,7 +757,7 @@ class ModernPropagation:
 # ============================================
 
 if __name__ == "__main__":
-    propagator = ModernPropagation(
+    propagator = BoundedPropagation(
         uri="bolt://127.0.0.1:7687",
         user="neo4j",
         password="myhome2911!"
@@ -610,67 +766,41 @@ if __name__ == "__main__":
     try:
         propagator.reset_signals()
         
-        # Track specific entities through propagation
-        entities_to_track = ["QS", "TSLA", "SAMSUNG_AUTO", "F"]
+        entities_to_track = ["QS", "ENPH", "TSLA", "A"]
         
         print("\n" + "="*80)
-        print("SCENARIO: Supply Chain Disruption with Entity Tracking")
+        print("SCENARIO: Multiple Simultaneous Events")
         print("="*80)
         
-        # Example 1: Realistic mode (default) - allows dampened feedback
-        print("\n--- MODE: REALISTIC (Dampened Feedback) ---")
-        propagator.reset_signals()
-        
+        # New multi-event API
         result = propagator.propagate_shock(
-            source_ticker="SAMSUNG_AUTO",
-            shock_magnitude=-0.8,
-            shock_type="supply_disruption",
+            events=[
+                {'ticker': 'QS', 'magnitude': -0.7, 'type': 'supply_disruption'},
+                {'ticker': 'TSLA', 'magnitude': 0.1, 'type': 'demand_surge'},
+                {'ticker': 'A', 'magnitude': -0.2, 'type': 'supply_disruption'}
+            ],
             max_hops=3,
             track_entities=entities_to_track,
-            feedback_mode="realistic"  # Allows 30% of feedback
+            feedback_mode="realistic"
         )
         
         propagator.print_entity_evolution_report(entities_to_track)
         
-        # Example 2: Isolated mode - no feedback to source
+        # Single event still works (backward compatible)
         print("\n\n" + "="*80)
-        print("\n--- MODE: ISOLATED (No Feedback) ---")
+        print("SCENARIO: Single Event (Old API)")
+        print("="*80)
+        
         propagator.reset_signals()
         
         result2 = propagator.propagate_shock(
-            source_ticker="SAMSUNG_AUTO",
-            shock_magnitude=-0.8,
+            source_ticker="QS",
+            shock_magnitude=-0.7,
             shock_type="supply_disruption",
             max_hops=3,
-            track_entities=entities_to_track,
-            feedback_mode="isolated"  # Source remains at initial shock
+            track_entities=["QS", "ENPH"],
+            feedback_mode="realistic"
         )
-        
-        propagator.print_entity_evolution_report(entities_to_track)
-        
-        # Example 3: Full feedback - see the amplification effect
-        print("\n\n" + "="*80)
-        print("\n--- MODE: FULL (Unrestricted Feedback) ---")
-        propagator.reset_signals()
-        
-        result3 = propagator.propagate_shock(
-            source_ticker="SAMSUNG_AUTO",
-            shock_magnitude=-0.8,
-            shock_type="supply_disruption",
-            max_hops=3,
-            track_entities=entities_to_track,
-            feedback_mode="full"  # Can amplify significantly
-        )
-        
-        # Print detailed evolution report
-        propagator.print_entity_evolution_report(entities_to_track)
-        
-        # Access programmatically
-        print("\n\nProgrammatic Access:")
-        for entity_id, evolution in result['summary'].get('entity_evolution', {}).items():
-            print(f"\n{entity_id}:")
-            print(f"  Total Change: {evolution['total_change']:+.4f}")
-            print(f"  Final Signal: {evolution['final_signal']:+.4f}")
         
     finally:
         propagator.close()
