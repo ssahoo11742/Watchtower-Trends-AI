@@ -7,7 +7,7 @@ from .data_driven_metrics import DataDrivenMetrics  # NEW!
 import json
 import math
 from collections import defaultdict
-
+from .supplier_weight import SupplierWeights
 class StaticEdges:
     def __init__(self, ticker, compute_correlations=True, supplier_url=None):
         """
@@ -22,7 +22,7 @@ class StaticEdges:
         self.compute_correlations = compute_correlations
         
         # Initialize data-driven metrics calculator
-        self.metrics = DataDrivenMetrics(ticker)
+        self.metrics = DataDrivenMetrics(ticker, companies_csv="./data/companies.csv")
         
         self.country = self.get_location()
         self.sector = self.get_sector()
@@ -156,15 +156,14 @@ class StaticEdges:
             # Country → Company
             edge = {
                 "type": "country",
-                "magnitude": country_metrics['country_to_company_magnitude'],
-                "relevance": country_metrics['relevance'],
+                "magnitude": country_metrics['country_to_company_weight'],
+                "relevance": country_metrics['country_to_company_confidence'],
                 "direction": "country->company",
                 "data": {
                     "country_name": country,
                     "relationship": "headquarters",
                     "impact_type": "regulatory_environment",
-                    "regulatory_strength": country_metrics['regulatory_strength'],
-                    "revenue_exposure": country_metrics['revenue_exposure']
+
                 }
             }
             
@@ -173,18 +172,19 @@ class StaticEdges:
                     edge['correlation_strength'] = compute_correlation_strength(self.ticker, edge)
                 except Exception as e:
                     print(f"⚠️  Correlation failed: {e}")
-                    edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
+                    edge['correlation_strength'] = country_metrics['correlation_strength']
             else:
                 edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
             
-            edge['weight'] = edge['magnitude'] * edge['relevance']
+            edge['weight'] = country_metrics['country_to_company_weight']
+            edge['confidence'] = country_metrics['country_to_company_confidence']
             edges_list.append(edge)
             
             # Company → Country
             edge = {
                 "type": "country",
-                "magnitude": country_metrics['company_to_country_magnitude'],
-                "relevance": country_metrics['relevance'],
+                "magnitude": country_metrics['company_to_country_weight'],
+                "relevance": country_metrics['company_to_country_confidence'],
                 "direction": "company->country",
                 "data": {
                     "country_name": country,
@@ -200,11 +200,12 @@ class StaticEdges:
                 try:
                     edge['correlation_strength'] = compute_correlation_strength(self.ticker, edge)
                 except:
-                    edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
+                    edge['correlation_strength'] = country_metrics['correlation_strength']
             else:
                 edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
             
-            edge['weight'] = edge['magnitude'] * edge['relevance']
+            edge['weight'] = country_metrics['company_to_country_weight']
+            edge['confidence'] = country_metrics['company_to_country_confidence']
             edges_list.append(edge)
         
         # Sector edges (DATA-DRIVEN)
@@ -217,16 +218,13 @@ class StaticEdges:
             # Sector → Company
             edge = {
                 "type": "sector",
-                "magnitude": sector_metrics['sector_to_company_magnitude'],
-                "relevance": sector_metrics['relevance'],
+                "magnitude": sector_metrics['sector_to_company_weight'],
+                "relevance": sector_metrics['sector_to_company_confidence'],
                 "direction": "sector->company",
                 "data": {
                     "sector_name": sector_name,
                     "classification_level": "sector",
                     "impact_type": "market_trends_regulations",
-                    "sector_beta": sector_metrics['sector_beta'],
-                    "company_beta": sector_metrics['company_beta'],
-                    "beta_similarity": sector_metrics['beta_similarity']
                 }
             }
             
@@ -234,24 +232,24 @@ class StaticEdges:
                 try:
                     edge['correlation_strength'] = compute_correlation_strength(self.ticker, edge)
                 except:
-                    edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
+                    edge['correlation_strength'] = sector_metrics['correlation_strength']
             else:
                 edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
-            
-            edge['weight'] = edge['magnitude'] * edge['relevance']
+
+            edge['weight'] = sector_metrics['sector_to_company_weight']
+            edge['confidence'] = sector_metrics['sector_to_company_confidence']
             edges_list.append(edge)
             
             # Company → Sector
             edge = {
                 "type": "sector",
-                "magnitude": sector_metrics['company_to_sector_magnitude'],
-                "relevance": sector_metrics['relevance'],
+                "magnitude": sector_metrics['company_to_sector_weight'],
+                "relevance": sector_metrics['company_to_sector_confidence'],
                 "direction": "company->sector",
                 "data": {
                     "sector_name": sector_name,
                     "classification_level": "sector",
                     "impact_type": "innovation_disruption",
-                    "market_share_pct": sector_metrics['market_share_pct'],
                     "sector_market_cap": sector_metrics['sector_market_cap']
                 }
             }
@@ -260,11 +258,12 @@ class StaticEdges:
                 try:
                     edge['correlation_strength'] = compute_correlation_strength(self.ticker, edge)
                 except:
-                    edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
+                    edge['correlation_strength'] = sector_metrics['correlation_strength']
             else:
                 edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
             
-            edge['weight'] = edge['magnitude'] * edge['relevance']
+            edge['weight'] = sector_metrics['company_to_sector_weight']
+            edge['confidence'] = sector_metrics['company_to_sector_confidence']
             edges_list.append(edge)
         
         # Industry edges (DATA-DRIVEN)
@@ -276,15 +275,13 @@ class StaticEdges:
             # Industry → Company
             edge = {
                 "type": "industry",
-                "magnitude": industry_metrics['industry_to_company_magnitude'],
-                "relevance": industry_metrics['relevance'],
+                "magnitude": industry_metrics['industry_to_company_weight'],
+                "relevance": industry_metrics['industry_to_company_confidence'],
                 "direction": "industry->company",
                 "data": {
                     "industry_name": industry_name,
                     "classification_level": "industry",
                     "impact_type": "competitive_dynamics",
-                    "industry_beta": industry_metrics['industry_beta'],
-                    "company_beta": industry_metrics['company_beta']
                 }
             }
             
@@ -292,24 +289,24 @@ class StaticEdges:
                 try:
                     edge['correlation_strength'] = compute_correlation_strength(self.ticker, edge)
                 except:
-                    edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
+                    edge['correlation_strength'] = industry_metrics['correlation_strength']
             else:
                 edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
             
-            edge['weight'] = edge['magnitude'] * edge['relevance']
+            edge['weight'] = industry_metrics['industry_to_company_weight']
+            edge['confidence'] = industry_metrics['industry_to_company_confidence']
             edges_list.append(edge)
             
             # Company → Industry
             edge = {
                 "type": "industry",
-                "magnitude": industry_metrics['company_to_industry_magnitude'],
-                "relevance": industry_metrics['relevance'],
+                "magnitude": industry_metrics['company_to_industry_weight'],
+                "relevance": industry_metrics['company_to_industry_confidence'],
                 "direction": "company->industry",
                 "data": {
                     "industry_name": industry_name,
                     "classification_level": "industry",
                     "impact_type": "market_share_innovation",
-                    "market_share_pct": industry_metrics['market_share_pct'],
                     "industry_market_cap": industry_metrics['industry_market_cap']
                 }
             }
@@ -318,11 +315,12 @@ class StaticEdges:
                 try:
                     edge['correlation_strength'] = compute_correlation_strength(self.ticker, edge)
                 except:
-                    edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
+                    edge['correlation_strength'] = industry_metrics['correlation_strength']
             else:
                 edge['correlation_strength'] = edge['magnitude'] * edge['relevance']
             
-            edge['weight'] = edge['magnitude'] * edge['relevance']
+            edge['weight'] = industry_metrics['company_to_industry_weight']
+            edge['confidence'] = industry_metrics['company_to_industry_confidence']
             edges_list.append(edge)
         
         # Supplier edges (already data-driven - shipment counts)
@@ -330,8 +328,9 @@ class StaticEdges:
         if self.suppliers:
             max_shipments = max([int(s.get('total_shipments', '0').replace(',', '')) 
                                 for s in self.suppliers if s.get('total_shipments')] + [1])
-            
-            for supplier in self.suppliers:
+            calculator = SupplierWeights(self.suppliers, self.ticker)
+            enhanced_suppliers = calculator.calculate_all_weights()
+            for supplier in enhanced_suppliers:
                 try:
                     shipments = int(supplier.get('total_shipments', '0').replace(',', ''))
                 except:
@@ -340,7 +339,7 @@ class StaticEdges:
                 raw_magnitude = shipments
                 normalized_magnitude = self._compute_normalized_magnitude(shipments, max_shipments)
                 direction_value = 1
-                weight = normalized_magnitude * direction_value
+                weight = supplier["weight"]
                 
                 edges_list.append({
                     "type": "supplier",
@@ -348,8 +347,8 @@ class StaticEdges:
                     "normalized_magnitude": normalized_magnitude,
                     "direction_value": direction_value,
                     "weight": weight,
-                    "relevance": 0.85,
-                    "correlation_strength": weight * 0.85,
+                    "relevance": supplier.get('confidence', 0.5),
+                    "correlation_strength": weight * supplier.get('confidence', 0.5),
                     "direction": "supplier->company",
                     "data": {
                         "supplier_name": supplier.get('supplier_name', ''),
@@ -370,7 +369,7 @@ class StaticEdges:
                 "type": "produces",
                 "magnitude": round(produce.get('production_value', 0), 6),
                 "relevance": round(produce.get('confidence', 0.5), 4),
-                "correlation_strength": round(produce.get('production_value', 0) * produce.get('confidence', 0.5), 4),
+                "correlation_strength": round(produce.get('production_value', 0), 4),
                 "direction": "company->commodity",
                 "data": {
                     "naics_code": produce.get('naics_code', ''),
@@ -386,7 +385,7 @@ class StaticEdges:
                 "type": "requires",
                 "magnitude": round(require.get('requirement_value', 0), 6),
                 "relevance": round(require.get('confidence', 0.5), 4),
-                "correlation_strength": round(require.get('requirement_value', 0) * require.get('confidence', 0.5), 4),
+                "correlation_strength": round(require.get('requirement_value', 0), 4),
                 "direction": "commodity->company",
                 "data": {
                     "naics_code": require.get('naics_code', ''),
@@ -447,9 +446,9 @@ class StaticEdges:
 if __name__ == "__main__":
     # Example 1: QuantumScape with explicit supplier URL
     edges = StaticEdges(
-        "BA", 
+        "QS", 
         compute_correlations=True,
-        supplier_url="https://www.importyeti.com/company/boeing-commercial-airp"
+        supplier_url="https://www.importyeti.com/company/quantum-scape"
     )
     
     edges.to_neo4j(

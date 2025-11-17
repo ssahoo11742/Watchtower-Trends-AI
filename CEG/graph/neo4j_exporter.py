@@ -536,9 +536,9 @@ class FixedNeo4jExporter:
         """,
         country_name=country_name,
         ticker=ticker,
-        weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-        confidence=edge['relevance'],
-        correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+        weight=edge.get('weight'),
+        confidence=edge.get('confidence', edge['relevance']),
+        correlation_strength=edge.get('correlation_strength'),
         timestamp=self.timestamp,
         decay_rate=self.DECAY_RATES['stable'])
     
@@ -575,9 +575,9 @@ class FixedNeo4jExporter:
             """,
             sector_name=sector_name,
             ticker=ticker,
-            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-            confidence=edge['relevance'],
-            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+            weight=edge.get('weight'),
+            confidence=edge.get('confidence', edge['relevance']),
+            correlation_strength=edge.get('correlation_strength'),
             timestamp=self.timestamp)
         
         else:  # company->sector
@@ -593,9 +593,9 @@ class FixedNeo4jExporter:
             """,
             ticker=ticker,
             sector_name=sector_name,
-            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-            confidence=edge['relevance'],
-            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+            weight=edge.get('weight'),
+            confidence=edge.get('confidence', edge['relevance']),
+            correlation_strength=edge.get('correlation_strength'),
             timestamp=self.timestamp)
             
     def _calculate_classification_confidence(self, info, sector_name):
@@ -645,9 +645,9 @@ class FixedNeo4jExporter:
             """,
             industry_name=industry_name,
             ticker=ticker,
-            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-            confidence=edge['relevance'],
-            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+            weight=edge.get('weight'),
+            confidence=edge.get('confidence', edge['relevance']),
+            correlation_strength=edge.get('correlation_strength'),
             timestamp=self.timestamp)
         
         else:  # company->industry
@@ -663,10 +663,10 @@ class FixedNeo4jExporter:
             """,
             ticker=ticker,
             industry_name=industry_name,
-            weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-            confidence=edge['relevance'],
-            correlation_strength=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
-        timestamp=self.timestamp)
+            weight=edge.get('weight'),
+            confidence=edge.get('confidence', edge['relevance']),
+            correlation_strength=edge.get('correlation_strength'),
+            timestamp=self.timestamp)
         
     def _create_produces_edge(self, session, edge, ticker):
         """Create commodity production relationship."""
@@ -701,8 +701,8 @@ class FixedNeo4jExporter:
         """,
         ticker=ticker,
         naics_code=naics_code,
-        weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-        confidence=edge['relevance'],
+        weight=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+        confidence=min(edge['relevance'],1),
         normalized_magnitude=edge.get('normalized_magnitude'),
         direction_value=edge.get('direction_value', 1),
         timestamp=self.timestamp)
@@ -740,8 +740,8 @@ class FixedNeo4jExporter:
         """,
         naics_code=naics_code,
         ticker=ticker,
-        weight=edge.get('weight', edge['magnitude'] * edge['relevance']),
-        confidence=edge['relevance'],
+        weight=edge.get('correlation_strength', edge['magnitude'] * edge['relevance']),
+        confidence=min(edge['relevance'],1),
         normalized_magnitude=edge.get('normalized_magnitude'),
         direction_value=edge.get('direction_value', -1),
         timestamp=self.timestamp)

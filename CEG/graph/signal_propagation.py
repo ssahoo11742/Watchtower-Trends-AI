@@ -1,13 +1,15 @@
 """
-Bounded Signal Propagation Engine for Neo4j Graph
-=================================================
+Bounded Signal Propagation Engine for Neo4j Graph (Bidirectional)
+=================================================================
 
 Signals represent normalized impact scores in range [-1, 1]:
 - -1.0 = Maximum negative impact (stock expected to do very badly)
 - 0.0 = No impact (neutral)
 - +1.0 = Maximum positive impact (stock expected to do very well)
 
-Signals combine using probabilistic/sentiment fusion, not simple addition.
+Signals propagate in BOTH directions:
+- Forward: Through outgoing relationships (e.g., SUPPLIES, PRODUCES)
+- Backward: Through incoming REQUIRED_BY (splits signal among suppliers)
 """
 
 from neo4j import GraphDatabase
@@ -21,6 +23,7 @@ class BoundedPropagation:
     """
     Propagates bounded sentiment signals through knowledge graph.
     All signals stay within [-1, 1] range.
+    Supports bidirectional propagation.
     """
     
     def __init__(self, uri="bolt://localhost:7687", user="neo4j", password="password"):
@@ -84,7 +87,7 @@ class BoundedPropagation:
                        feedback_mode: str = "realistic",
                        events: List[Dict] = None) -> Dict:
         """
-        Propagate bounded shock(s) through the network.
+        Propagate bounded shock(s) through the network (bidirectional).
         
         Args:
             source_ticker: Single source (deprecated, use events instead)
@@ -118,7 +121,7 @@ class BoundedPropagation:
                 raise ValueError(f"magnitude must be in [-1, 1], got {mag} for {event['ticker']}")
         
         print(f"\n{'='*80}")
-        print(f"🚨 BOUNDED SHOCK PROPAGATION: {len(events)} Event(s)")
+        print(f"🚨 BOUNDED SHOCK PROPAGATION (BIDIRECTIONAL): {len(events)} Event(s)")
         print(f"{'='*80}")
         for event in events:
             ticker = event['ticker']
@@ -175,7 +178,7 @@ class BoundedPropagation:
                 if track_entities:
                     self._snapshot_entities(session, track_entities, hop=hop, phase="before")
                 
-                affected_nodes = self._propagate_one_hop(
+                affected_nodes = self._propagate_one_hop_bidirectional(
                     session,
                     min_threshold=min_propagation_threshold,
                     shock_type=shock_type,
@@ -195,7 +198,7 @@ class BoundedPropagation:
                 
                 if track_entities:
                     self._snapshot_entities(session, track_entities, hop=hop, phase="after")
-                    self._print_entity_changes(track_entities, hop)
+                    self._print_entity_changes(session, track_entities, hop)
                 
                 if not affected_nodes:
                     print(f"✓ No more nodes affected. Stopping at hop {hop}.")
@@ -255,15 +258,17 @@ class BoundedPropagation:
         
         print(f"✓ Initialized signal on {ticker}: {magnitude:+.4f}")
     
-    def _propagate_one_hop(self, 
+    def _propagate_one_hop_bidirectional(self, 
                           session,
                           min_threshold: float,
                           shock_type: str,
                           exclude_element_ids: set = None,
                           hop_number: int = 1) -> Dict:
         """
-        Propagate bounded signals one hop.
-        Signals are attenuated by distance (hop number).
+        Propagate bounded signals one hop in BOTH directions.
+        
+        Forward: (source)-[r]->(target) - normal propagation
+        Backward: (source)<-[REQUIRED_BY]-(supplier) - split signal among suppliers
         """
         
         # Attenuation factor: signals weaken over distance
@@ -278,7 +283,8 @@ class BoundedPropagation:
         if exclude_element_ids:
             where_clauses.append("NOT elementId(target) IN $exclude_ids")
         
-        query = f"""
+        # ===== FORWARD PROPAGATION =====
+        forward_query = f"""
         MATCH (source)-[r]->(target)
         WHERE {' AND '.join(where_clauses)}
         RETURN 
@@ -293,14 +299,92 @@ class BoundedPropagation:
             type(r) as rel_type,
             COALESCE(r.weight, 0.5) as edge_weight,
             COALESCE(r.confidence, 0.8) as edge_confidence,
-            COALESCE(r.direction_value, 0) as direction_value
+            COALESCE(r.direction_value, 0) as direction_value,
+            'forward' as propagation_direction
+        """
+        
+        # ===== BACKWARD PROPAGATION =====
+        # 1. Through RESOLVES_TO: CompanyCanonical <- surface company (propagate TO surface)
+        # 2. Through REQUIRED_BY: Company -> suppliers
+        # 3. Through SUPPLIES: Company <- suppliers (when company is disrupted, suppliers affected)
+        
+        backward_query = f"""
+        // Part 1: RESOLVES_TO relationships (surface -> canonical, propagate TO surface)
+        MATCH (surface)-[r:RESOLVES_TO]->(source)
+        WHERE {' AND '.join(where_clauses.copy())}
+        RETURN 
+            elementId(source) as source_id,
+            labels(source)[0] as source_type,
+            COALESCE(source.name, source.ticker) as source_name,
+            source.signal as source_signal,
+            elementId(surface) as target_id,
+            labels(surface)[0] as target_type,
+            COALESCE(surface.name, surface.ticker) as target_name,
+            COALESCE(surface.ticker, surface.name) as target_identifier,
+            'RESOLVES_TO' as rel_type,
+            COALESCE(r.weight, 0.5) as edge_weight,
+            COALESCE(r.confidence, 0.8) as edge_confidence,
+            COALESCE(r.direction_value, 0) as direction_value,
+            'backward' as propagation_direction,
+            1 as split_count
+        
+        UNION ALL
+        
+        // Part 2: SUPPLIES relationships (supplier -> company, propagate TO supplier)
+        // When a company is disrupted, its suppliers are affected
+        MATCH (supplier)-[r:SUPPLIES]->(source)
+        WHERE {' AND '.join(where_clauses.copy())}
+        WITH source, COUNT(DISTINCT supplier) as total_suppliers
+        MATCH (supplier)-[r:SUPPLIES]->(source)
+        WHERE {' AND '.join(where_clauses.copy())}
+        RETURN 
+            elementId(source) as source_id,
+            labels(source)[0] as source_type,
+            COALESCE(source.name, source.ticker) as source_name,
+            source.signal as source_signal,
+            elementId(supplier) as target_id,
+            labels(supplier)[0] as target_type,
+            COALESCE(supplier.name, supplier.ticker) as target_name,
+            COALESCE(supplier.ticker, supplier.name) as target_identifier,
+            'SUPPLIES' as rel_type,
+            COALESCE(r.weight, 0.5) as edge_weight,
+            COALESCE(r.confidence, 0.8) as edge_confidence,
+            COALESCE(r.direction_value, 0) as direction_value,
+            'backward' as propagation_direction,
+            total_suppliers as split_count
+        
+        UNION ALL
+        
+        // Part 3: REQUIRED_BY relationships (company -> suppliers)
+        MATCH (supplier)-[r:REQUIRED_BY]->(source)
+        WHERE {' AND '.join(where_clauses.copy())}
+        WITH source, COUNT(DISTINCT supplier) as total_suppliers
+        MATCH (supplier)-[r:REQUIRED_BY]->(source)
+        WHERE {' AND '.join(where_clauses.copy())}
+        RETURN 
+            elementId(source) as source_id,
+            labels(source)[0] as source_type,
+            COALESCE(source.name, source.ticker) as source_name,
+            source.signal as source_signal,
+            elementId(supplier) as target_id,
+            labels(supplier)[0] as target_type,
+            COALESCE(supplier.name, supplier.ticker) as target_name,
+            COALESCE(supplier.ticker, supplier.name) as target_identifier,
+            'REQUIRED_BY' as rel_type,
+            COALESCE(r.weight, 0.5) as edge_weight,
+            COALESCE(r.confidence, 0.8) as edge_confidence,
+            COALESCE(r.direction_value, 0) as direction_value,
+            'backward' as propagation_direction,
+            total_suppliers as split_count
         """
         
         params = {'min_threshold': min_threshold}
         if exclude_element_ids:
             params['exclude_ids'] = list(exclude_element_ids)
         
-        results = session.run(query, **params)
+        # Execute both queries
+        forward_results = session.run(forward_query, **params)
+        backward_results = session.run(backward_query, **params)
         
         # Group incoming signals by target
         target_signals = defaultdict(lambda: {
@@ -311,46 +395,34 @@ class BoundedPropagation:
         
         target_metadata = {}
         
-        for record in results:
-            source_signal = record['source_signal']
-            edge_weight = record['edge_weight']
-            edge_confidence = record['edge_confidence']
-            direction_value = record['direction_value']
-            rel_type = record['rel_type']
-            
-            # Calculate propagation strength
-            propagation_strength = self._calculate_propagation_multiplier(
-                rel_type=rel_type,
-                edge_weight=edge_weight,
-                edge_confidence=edge_confidence,
-                direction_value=direction_value,
-                shock_type=shock_type
+        # Process FORWARD propagation
+        print("\n  [FORWARD PROPAGATION]")
+        for record in forward_results:
+            self._process_propagation_record(
+                record, target_signals, target_metadata, 
+                distance_decay, shock_type, hop_number,
+                split_factor=1.0  # No splitting for forward
             )
+        
+        # Process BACKWARD propagation
+        print("\n  [BACKWARD PROPAGATION - through RESOLVES_TO and SUPPLIES to suppliers]")
+        for record in backward_results:
+            split_count = record['split_count']
+            split_factor = 1.0 / split_count if split_count > 0 else 1.0
             
-            # Apply distance decay
-            propagation_strength *= distance_decay
+            rel_type = record['rel_type']
+            if rel_type == 'RESOLVES_TO':
+                print(f"    RESOLVES_TO: {record['source_name']} -> {record['target_name']}")
+            elif rel_type == 'SUPPLIES' and split_count > 1:
+                print(f"    SUPPLIES (backward): Splitting signal among {split_count} suppliers (factor: {split_factor:.3f})")
+            elif rel_type == 'REQUIRED_BY' and split_count > 1:
+                print(f"    REQUIRED_BY: Splitting signal among {split_count} suppliers (factor: {split_factor:.3f})")
             
-            # Calculate propagated signal (stays bounded)
-            propagated_signal = source_signal * propagation_strength
-            
-            # Ensure bounded
-            propagated_signal = max(-1.0, min(1.0, propagated_signal))
-            
-            target_id = record['target_id']
-            target_signals[target_id]['signals'].append(propagated_signal)
-            target_signals[target_id]['source_count'] += 1
-            target_signals[target_id]['paths'].append({
-                'from': record['source_name'],
-                'relationship': rel_type,
-                'contribution': propagated_signal
-            })
-            
-            if target_id not in target_metadata:
-                target_metadata[target_id] = {
-                    'type': record['target_type'],
-                    'name': record['target_name'],
-                    'identifier': record['target_identifier']
-                }
+            self._process_propagation_record(
+                record, target_signals, target_metadata, 
+                distance_decay, shock_type, hop_number,
+                split_factor=split_factor
+            )
         
         # Combine signals at each target using bounded fusion
         affected_nodes = {}
@@ -398,6 +470,50 @@ class BoundedPropagation:
         
         return affected_nodes
     
+    def _process_propagation_record(self, record, target_signals, target_metadata, 
+                                   distance_decay, shock_type, hop_number, split_factor=1.0):
+        """Process a single propagation record (forward or backward)."""
+        source_signal = record['source_signal']
+        edge_weight = record['edge_weight']
+        edge_confidence = record['edge_confidence']
+        direction_value = record['direction_value']
+        rel_type = record['rel_type']
+        
+        # Calculate propagation strength
+        propagation_strength = self._calculate_propagation_multiplier(
+            rel_type=rel_type,
+            edge_weight=edge_weight,
+            edge_confidence=edge_confidence,
+            direction_value=direction_value,
+            shock_type=shock_type
+        )
+        
+        # Apply distance decay and split factor
+        propagation_strength *= distance_decay * split_factor
+        
+        # Calculate propagated signal (stays bounded)
+        propagated_signal = source_signal * propagation_strength
+        
+        # Ensure bounded
+        propagated_signal = max(-1.0, min(1.0, propagated_signal))
+        
+        target_id = record['target_id']
+        target_signals[target_id]['signals'].append(propagated_signal)
+        target_signals[target_id]['source_count'] += 1
+        target_signals[target_id]['paths'].append({
+            'from': record['source_name'],
+            'relationship': rel_type,
+            'contribution': propagated_signal,
+            'direction': record.get('propagation_direction', 'forward')
+        })
+        
+        if target_id not in target_metadata:
+            target_metadata[target_id] = {
+                'type': record['target_type'],
+                'name': record['target_name'],
+                'identifier': record['target_identifier']
+            }
+    
     def _calculate_propagation_multiplier(self,
                                          rel_type: str,
                                          edge_weight: float,
@@ -413,15 +529,19 @@ class BoundedPropagation:
         
         if rel_type == "SUPPLIES":
             if shock_type == "supply_disruption":
-                return base_strength * 0.8  # Strong but not amplifying
+                return base_strength * 0.05  # Strong but not amplifying
             else:
-                return base_strength * 0.6
+                return base_strength * 0.04
         
-        elif rel_type in ["PRODUCES", "REQUIRED_BY"]:
+        elif rel_type in ["PRODUCES", "REQUIRED_BY", "RESOLVES_TO"]:
             if direction_value != 0:
                 return base_strength * 0.7
             else:
-                return base_strength * 0.4
+                # Strong propagation through RESOLVES_TO (canonical -> entity)
+                if rel_type == "RESOLVES_TO":
+                    return base_strength * 0.9  # High fidelity for canonical resolution
+                else:
+                    return base_strength * 0.5  # Default for REQUIRED_BY backward propagation
         
         elif rel_type == "INFLUENCES":
             return base_strength * 0.6
@@ -477,16 +597,77 @@ class BoundedPropagation:
         
         for record in results:
             identifier = record['identifier']
+            node_id = record['node_id']
+            
+            # Get contributing paths if this is an "after" snapshot
+            contributing_paths = []
+            if phase == "after" and hop > 0:
+                contributing_paths = self._get_contributing_paths(session, node_id, hop)
+            
             self.entity_tracker[identifier].append({
                 'hop': hop,
                 'phase': phase,
                 'signal': record['signal'],
                 'name': record['name'],
                 'type': record['type'],
-                'node_id': record['node_id']
+                'node_id': record['node_id'],
+                'contributing_paths': contributing_paths
             })
     
-    def _print_entity_changes(self, entity_ids: List[str], hop: int):
+    def _get_contributing_paths(self, session, target_node_id: str, current_hop: int) -> List[Dict]:
+        """Get the paths that contributed to this node's signal in the current hop."""
+        
+        # Find all nodes that propagated to this target
+        query = """
+        MATCH (source)-[r]->(target)
+        WHERE elementId(target) = $target_id
+        AND source.signal IS NOT NULL
+        AND source.signal <> 0
+        RETURN 
+            COALESCE(source.ticker, source.name) as source_name,
+            labels(source)[0] as source_type,
+            source.signal as source_signal,
+            type(r) as relationship,
+            COALESCE(r.weight, 0.5) as weight,
+            COALESCE(r.confidence, 0.8) as confidence
+        ORDER BY abs(source.signal) DESC
+        LIMIT 5
+        
+        UNION
+        
+        // Backward paths
+        MATCH (source)<-[r]-(target)
+        WHERE elementId(target) = $target_id
+        AND source.signal IS NOT NULL
+        AND source.signal <> 0
+        AND type(r) IN ['REQUIRED_BY', 'SUPPLIES', 'RESOLVES_TO']
+        RETURN 
+            COALESCE(source.ticker, source.name) as source_name,
+            labels(source)[0] as source_type,
+            source.signal as source_signal,
+            type(r) + ' (backward)' as relationship,
+            COALESCE(r.weight, 0.5) as weight,
+            COALESCE(r.confidence, 0.8) as confidence
+        ORDER BY abs(source.signal) DESC
+        LIMIT 5
+        """
+        
+        results = session.run(query, target_id=target_node_id)
+        
+        paths = []
+        for record in results:
+            paths.append({
+                'source': record['source_name'],
+                'source_type': record['source_type'],
+                'source_signal': record['source_signal'],
+                'relationship': record['relationship'],
+                'weight': record['weight'],
+                'confidence': record['confidence']
+            })
+        
+        return paths
+    
+    def _print_entity_changes(self, session, entity_ids: List[str], hop: int):
         """Print changes for tracked entities at this hop."""
         print(f"\n  📊 Tracked Entity Changes (Hop {hop}):")
         
@@ -501,9 +682,17 @@ class BoundedPropagation:
             if before and after:
                 change = after['signal'] - before['signal']
                 if abs(change) > 0.0001:
-                    print(f"     {entity_id:15} | {before['signal']:+.4f} → {after['signal']:+.4f} (Δ {change:+.4f})")
+                    print(f"     {entity_id:15} | {before['signal']:+.6f} → {after['signal']:+.6f} (Δ {change:+.6f})")
+                    
+                    # Print explanation
+                    if after.get('contributing_paths'):
+                        print(f"       └─ Reasons:")
+                        for path in after['contributing_paths'][:3]:  # Top 3 contributors
+                            direction = "↓" if path['source_signal'] < 0 else "↑"
+                            print(f"          • {path['source']} ({path['source_type']}) "
+                                  f"{direction} {path['source_signal']:+.4f} via {path['relationship']}")
                 else:
-                    print(f"     {entity_id:15} | {before['signal']:+.4f} (no change)")
+                    print(f"     {entity_id:15} | {before['signal']:+.6f} (no change)")
     
     def _get_entity_evolution(self, entity_ids: List[str]) -> Dict:
         """Get complete evolution summary for tracked entities."""
@@ -528,7 +717,8 @@ class BoundedPropagation:
                         'hop': hop_num,
                         'before': before['signal'],
                         'after': after['signal'],
-                        'change': after['signal'] - before['signal']
+                        'change': after['signal'] - before['signal'],
+                        'contributing_paths': after.get('contributing_paths', [])
                     })
             
             evolution[entity_id] = {
@@ -591,6 +781,65 @@ class BoundedPropagation:
             print(f"    Initial:       {initial_val:+.4f}")
             print(f"    Final:         {final_val:+.4f}")
             print(f"    Total Change:  {total_change:+.4f}")
+    
+    def print_explanation_report(self, entity_ids: List[str] = None):
+        """Print detailed explanation of why each tracked entity changed."""
+        if not self.entity_tracker:
+            print("No entities tracked in last propagation.")
+            return
+        
+        entities_to_report = entity_ids if entity_ids else list(self.entity_tracker.keys())
+        
+        print(f"\n{'='*80}")
+        print(f"SIGNAL CHANGE EXPLANATION REPORT")
+        print(f"{'='*80}")
+        
+        for entity_id in entities_to_report:
+            if entity_id not in self.entity_tracker:
+                print(f"\n❌ {entity_id}: Not found")
+                continue
+            
+            snapshots = self.entity_tracker[entity_id]
+            entity_name = snapshots[0]['name']
+            entity_type = snapshots[0]['type']
+            
+            print(f"\n{'─'*80}")
+            print(f"📊 {entity_name} ({entity_type})")
+            print(f"{'─'*80}")
+            
+            # Get initial and final states
+            initial = next((s for s in snapshots if s['hop'] == 0), None)
+            final = snapshots[-1] if snapshots else None
+            
+            if initial and final:
+                total_change = final['signal'] - initial['signal']
+                print(f"Initial Signal: {initial['signal']:+.6f}")
+                print(f"Final Signal:   {final['signal']:+.6f}")
+                print(f"Total Change:   {total_change:+.6f}")
+            
+            # Show hop-by-hop explanations
+            hops = sorted(set(s['hop'] for s in snapshots if s['hop'] > 0))
+            
+            for hop in hops:
+                before = next((s for s in snapshots if s['hop'] == hop and s['phase'] == 'before'), None)
+                after = next((s for s in snapshots if s['hop'] == hop and s['phase'] == 'after'), None)
+                
+                if before and after:
+                    change = after['signal'] - before['signal']
+                    
+                    if abs(change) > 0.0001:
+                        print(f"\n  Hop {hop}: {before['signal']:+.6f} → {after['signal']:+.6f} (Δ {change:+.6f})")
+                        
+                        if after.get('contributing_paths'):
+                            print(f"  Contributing factors:")
+                            for i, path in enumerate(after['contributing_paths'], 1):
+                                impact_direction = "negative" if path['source_signal'] < 0 else "positive"
+                                print(f"    {i}. {path['source']} had {impact_direction} signal "
+                                      f"({path['source_signal']:+.4f})")
+                                print(f"       via {path['relationship']} relationship "
+                                      f"(weight: {path['weight']:.2f}, confidence: {path['confidence']:.2f})")
+                    else:
+                        print(f"\n  Hop {hop}: No significant change")
     
     def _generate_summary(self, session, affected_nodes: Dict, hop_summary: List) -> Dict:
         """Generate summary statistics using actual current signals."""
@@ -661,83 +910,6 @@ class BoundedPropagation:
         
         return summary
     
-    def diagnose_path(self, ticker: str, max_depth: int = 3):
-        """Diagnose signal propagation paths to specific entity."""
-        with self.driver.session() as session:
-            result = session.run("""
-                MATCH (target {ticker: $ticker})
-                WHERE target.signal IS NOT NULL
-                RETURN 
-                    target.signal as final_signal,
-                    labels(target)[0] as target_type,
-                    target.name as target_name
-            """, ticker=ticker)
-            
-            record = result.single()
-            if not record:
-                print(f"❌ {ticker} not found or has no signal")
-                return
-            
-            print(f"\n{'='*80}")
-            print(f"🔍 SIGNAL DIAGNOSIS: {ticker}")
-            print(f"{'='*80}")
-            print(f"Final Signal: {record['final_signal']:+.4f}")
-            print(f"Type: {record['target_type']}")
-            print(f"\nTracing incoming signals...")
-            
-            paths_query = """
-            MATCH path = (source)-[rels*1..3]->(target {ticker: $ticker})
-            WHERE source.signal IS NOT NULL
-            AND length(path) <= $max_depth
-            WITH path, source, target, rels
-            RETURN 
-                [n in nodes(path) | COALESCE(n.name, n.ticker)] as node_names,
-                [n in nodes(path) | labels(n)[0]] as node_types,
-                [n in nodes(path) | COALESCE(n.signal, 0.0)] as node_signals,
-                [r in rels | type(r)] as rel_types,
-                [r in rels | COALESCE(r.weight, 0.5)] as weights,
-                [r in rels | COALESCE(r.confidence, 0.8)] as confidences,
-                [r in rels | COALESCE(r.direction_value, 0)] as directions,
-                source.signal as source_signal
-            ORDER BY abs(source.signal) DESC
-            LIMIT 10
-            """
-            
-            paths = session.run(paths_query, ticker=ticker, max_depth=max_depth)
-            
-            for i, path in enumerate(paths, 1):
-                print(f"\n{'─'*80}")
-                print(f"PATH {i}:")
-                print(f"{'─'*80}")
-                
-                nodes = path['node_names']
-                types = path['node_types']
-                signals = path['node_signals']
-                rels = path['rel_types']
-                weights = path['weights']
-                confidences = path['confidences']
-                directions = path['directions']
-                
-                current_signal = path['source_signal']
-                print(f"  START: {nodes[0]} ({types[0]}) signal={current_signal:+.4f}")
-                
-                for j in range(len(rels)):
-                    weight = weights[j]
-                    conf = confidences[j]
-                    direction = directions[j]
-                    rel = rels[j]
-                    
-                    multiplier = weight * conf * 0.7  # distance decay
-                    propagated = current_signal * multiplier
-                    propagated = max(-1.0, min(1.0, propagated))
-                    
-                    print(f"    ↓ {rel}")
-                    print(f"      w={weight:.2f} × c={conf:.2f} × decay=0.7 = {multiplier:.3f}")
-                    print(f"      {current_signal:+.4f} × {multiplier:.3f} = {propagated:+.4f}")
-                    print(f"  → {nodes[j+1]} ({types[j+1]}) cumulative={signals[j+1]:+.4f}")
-                    
-                    current_signal = propagated
-    
     def reset_signals(self):
         """Clear all propagation signals."""
         with self.driver.session() as session:
@@ -750,57 +922,3 @@ class BoundedPropagation:
             
             count = result.single()['cleared']
             print(f"✓ Cleared signals from {count} nodes")
-
-
-# ============================================
-# USAGE EXAMPLES
-# ============================================
-
-if __name__ == "__main__":
-    propagator = BoundedPropagation(
-        uri="bolt://127.0.0.1:7687",
-        user="neo4j",
-        password="myhome2911!"
-    )
-    
-    try:
-        propagator.reset_signals()
-        
-        entities_to_track = ["QS", "ENPH", "TSLA", "A"]
-        
-        print("\n" + "="*80)
-        print("SCENARIO: Multiple Simultaneous Events")
-        print("="*80)
-        
-        # New multi-event API
-        result = propagator.propagate_shock(
-            events=[
-                {'ticker': 'QS', 'magnitude': -0.7, 'type': 'supply_disruption'},
-                {'ticker': 'TSLA', 'magnitude': 0.1, 'type': 'demand_surge'},
-                {'ticker': 'A', 'magnitude': -0.2, 'type': 'supply_disruption'}
-            ],
-            max_hops=3,
-            track_entities=entities_to_track,
-            feedback_mode="realistic"
-        )
-        
-        propagator.print_entity_evolution_report(entities_to_track)
-        
-        # Single event still works (backward compatible)
-        print("\n\n" + "="*80)
-        print("SCENARIO: Single Event (Old API)")
-        print("="*80)
-        
-        propagator.reset_signals()
-        
-        result2 = propagator.propagate_shock(
-            source_ticker="QS",
-            shock_magnitude=-0.7,
-            shock_type="supply_disruption",
-            max_hops=3,
-            track_entities=["QS", "ENPH"],
-            feedback_mode="realistic"
-        )
-        
-    finally:
-        propagator.close()
